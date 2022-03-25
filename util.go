@@ -4,7 +4,6 @@ import (
 	"io"
 	"io/fs"
 	"io/ioutil"
-	"path"
 	"strings"
 
 	"github.com/oam-dev/kubevela/references/cli"
@@ -22,7 +21,7 @@ func SaveToTemp(file fs.File, format string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return path.Join("/var", tempFile.Name()), nil
+	return tempFile.Name(), nil
 }
 
 // CloseQuietly closes `io.Closer` quietly. Very handy and helpful for code
