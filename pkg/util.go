@@ -1,9 +1,12 @@
-package main
+package pkg
 
 import (
 	"io"
 	"io/fs"
 	"io/ioutil"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/oam-dev/kubevela/references/cli"
@@ -45,4 +48,43 @@ func TransArgsToString(args cli.InstallArgs) []string {
 		res = append(res, "--reuse=false")
 	}
 	return res
+}
+
+func WarnSaveToken(token string) {
+	if token == "" {
+		getToken := exec.Command("cat", "/var/lib/rancher/k3s/server/token")
+		_token, err := getToken.Output()
+		if err != nil {
+			errf("Fail to get token, please run `cat /var/lib/rancher/k3s/server/token` and save it.")
+			return
+		}
+		token = string(_token)
+	}
+	info()
+	info("Keep the token below in case of restarting the control plane")
+	info(token)
+}
+
+func Cleanup() error {
+	files, err := filepath.Glob("/var/k3s-setup-*.sh")
+	if err != nil {
+		return err
+	}
+	images, err := filepath.Glob("/var/vela-image-*.tar")
+	if err != nil {
+		return err
+	}
+	charts, err := filepath.Glob("/var/vela-core-*.tgz")
+	if err != nil {
+		return err
+	}
+
+	files = append(files, images...)
+	files = append(files, charts...)
+	for _, f := range files {
+		if err := os.Remove(f); err != nil {
+			return err
+		}
+	}
+	return nil
 }

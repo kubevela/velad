@@ -28,5 +28,4 @@ _.yaml
 _tmp/
 tmp/
 
-vela/images/
-k3s/
+pkg/static

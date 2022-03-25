@@ -8,8 +8,8 @@ vela_images=("oamdev/vela-core:v1.3.0-alpha.1"\
 
 for img in ${vela_images[*]}; do
 	image_name=$(echo $img| cut -f1 -d:| cut -f2 -d/)
-  echo saving $img to vela/images/"$image_name".tar
+  echo saving $img to static/vela/images/"$image_name".tar
   docker pull $img
-  docker save -o vela/images/"$image_name".tar $img
+  docker save -o static/vela/images/"$image_name".tar $img
 done
  
