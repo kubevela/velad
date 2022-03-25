@@ -17,54 +17,36 @@ limitations under the License.
 package main
 
 import (
-	"embed"
 	"fmt"
-	"github.com/oam-dev/kubevela/references/cli"
-	"io"
-	"os"
-	"os/exec"
-	"path"
-	"path/filepath"
-	"strings"
-
-	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
-
 	"github.com/oam-dev/kubevela/pkg/utils/common"
 	cmdutil "github.com/oam-dev/kubevela/pkg/utils/util"
+	"github.com/oam-dev/kubevela/references/cli"
+	"github.com/oam-dev/velad/pkg"
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
+	"os"
+	"os/exec"
 )
 
 var (
 	cArgs              CtrlPlaneArgs
-	k3sBinaryLocation  = "/usr/local/bin/k3s"
-	k3sImageDir        = "/var/lib/rancher/k3s/agent/images/"
-	k3sImageLocation   = "/var/lib/rancher/k3s/agent/images/k3s-airgap-images-amd64.tar.gz"
+
 	kubeConfigLocation = "/etc/rancher/k3s/k3s.yaml"
 
 	info func(a ...interface{})
 	errf func(format string, a ...interface{})
 )
 
-var (
-	//go:embed k3s
-	K3sDirectory embed.FS
-
-	//go:embed vela/images
-	VelaImages embed.FS
-	//go:embed vela/charts
-	VelaChart embed.FS
-)
-
 // CtrlPlaneArgs defines arguments for ctrl-plane command
 type CtrlPlaneArgs struct {
-	TLSSan                    string
+	BindIP                    string
 	DBEndpoint                string
 	IsJoin                    bool
 	Token                     string
 	DisableWorkloadController bool
 	// InstallArgs is parameters passed to vela install command
-	// e.g. "--detail --version=x.y.z"
 	InstallArgs cli.InstallArgs
+
 }
 
 // NewVeladCommand create velad command
@@ -97,7 +79,7 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 			//	return
 			//}
 			defer func() {
-				err := cleanup()
+				err := pkg.Cleanup()
 				if err != nil {
 					errf("Fail to clean up install script: %v", err)
 				}
@@ -120,17 +102,17 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 
 			if !cArgs.IsJoin {
 				// Step.3 load vela-core images
-				err = LoadVelaImages()
+				err = pkg.LoadVelaImages()
 				if err != nil {
 					errf("Fail to load vela images: %v\n", err)
 				}
 
 				// Step.4 save vela-core chart
-				chart, err := PrepareVelaChart()
+				chart, err := pkg.PrepareVelaChart()
 				// Step.5 install vela-core
 				info("Installing vela-core Helm chart...")
 				installCmd := cli.NewInstallCommand(c, "1", ioStreams)
-				installArgs := TransArgsToString(cArgs.InstallArgs)
+				installArgs := pkg.TransArgsToString(cArgs.InstallArgs)
 				if cArgs.DisableWorkloadController {
 					installArgs = append(installArgs, "--set", "podOnly=true", "--set", "image.tag=v1.3.0-alpha.1", "--file", chart)
 				}
@@ -140,14 +122,15 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 					errf("Fail to install vela-core in control plane: %v. You can try \"vela install\" later\n", err)
 					return
 				}
-			}
 
+			}
 			info("Successfully set up KubeVela control plane, run: export KUBECONFIG=$(vela ctrl-plane kubeconfig) to access it")
+			pkg.WarnSaveToken(cArgs.Token)
 		},
 	}
 	cmd.Flags().BoolVar(&cArgs.IsJoin, "join", false, "If set, vela-core won't be installed again")
 	cmd.Flags().StringVar(&cArgs.DBEndpoint, "database-endpoint", "", "Use an external database to store control plane metadata")
-	cmd.Flags().StringVar(&cArgs.TLSSan, "bind-ip", "", "Bind additional hostname or IP in the kubeconfig TLS cert")
+	cmd.Flags().StringVar(&cArgs.BindIP, "bind-ip", "", "Bind additional hostname or IP in the kubeconfig TLS cert")
 	cmd.Flags().StringVar(&cArgs.Token, "token", "", "Token for identify the cluster. Can be used to restart the control plane or register other node. If not set, random token will be generated")
 	cmd.Flags().BoolVar(&cArgs.DisableWorkloadController, "disable-workload-controller", true, "Disable controllers for Deployment/Job/ReplicaSet/StatefulSet/CronJob/DaemonSet")
 
@@ -160,90 +143,22 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 	return cmd
 }
 
-func PrepareVelaChart() (string, error) {
-	charts, err := VelaChart.Open("vela/charts/vela-core.tgz")
-	if err != nil {
-		return "", err
-	}
-	chartFile, err := SaveToTemp(charts, "vela-core-*.tgz")
-	if err != nil {
-		return "", err
-	}
-	// open the tar to /var/charts/vela-core
-	untar := exec.Command("tar", "-xzf", chartFile, "-C", "/var")
-	err = untar.Run()
-	if err != nil {
-		return "", err
-	}
-	return "/var/charts/vela-core", nil
-}
-
-func LoadVelaImages() error {
-	dir, err := VelaImages.ReadDir("vela/images")
-	if err != nil {
-		return err
-	}
-	for _, entry := range dir {
-		file, err := VelaImages.Open(path.Join("vela/images", entry.Name()))
-		if err != nil {
-			return err
-		}
-		name := strings.Split(entry.Name(), ".")[0]
-		imageTar, err := SaveToTemp(file, "vela-image-"+name+"-*.tar")
-		if err != nil {
-			return err
-		}
-		importCmd := exec.Command("k3s", "ctr", "images", "import", imageTar)
-		output, err := importCmd.CombinedOutput()
-		if err != nil {
-			return err
-		}
-		fmt.Print(string(output))
-		fmt.Println("Successfully load image: ", imageTar)
-	}
-	return nil
-}
-
-func cleanup() error {
-	files, err := filepath.Glob("/var/k3s-setup-*.sh")
-	if err != nil {
-		return err
-	}
-	images, err := filepath.Glob("/var/vela-image-*.tar")
-	if err != nil {
-		return err
-	}
-	charts, err := filepath.Glob("/var/vela-core-*.tgz")
-	if err != nil {
-		return err
-	}
-
-	files = append(files, images...)
-	files = append(files, charts...)
-	for _, f := range files {
-		if err := os.Remove(f); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 // SetupK3s will set up K3s as control plane.
 func SetupK3s(cArgs CtrlPlaneArgs) error {
 	info("Preparing cluster setup script...")
-	script, err := PrepareK3sScript()
+	script, err := pkg.PrepareK3sScript()
 	if err != nil {
 		return errors.Wrap(err, "fail to prepare k3s setup script")
 	}
 
 	info("Preparing k3s binary...")
-	err = PrepareK3sBin()
+	err = pkg.PrepareK3sBin()
 	if err != nil {
 		return errors.Wrap(err, "Fail to prepare k3s binary")
 	}
 
 	info("Preparing k3s images")
-	err = PrepareK3sImages()
+	err = pkg.PrepareK3sImages()
 	if err != nil {
 		return errors.Wrap(err, "Fail to prepare k3s images")
 	}
@@ -262,45 +177,14 @@ func SetupK3s(cArgs CtrlPlaneArgs) error {
 	return errors.Wrap(err, "K3s install script failed")
 }
 
-// PrepareK3sImages Write embed images
-func PrepareK3sImages() error {
-	embedK3sImage, err := K3sDirectory.Open("k3s/k3s-airgap-images-amd64.tar.gz")
-	if err != nil {
-		return err
-	}
-	defer CloseQuietly(embedK3sImage)
-	err = os.MkdirAll(k3sImageDir, 600)
-	if err != nil {
-		return err
-	}
-	/* #nosec */
-	bin, err := os.OpenFile(k3sImageLocation, os.O_CREATE|os.O_WRONLY, 0700)
-	if err != nil {
-		return err
-	}
-	defer CloseQuietly(bin)
-	_, err = io.Copy(bin, embedK3sImage)
-	if err != nil {
-		return err
-	}
-	unGzipCmd := exec.Command("gzip", "-f", "-d", k3sImageLocation)
-	output, err := unGzipCmd.CombinedOutput()
-	fmt.Print(string(output))
-	if err != nil {
-		return err
-	}
-	info("Successfully prepare k3s image")
-	return nil
-}
-
 // composeArgs convert args from command to ones passed to k3s install script
 func composeArgs(args CtrlPlaneArgs) []string {
 	var shellArgs []string
 	if args.DBEndpoint != "" {
 		shellArgs = append(shellArgs, "--datastore-endpoint="+args.DBEndpoint)
 	}
-	if args.TLSSan != "" {
-		shellArgs = append(shellArgs, "--tls-san="+args.TLSSan)
+	if args.BindIP != "" {
+		shellArgs = append(shellArgs, "--tls-san="+args.BindIP)
 	}
 	if args.Token != "" {
 		shellArgs = append(shellArgs, "--token="+args.Token)
@@ -311,40 +195,6 @@ func composeArgs(args CtrlPlaneArgs) []string {
 			"--disable", "traefik")
 	}
 	return shellArgs
-}
-
-// PrepareK3sScript Write k3s install script to local
-func PrepareK3sScript() (string, error) {
-	embedScript, err := K3sDirectory.Open("k3s/setup.sh")
-	if err != nil {
-		return "", err
-	}
-	scriptName, err := SaveToTemp(embedScript, "k3s-setup-*.sh")
-	if err != nil {
-		return "", err
-	}
-	return scriptName, nil
-}
-
-// PrepareK3sBin prepare k3s bin
-func PrepareK3sBin() error {
-	embedK3sBinary, err := K3sDirectory.Open("k3s/k3s")
-	if err != nil {
-		return err
-	}
-	defer CloseQuietly(embedK3sBinary)
-	/* #nosec */
-	bin, err := os.OpenFile(k3sBinaryLocation, os.O_CREATE|os.O_WRONLY, 0700)
-	if err != nil {
-		return err
-	}
-	defer CloseQuietly(bin)
-	_, err = io.Copy(bin, embedK3sBinary)
-	if err != nil {
-		return err
-	}
-	info("Successfully place k3s binary to " + k3sBinaryLocation)
-	return nil
 }
 
 // NewKubeConfigCmd create kubeconfig command for ctrl-plane
