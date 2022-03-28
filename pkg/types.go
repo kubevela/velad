@@ -6,10 +6,9 @@ import "github.com/oam-dev/kubevela/references/cli"
 type CtrlPlaneArgs struct {
 	BindIP                    string
 	DBEndpoint                string
-	IsJoin                    bool
+	IsStart                   bool
 	Token                     string
 	DisableWorkloadController bool
 	// InstallArgs is parameters passed to vela install command
 	InstallArgs cli.InstallArgs
 }
-
