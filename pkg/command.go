@@ -214,6 +214,7 @@ func composeArgs(args CtrlPlaneArgs) []string {
 	}
 	if args.Controllers != "*" {
 		shellArgs = append(shellArgs, "--kube-controller-manager-arg=controllers="+args.Controllers)
+		// TODO : deal with coredns/local-path-provisioner/metrics-server Deployment when no deployment controllers
 		if !HaveController(args.Controllers, "job") {
 			// Traefik use Job to install, which is impossible without Job Controller
 			shellArgs = append(shellArgs, "--disable", "traefik")

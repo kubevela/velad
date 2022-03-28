@@ -36,3 +36,22 @@ func TestHaveController(t *testing.T) {
 		}
 	}
 }
+
+func TestIsDeployByPod(t *testing.T) {
+	testCases := []struct {
+		Controllers   string
+		isDeployByPod bool
+	}{
+		{Controllers: "*,-deployment", isDeployByPod: true},
+		{Controllers: "*,-job", isDeployByPod: true},
+		{Controllers: "deployment,job", isDeployByPod: true},
+		{Controllers: "deployment,job,replicaset", isDeployByPod: false},
+		{Controllers: "*", isDeployByPod: false},
+	}
+	for _, tc := range testCases {
+		if IfDeployByPod(tc.Controllers) != tc.isDeployByPod {
+			t.Fatal(tc.Controllers)
+		}
+	}
+
+}
