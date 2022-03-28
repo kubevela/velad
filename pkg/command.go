@@ -5,6 +5,7 @@ import (
 	"github.com/oam-dev/kubevela/pkg/utils/common"
 	cmdutil "github.com/oam-dev/kubevela/pkg/utils/util"
 	"github.com/oam-dev/kubevela/references/cli"
+	"github.com/oam-dev/velad/version"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"os"
@@ -30,6 +31,7 @@ func NewVeladCommand(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command 
 		NewKubeConfigCmd(),
 		NewTokenCmd(),
 		NewUninstallCmd(),
+		NewVersionCmd(),
 	)
 	return cmd
 }
@@ -106,10 +108,12 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 				// Step.5 install vela-core
 				info("Installing vela-core Helm chart...")
 				installCmd := cli.NewInstallCommand(c, "1", ioStreams)
-				installArgs := TransArgsToString(cArgs.InstallArgs)
-				if cArgs.DisableWorkloadController {
-					installArgs = append(installArgs, "--set", "podOnly=true", "--file", chart)
+				installArgs := []string{"--file", chart, "--detail=false", "--version", version.VelaVersion}
+				if IfDeployByPod(cArgs.Controllers) {
+					installArgs = append(installArgs, "--set", "deployByPod=true")
 				}
+				userDefinedArgs := TransArgsToString(cArgs.InstallArgs)
+				installArgs = append(installArgs, userDefinedArgs...)
 				installCmd.SetArgs(installArgs)
 				err = installCmd.Execute()
 				if err != nil {
@@ -129,6 +133,7 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 	cmd.Flags().StringVar(&cArgs.DBEndpoint, "database-endpoint", "", "Use an external database to store control plane metadata, please ref https://rancher.com/docs/k3s/latest/en/installation/datastore/#datastore-endpoint-format-and-functionality for the format")
 	cmd.Flags().StringVar(&cArgs.BindIP, "bind-ip", "", "Bind additional hostname or IP in the kubeconfig TLS cert")
 	cmd.Flags().StringVar(&cArgs.Token, "token", "", "Token for identify the cluster. Can be used to restart the control plane or register other node. If not set, random token will be generated")
+	cmd.Flags().StringVar(&cArgs.Controllers, "controllers", "*", "A list of controllers to enable, check \"--controllers\" argument for more spec in https://kubernetes.io/docs/reference/command-line-tools-reference/kube-controller-manager/")
 	cmd.Flags().BoolVar(&cArgs.DisableWorkloadController, "disable-workload-controller", true, "Disable controllers for Deployment/Job/ReplicaSet/StatefulSet/CronJob/DaemonSet")
 
 	// inherit args from `vela install`
@@ -208,10 +213,12 @@ func composeArgs(args CtrlPlaneArgs) []string {
 	if args.Token != "" {
 		shellArgs = append(shellArgs, "--token="+args.Token)
 	}
-	if args.DisableWorkloadController {
-		shellArgs = append(shellArgs, "--kube-controller-manager-arg=controllers=*,-deployment,-job,-replicaset,-daemonset,-statefulset,-cronjob",
+	if args.Controllers != "*" {
+		shellArgs = append(shellArgs, "--kube-controller-manager-arg=controllers="+args.Controllers)
+		if !HaveController(args.Controllers, "job") {
 			// Traefik use Job to install, which is impossible without Job Controller
-			"--disable", "traefik")
+			shellArgs = append(shellArgs, "--disable", "traefik")
+		}
 	}
 	return shellArgs
 }
@@ -250,4 +257,17 @@ func NewUninstallCmd() *cobra.Command {
 		},
 	}
 	return cmd
+}
+
+func NewVersionCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "version",
+		Short: "Prints velad build version information",
+		Long:  "Prints velad build version information.",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Printf("Core Version: %s", version.VelaVersion)
+		},
+	}
+	return cmd
+
 }

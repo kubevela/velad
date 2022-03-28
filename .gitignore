@@ -28,4 +28,6 @@ _.yaml
 _tmp/
 tmp/
 
-pkg/static
+pkg/static/k3s
+pkg/static/vela/images
+pkg/static/vela/charts/vela-core.tgz

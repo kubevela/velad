@@ -73,10 +73,10 @@ func LoadVelaImages() error {
 		}
 		importCmd := exec.Command("k3s", "ctr", "images", "import", imageTar)
 		output, err := importCmd.CombinedOutput()
+		fmt.Print(string(output))
 		if err != nil {
 			return err
 		}
-		fmt.Print(string(output))
 		fmt.Println("Successfully load image: ", imageTar)
 	}
 	return nil

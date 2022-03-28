@@ -4,6 +4,7 @@ import (
 	"io"
 	"io/fs"
 	"io/ioutil"
+	"k8s.io/utils/strings/slices"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -31,6 +32,25 @@ func SaveToTemp(file fs.File, format string) (string, error) {
 // quality too.
 func CloseQuietly(d io.Closer) {
 	_ = d.Close()
+}
+
+func IfDeployByPod(controllers string) bool {
+	needControllers := []string{"deployment", "job", "replicaset"}
+	for _, c := range needControllers {
+		if !HaveController(controllers, c) {
+			return true
+		}
+	}
+	return false
+}
+
+func HaveController(controllers string, c string) bool {
+	cs := strings.Split(controllers, ",")
+	if slices.Contains(cs, "*") {
+		return !slices.Contains(cs, "-"+c)
+	} else {
+		return slices.Contains(cs, c)
+	}
 }
 
 func TransArgsToString(args cli.InstallArgs) []string {
