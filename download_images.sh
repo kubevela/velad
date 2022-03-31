@@ -4,7 +4,7 @@ VELA_IMAGE_DIR=pkg/static/vela/images
 mkdir -p "$VELA_IMAGE_DIR"
 
 vela_images=("oamdev/vela-core:v1.3.0-alpha.1"
-  "oamdev/cluster-gateway:v1.1.7"
+  "oamdev/cluster-gateway:v1.3.0"
   "oamdev/kube-webhook-certgen:v2.3")
 
 for IMG in ${vela_images[*]}; do

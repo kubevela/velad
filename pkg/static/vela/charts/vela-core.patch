@@ -1,0 +1,720 @@
+diff -ruN vela-core-new/README.md vela-core/README.md
+--- vela-core-new/README.md	2022-03-29 16:58:50.000000000 +0800
++++ vela-core/README.md	2022-03-31 11:40:41.000000000 +0800
+@@ -123,6 +123,7 @@
+ | `logFileMaxSize`             | Defines the maximum size a log file can grow to. Unit is megabytes. If the value is 0, the maximum file size is unlimited. | `1024`  |
+ | `kubeClient.qps`             | The qps for reconcile clients, default is 50                                                                               | `50`    |
+ | `kubeClient.burst`           | The burst for reconcile clients, default is 100                                                                            | `100`   |
++| `deployByPod`                | Use pod instead of Deployment to deploy vela-core                                                                          | `false` |
+ 
+ 
+ ## Uninstalling the Chart
+diff -ruN vela-core-new/templates/_helpers.tpl vela-core/templates/_helpers.tpl
+--- vela-core-new/templates/_helpers.tpl	2022-03-29 16:58:07.000000000 +0800
++++ vela-core/templates/_helpers.tpl	2022-03-24 15:59:38.000000000 +0800
+@@ -76,4 +76,236 @@
+ {{- else -}}
+     {{ .Release.Namespace }}
+ {{- end -}}
+-{{- end -}}
+\ No newline at end of file
++{{- end -}}
++
++{{/*
++PodSpec for both Deployment and Pod
++*/}}
++{{- define "kubevela.podSpec" -}}
++{{- with .Values.imagePullSecrets -}}
++imagePullSecrets:
++{{- toYaml . | nindent 6 -}}
++{{- end -}}
++serviceAccountName: {{ include "kubevela.serviceAccountName" . }}
++securityContext:
++{{- toYaml .Values.podSecurityContext | nindent 2 }}
++containers:
++- name: {{ .Release.Name }}
++  securityContext:
++  {{- toYaml .Values.securityContext | nindent 4 }}
++  args:
++    - "--metrics-addr=:8080"
++    - "--enable-leader-election"
++    {{- if ne .Values.logFilePath "" }}
++    - "--log-file-path={{ .Values.logFilePath }}"
++    - "--log-file-max-size={{ .Values.logFileMaxSize }}"
++    {{ end -}}
++    {{ if .Values.logDebug }}
++    - "--log-debug=true"
++    {{ end }}
++    {{ if .Values.admissionWebhooks.enabled }}
++    - "--use-webhook=true"
++    - "--webhook-port={{ .Values.webhookService.port }}"
++    - "--webhook-cert-dir={{ .Values.admissionWebhooks.certificate.mountPath }}"
++    {{ end }}
++    - "--health-addr=:{{ .Values.healthCheck.port }}"
++    {{ if ne .Values.disableCaps "" }}
++    - "--disable-caps={{ .Values.disableCaps }}"
++    {{ end }}
++    - "--system-definition-namespace={{ include "systemDefinitionNamespace" . }}"
++    - "--application-revision-limit={{ .Values.applicationRevisionLimit }}"
++    - "--definition-revision-limit={{ .Values.definitionRevisionLimit }}"
++    - "--oam-spec-ver={{ .Values.OAMSpecVer }}"
++    {{ if .Values.multicluster.enabled }}
++    - "--enable-cluster-gateway"
++    {{ end }}
++    - "--application-re-sync-period={{ .Values.controllerArgs.reSyncPeriod }}"
++    - "--concurrent-reconciles={{ .Values.concurrentReconciles }}"
++    - "--kube-api-qps={{ .Values.kubeClient.qps }}"
++    - "--kube-api-burst={{ .Values.kubeClient.burst }}"
++    - "--max-workflow-wait-backoff-time={{ .Values.workflow.backoff.maxTime.waitState }}"
++    - "--max-workflow-failed-backoff-time={{ .Values.workflow.backoff.maxTime.failedState }}"
++    - "--max-workflow-step-error-retry-times={{ .Values.workflow.step.errorRetryTimes }}"
++  image: {{ .Values.imageRegistry }}{{ .Values.image.repository }}:{{ .Values.image.tag }}
++  imagePullPolicy: {{ quote .Values.image.pullPolicy }}
++  resources:
++  {{- toYaml .Values.resources | nindent 4 -}}
++  {{ if .Values.admissionWebhooks.enabled }}
++  ports:
++    - containerPort: {{ .Values.webhookService.port }}
++      name: webhook-server
++      protocol: TCP
++    - containerPort: {{ .Values.healthCheck.port }}
++      name: healthz
++      protocol: TCP
++  readinessProbe:
++    httpGet:
++      path: /readyz
++      port: healthz
++    initialDelaySeconds: 30
++    periodSeconds: 5
++  livenessProbe:
++    httpGet:
++      path: /healthz
++      port: healthz
++    initialDelaySeconds: 90
++    periodSeconds: 5
++  volumeMounts:
++    - mountPath: {{ .Values.admissionWebhooks.certificate.mountPath }}
++      name: tls-cert-vol
++      readOnly: true
++  {{ end }}
++{{ if .Values.admissionWebhooks.enabled }}
++volumes:
++- name: tls-cert-vol
++  secret:
++    defaultMode: 420
++    secretName: {{ template "kubevela.fullname" . }}-admission
++{{ end }}
++{{- with .Values.nodeSelector }}
++nodeSelector:
++{{- toYaml . | nindent 6 }}
++{{- end }}
++{{- with .Values.affinity }}
++affinity:
++{{- toYaml . | nindent 8 }}
++{{- end }}
++{{- with .Values.tolerations }}
++tolerations:
++{{- toYaml . | nindent 8 }}
++{{- end }}
++{{ end }}
++
++{{/*
++Cluster Gateway podSpec for both Deployment and Pod
++*/}}
++{{- define "kubevela-cluster-gateway.podSpec" -}}
++{{- with .Values.imagePullSecrets }}
++imagePullSecrets:
++{{- toYaml . | nindent 2 }}
++{{- end }}
++serviceAccountName: {{ include "kubevela.serviceAccountName" . }}
++securityContext:
++{{- toYaml .Values.podSecurityContext | nindent 2 }}
++containers:
++- name: {{ include "kubevela.fullname" . }}-cluster-gateway
++  securityContext:
++  {{- toYaml .Values.securityContext | nindent 6 }}
++  args:
++    - "apiserver"
++    - "--secure-port={{ .Values.multicluster.clusterGateway.port }}"
++    - "--secret-namespace={{ .Release.Namespace }}"
++    - "--feature-gates=APIPriorityAndFairness=false"
++    {{ if .Values.multicluster.clusterGateway.secureTLS.enabled }}
++    - "--cert-dir={{ .Values.multicluster.clusterGateway.secureTLS.certPath }}"
++    {{ end }}
++  image: {{ .Values.imageRegistry }}{{ .Values.multicluster.clusterGateway.image.repository }}:{{ .Values.multicluster.clusterGateway.image.tag }}
++  imagePullPolicy: {{ .Values.multicluster.clusterGateway.image.pullPolicy }}
++  resources:
++  {{- toYaml .Values.multicluster.clusterGateway.resources | nindent 6 }}
++  ports:
++    - containerPort: {{ .Values.multicluster.clusterGateway.port }}
++  {{ if .Values.multicluster.clusterGateway.secureTLS.enabled }}
++  volumeMounts:
++    - mountPath: {{ .Values.multicluster.clusterGateway.secureTLS.certPath }}
++      name: tls-cert-vol
++      readOnly: true
++  {{- end }}
++{{ if .Values.multicluster.clusterGateway.secureTLS.enabled }}
++volumes:
++- name: tls-cert-vol
++  secret:
++    defaultMode: 420
++    secretName: {{ template "kubevela.fullname" . }}-cluster-gateway-tls
++{{ end }}
++{{- with .Values.nodeSelector }}
++nodeSelector:
++{{- toYaml . | nindent 2 }}
++{{- end }}
++{{- with .Values.affinity }}
++affinity:
++{{- toYaml . | nindent 2 }}
++{{- end }}
++{{- with .Values.tolerations }}
++tolerations:
++{{- toYaml . | nindent 2 }}
++{{- end }}
++{{ end }}
++
++{{ define "kubevela-cluster-gateway-tls-secret-patch.name-labels" }}
++name: {{ template "kubevela.fullname" . }}-cluster-gateway-tls-secret-patch
++labels:
++  app: {{ template "kubevela.fullname" . }}-cluster-gateway-tls-secret-patch
++  {{- include "kubevela.labels" . | nindent 2 }}
++{{ end }}
++{{ define "kubevela-cluster-gateway-tls-secret-patch.annotations" }}
++annotations:
++  "helm.sh/hook": post-install,post-upgrade
++  "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
++{{ end }}
++
++{{/*
++Cluster Gateway TLS secret patch podSpec for both Job and Pod
++*/}}
++{{ define "kubevela-cluster-gateway-tls-secret-patch.podSpec" }}
++{{- with .Values.imagePullSecrets }}
++imagePullSecrets:
++{{- toYaml . | nindent 2 }}
++{{- end }}
++containers:
++- name: patch
++  image: {{ .Values.imageRegistry }}{{ .Values.multicluster.clusterGateway.image.repository }}:{{ .Values.multicluster.clusterGateway.image.tag }}
++  imagePullPolicy: {{ .Values.multicluster.clusterGateway.image.pullPolicy }}
++  command:
++    - /patch
++  args:
++    - --secret-namespace={{ .Release.Namespace }}
++    - --secret-name={{ template "kubevela.fullname" . }}-cluster-gateway-tls
++restartPolicy: OnFailure
++serviceAccountName: {{ include "kubevela.serviceAccountName" . }}
++securityContext:
++  runAsGroup: 2000
++  runAsNonRoot: true
++  runAsUser: 2000
++{{ end }}
++
++
++{{ define "kubevela-cluster-gateway-tls-secret-create.name-labels" }}
++name: {{ template "kubevela.fullname" . }}-cluster-gateway-tls-secret-create
++labels:
++  app: {{ template "kubevela.fullname" . }}-cluster-gateway-tls-secret-create
++  {{- include "kubevela.labels" . | nindent 2 }}
++{{ end }}
++
++{{ define "kubevela-cluster-gateway-tls-secret-create.annotations" }}
++annotations:
++  "helm.sh/hook": pre-install,pre-upgrade
++  "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
++{{ end }}
++
++{{/*
++Cluster Gateway TLS secret create podSpec for both Job and Pod
++*/}}
++{{ define "kubevela-cluster-gateway-tls-secret-create.podSpec" }}
++{{- with .Values.imagePullSecrets }}
++imagePullSecrets:
++  {{- toYaml . | nindent 2 }}
++{{- end }}
++containers:
++  - name: create
++    image: {{ .Values.imageRegistry }}{{ .Values.admissionWebhooks.patch.image.repository }}:{{ .Values.admissionWebhooks.patch.image.tag }}
++    imagePullPolicy: {{ .Values.admissionWebhooks.patch.image.pullPolicy }}
++    args:
++      - create
++      - --host={{ .Release.Name }}-cluster-gateway-service,{{ .Release.Name }}-cluster-gateway-service.{{ .Release.Namespace }}.svc
++      - --namespace={{ .Release.Namespace }}
++      - --secret-name={{ template "kubevela.fullname" . }}-cluster-gateway-tls
++      - --key-name=apiserver.key
++      - --cert-name=apiserver.crt
++restartPolicy: OnFailure
++serviceAccountName: {{ template "kubevela.fullname" . }}-cluster-gateway-admission
++securityContext:
++  runAsGroup: 2000
++  runAsNonRoot: true
++  runAsUser: 2000
++{{ end }}
+diff -ruN vela-core-new/templates/admission-webhooks/job-patch/_helper.tpl vela-core/templates/admission-webhooks/job-patch/_helper.tpl
+--- vela-core-new/templates/admission-webhooks/job-patch/_helper.tpl	1970-01-01 08:00:00.000000000 +0800
++++ vela-core/templates/admission-webhooks/job-patch/_helper.tpl	2022-03-24 15:59:38.000000000 +0800
+@@ -0,0 +1,67 @@
++{{ define "kubevela-admission-webhook-patch.Podspec" }}
++{{- with .Values.imagePullSecrets }}
++imagePullSecrets:
++{{- toYaml . | nindent 2 }}
++{{- end }}
++containers:
++  - name: patch
++    image: {{ .Values.imageRegistry }}{{ .Values.admissionWebhooks.patch.image.repository }}:{{ .Values.admissionWebhooks.patch.image.tag }}
++    imagePullPolicy: {{ .Values.admissionWebhooks.patch.image.pullPolicy }}
++    args:
++      - patch
++      - --webhook-name={{ template "kubevela.fullname" . }}-admission
++      - --namespace={{ .Release.Namespace }}
++      - --secret-name={{ template "kubevela.fullname" . }}-admission
++      - --patch-failure-policy={{ .Values.admissionWebhooks.failurePolicy }}
++      - --crds=applications.core.oam.dev
++restartPolicy: OnFailure
++serviceAccountName: {{ template "kubevela.fullname" . }}-admission
++{{- with .Values.admissionWebhooks.patch.affinity }}
++affinity:
++{{ toYaml . | indent 2 }}
++{{- end }}
++{{- with .Values.admissionWebhooks.patch.tolerations }}
++tolerations:
++{{ toYaml . | indent 2 }}
++{{- end }}
++securityContext:
++  runAsGroup: 2000
++  runAsNonRoot: true
++  runAsUser: 2000
++{{ end }}
++
++{{ define "kubevela-admission-webhook-create.podSpec" }}
++{{- with .Values.imagePullSecrets }}
++imagePullSecrets:
++{{- toYaml . | nindent 2 }}
++{{- end }}
++containers:
++  - name: create
++    image: {{ .Values.imageRegistry }}{{ .Values.admissionWebhooks.patch.image.repository }}:{{ .Values.admissionWebhooks.patch.image.tag }}
++    imagePullPolicy: {{ .Values.admissionWebhooks.patch.image.pullPolicy }}
++    args:
++      - create
++      - --host={{ template "kubevela.name" . }}-webhook,{{ template "kubevela.name" . }}-webhook.{{ .Release.Namespace }}.svc
++      - --namespace={{ .Release.Namespace }}
++      - --secret-name={{ template "kubevela.fullname" . }}-admission
++      - --key-name=tls.key
++      - --cert-name=tls.crt
++restartPolicy: OnFailure
++serviceAccountName: {{ template "kubevela.fullname" . }}-admission
++{{- with .Values.admissionWebhooks.patch.nodeSelector }}
++nodeSelector:
++{{- toYaml . | nindent 2 }}
++{{- end }}
++{{- with .Values.admissionWebhooks.patch.affinity }}
++affinity:
++{{ toYaml . | indent 2 }}
++{{- end }}
++{{- with .Values.admissionWebhooks.patch.tolerations }}
++tolerations:
++{{ toYaml . | indent 2 }}
++{{- end }}
++securityContext:
++  runAsGroup: 2000
++  runAsNonRoot: true
++  runAsUser: 2000
++{{ end }}
+\ No newline at end of file
+diff -ruN vela-core-new/templates/admission-webhooks/job-patch/job-createSecret.yaml vela-core/templates/admission-webhooks/job-patch/job-createSecret.yaml
+--- vela-core-new/templates/admission-webhooks/job-patch/job-createSecret.yaml	2022-03-29 16:58:07.000000000 +0800
++++ vela-core/templates/admission-webhooks/job-patch/job-createSecret.yaml	2022-03-31 15:04:00.000000000 +0800
+@@ -1,4 +1,5 @@
+ {{- if and .Values.admissionWebhooks.enabled .Values.admissionWebhooks.patch.enabled (not .Values.admissionWebhooks.certManager.enabled) }}
++{{ if not .Values.deployByPod }}
+ apiVersion: batch/v1
+ kind: Job
+ metadata:
+@@ -22,37 +23,6 @@
+         app: {{ template "kubevela.name" . }}-admission-create
+         {{- include "kubevela.labels" . | nindent 8 }}
+     spec:
+-      {{- with .Values.imagePullSecrets }}
+-      imagePullSecrets:
+-      {{- toYaml . | nindent 8 }}
+-      {{- end }}
+-      containers:
+-        - name: create
+-          image: {{ .Values.imageRegistry }}{{ .Values.admissionWebhooks.patch.image.repository }}:{{ .Values.admissionWebhooks.patch.image.tag }}
+-          imagePullPolicy: {{ .Values.admissionWebhooks.patch.image.pullPolicy }}
+-          args:
+-            - create
+-            - --host={{ template "kubevela.name" . }}-webhook,{{ template "kubevela.name" . }}-webhook.{{ .Release.Namespace }}.svc
+-            - --namespace={{ .Release.Namespace }}
+-            - --secret-name={{ template "kubevela.fullname" . }}-admission
+-            - --key-name=tls.key
+-            - --cert-name=tls.crt
+-      restartPolicy: OnFailure
+-      serviceAccountName: {{ template "kubevela.fullname" . }}-admission
+-      {{- with .Values.admissionWebhooks.patch.nodeSelector }}
+-      nodeSelector:
+-      {{- toYaml . | nindent 8 }}
+-      {{- end }}
+-      {{- with .Values.admissionWebhooks.patch.affinity }}
+-      affinity:
+-{{ toYaml . | indent 8 }}
+-      {{- end }}
+-      {{- with .Values.admissionWebhooks.patch.tolerations }}
+-      tolerations:
+-{{ toYaml . | indent 8 }}
+-      {{- end }}
+-      securityContext:
+-        runAsGroup: 2000
+-        runAsNonRoot: true
+-        runAsUser: 2000
++  {{ include "kubevela-admission-webhook-create.podSpec" . | indent 6 }}
+ {{- end }}
++  {{ end }}
+\ No newline at end of file
+diff -ruN vela-core-new/templates/admission-webhooks/job-patch/job-patchWebhook.yaml vela-core/templates/admission-webhooks/job-patch/job-patchWebhook.yaml
+--- vela-core-new/templates/admission-webhooks/job-patch/job-patchWebhook.yaml	2022-03-29 16:58:07.000000000 +0800
++++ vela-core/templates/admission-webhooks/job-patch/job-patchWebhook.yaml	2022-03-31 15:15:45.000000000 +0800
+@@ -1,4 +1,5 @@
+ {{- if and .Values.admissionWebhooks.enabled .Values.admissionWebhooks.patch.enabled (not .Values.admissionWebhooks.certManager.enabled) }}
++{{ if not .Values.deployByPod }}
+ apiVersion: batch/v1
+ kind: Job
+ metadata:
+@@ -22,33 +23,6 @@
+         app: {{ template "kubevela.name" . }}-admission-patch
+         {{- include "kubevela.labels" . | nindent 8 }}
+     spec:
+-      {{- with .Values.imagePullSecrets }}
+-      imagePullSecrets:
+-      {{- toYaml . | nindent 8 }}
+-      {{- end }}
+-      containers:
+-        - name: patch
+-          image: {{ .Values.imageRegistry }}{{ .Values.admissionWebhooks.patch.image.repository }}:{{ .Values.admissionWebhooks.patch.image.tag }}
+-          imagePullPolicy: {{ .Values.admissionWebhooks.patch.image.pullPolicy }}
+-          args:
+-            - patch
+-            - --webhook-name={{ template "kubevela.fullname" . }}-admission
+-            - --namespace={{ .Release.Namespace }}
+-            - --secret-name={{ template "kubevela.fullname" . }}-admission
+-            - --patch-failure-policy={{ .Values.admissionWebhooks.failurePolicy }}
+-            - --crds=applications.core.oam.dev
+-      restartPolicy: OnFailure
+-      serviceAccountName: {{ template "kubevela.fullname" . }}-admission
+-      {{- with .Values.admissionWebhooks.patch.affinity }}
+-      affinity:
+-{{ toYaml . | indent 8 }}
+-      {{- end }}
+-      {{- with .Values.admissionWebhooks.patch.tolerations }}
+-      tolerations:
+-{{ toYaml . | indent 8 }}
+-      {{- end }}
+-      securityContext:
+-        runAsGroup: 2000
+-        runAsNonRoot: true
+-        runAsUser: 2000
++  {{ include "kubevela-admission-webhook-patch.Podspec" . | indent 6 }}
++  {{ end }}
+ {{- end }}
+diff -ruN vela-core-new/templates/cluster-gateway.yaml vela-core/templates/cluster-gateway.yaml
+--- vela-core-new/templates/cluster-gateway.yaml	2022-03-29 16:58:50.000000000 +0800
++++ vela-core/templates/cluster-gateway.yaml	2022-03-31 15:14:26.000000000 +0800
+@@ -1,4 +1,5 @@
+ {{ if .Values.multicluster.enabled }}
++{{ if not .Values.deployByPod }}
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -16,62 +17,14 @@
+       labels:
+       {{- include "kubevela-cluster-gateway.selectorLabels" . | nindent 8 }}
+     spec:
+-      {{- with .Values.imagePullSecrets }}
+-      imagePullSecrets:
+-      {{- toYaml . | nindent 8 }}
+-      {{- end }}
+-      serviceAccountName: {{ include "kubevela.serviceAccountName" . }}
+-      securityContext:
+-      {{- toYaml .Values.podSecurityContext | nindent 8 }}
+-      containers:
+-        - name: {{ include "kubevela.fullname" . }}-cluster-gateway
+-          securityContext:
+-          {{- toYaml .Values.securityContext | nindent 12 }}
+-          args:
+-            - "apiserver"
+-            - "--secure-port={{ .Values.multicluster.clusterGateway.port }}"
+-            - "--secret-namespace={{ .Release.Namespace }}"
+-            - "--feature-gates=APIPriorityAndFairness=false"
+-            {{ if .Values.multicluster.clusterGateway.secureTLS.enabled }}
+-            - "--cert-dir={{ .Values.multicluster.clusterGateway.secureTLS.certPath }}"
+-            {{ end }}
+-          image: {{ .Values.imageRegistry }}{{ .Values.multicluster.clusterGateway.image.repository }}:{{ .Values.multicluster.clusterGateway.image.tag }}
+-          imagePullPolicy: {{ .Values.multicluster.clusterGateway.image.pullPolicy }}
+-          resources:
+-          {{- toYaml .Values.multicluster.clusterGateway.resources | nindent 12 }}
+-          ports:
+-            - containerPort: {{ .Values.multicluster.clusterGateway.port }}
+-          {{ if .Values.multicluster.clusterGateway.secureTLS.enabled }}
+-          volumeMounts:
+-            - mountPath: {{ .Values.multicluster.clusterGateway.secureTLS.certPath }}
+-              name: tls-cert-vol
+-              readOnly: true
+-          {{- end }}
+-      {{ if .Values.multicluster.clusterGateway.secureTLS.enabled }}
+-      volumes:
+-        - name: tls-cert-vol
+-          secret:
+-            defaultMode: 420
+-            secretName: {{ template "kubevela.fullname" . }}-cluster-gateway-tls
+-      {{ end }}
+-      {{- with .Values.nodeSelector }}
+-      nodeSelector:
+-      {{- toYaml . | nindent 8 }}
+-      {{- end }}
+-      {{- with .Values.affinity }}
+-      affinity:
+-      {{- toYaml . | nindent 8 }}
+-      {{- end }}
+-      {{- with .Values.tolerations }}
+-      tolerations:
+-      {{- toYaml . | nindent 8 }}
+-      {{- end }}
++  {{- include "kubevela-cluster-gateway.podSpec" . | nindent 6}}
+   strategy:
+     type: RollingUpdate
+     rollingUpdate:
+       maxSurge: 1
+       maxUnavailable: 1
+ {{ end }}
++{{ end }}
+ ---
+ {{ if .Values.multicluster.enabled }}
+ apiVersion: v1
+@@ -185,17 +138,13 @@
+ {{- end }}
+ ---
+ {{ if and .Values.multicluster.enabled .Values.multicluster.clusterGateway.secureTLS.enabled }}
++{{ if not .Values.deployByPod }}
+ apiVersion: batch/v1
+ kind: Job
+ metadata:
+-  name: {{ template "kubevela.fullname" . }}-cluster-gateway-tls-secret-create
+   namespace: {{ .Release.Namespace }}
+-  annotations:
+-    "helm.sh/hook": pre-install,pre-upgrade
+-    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+-  labels:
+-    app: {{ template "kubevela.fullname" . }}-cluster-gateway-tls-secret-create
+-    {{- include "kubevela.labels" . | nindent 4 }}
++  {{ include "kubevela-cluster-gateway-tls-secret-create.annotations" . | indent 2 }}
++  {{ include "kubevela-cluster-gateway-tls-secret-create.name-labels" . | indent 2 }}
+ spec:
+   {{- if .Capabilities.APIVersions.Has "batch/v1alpha1" }}
+   # Alpha feature since k8s 1.12
+@@ -203,46 +152,20 @@
+   {{- end }}
+   template:
+     metadata:
+-      name: {{ template "kubevela.fullname" . }}-cluster-gateway-tls-secret-create
+-      labels:
+-        app: {{ template "kubevela.fullname" . }}-cluster-gateway-tls-secret-create
+-        {{- include "kubevela.labels" . | nindent 8 }}
++    {{ include "kubevela-cluster-gateway-tls-secret-create.name-labels" . | indent 6 }}
+     spec:
+-      {{- with .Values.imagePullSecrets }}
+-      imagePullSecrets:
+-      {{- toYaml . | nindent 8 }}
+-      {{- end }}
+-      containers:
+-      - name: create
+-        image: {{ .Values.imageRegistry }}{{ .Values.admissionWebhooks.patch.image.repository }}:{{ .Values.admissionWebhooks.patch.image.tag }}
+-        imagePullPolicy: {{ .Values.admissionWebhooks.patch.image.pullPolicy }}
+-        args:
+-          - create
+-          - --host={{ .Release.Name }}-cluster-gateway-service,{{ .Release.Name }}-cluster-gateway-service.{{ .Release.Namespace }}.svc
+-          - --namespace={{ .Release.Namespace }}
+-          - --secret-name={{ template "kubevela.fullname" . }}-cluster-gateway-tls
+-          - --key-name=apiserver.key
+-          - --cert-name=apiserver.crt
+-      restartPolicy: OnFailure
+-      serviceAccountName: {{ template "kubevela.fullname" . }}-cluster-gateway-admission
+-      securityContext:
+-        runAsGroup: 2000
+-        runAsNonRoot: true
+-        runAsUser: 2000
+-{{ end }}
++  {{ include "kubevela-cluster-gateway-tls-secret-create.podSpec" . | indent 6}}
++  {{ end }}
++  {{ end }}
+ ---
+ {{ if and .Values.multicluster.enabled .Values.multicluster.clusterGateway.secureTLS.enabled }}
++{{ if not .Values.deployByPod }}
+ apiVersion: batch/v1
+ kind: Job
+ metadata:
+-  name: {{ template "kubevela.fullname" . }}-cluster-gateway-tls-secret-patch
+   namespace: {{ .Release.Namespace }}
+-  annotations:
+-    "helm.sh/hook": post-install,post-upgrade
+-    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+-  labels:
+-    app: {{ template "kubevela.fullname" . }}-cluster-gateway-tls-secret-patch
+-    {{- include "kubevela.labels" . | nindent 4 }}
++  {{ include "kubevela-cluster-gateway-tls-secret-patch.name-labels" . | indent 2 }}
++  {{ include "kubevela-cluster-gateway-tls-secret-patch.annotations" . | indent 2 }}
+ spec:
+   {{- if .Capabilities.APIVersions.Has "batch/v1alpha1" }}
+   # Alpha feature since k8s 1.12
+@@ -250,28 +173,8 @@
+   {{- end }}
+   template:
+     metadata:
+-      name: {{ template "kubevela.fullname" . }}-cluster-gateway-tls-secret-patch
+-      labels:
+-        app: {{ template "kubevela.fullname" . }}-cluster-gateway-tls-secret-patch
+-        {{- include "kubevela.labels" . | nindent 8 }}
++    {{ include "kubevela-cluster-gateway-tls-secret-patch.name-labels" . | indent 6 }}
+     spec:
+-      {{- with .Values.imagePullSecrets }}
+-      imagePullSecrets:
+-      {{- toYaml . | nindent 8 }}
+-      {{- end }}
+-      containers:
+-      - name: patch
+-        image: {{ .Values.imageRegistry }}{{ .Values.multicluster.clusterGateway.image.repository }}:{{ .Values.multicluster.clusterGateway.image.tag }}
+-        imagePullPolicy: {{ .Values.multicluster.clusterGateway.image.pullPolicy }}
+-        command:
+-          - /patch
+-        args:
+-          - --secret-namespace={{ .Release.Namespace }}
+-          - --secret-name={{ template "kubevela.fullname" . }}-cluster-gateway-tls
+-      restartPolicy: OnFailure
+-      serviceAccountName: {{ include "kubevela.serviceAccountName" . }}
+-      securityContext:
+-        runAsGroup: 2000
+-        runAsNonRoot: true
+-        runAsUser: 2000
+-{{ end }}
+\ No newline at end of file
++  {{ include "kubevela-cluster-gateway-tls-secret-patch.podSpec" . | indent 6}}
++  {{ end }}
++{{ end }}
+diff -ruN vela-core-new/templates/kubevela-controller.yaml vela-core/templates/kubevela-controller.yaml
+--- vela-core-new/templates/kubevela-controller.yaml	2022-03-29 16:58:07.000000000 +0800
++++ vela-core/templates/kubevela-controller.yaml	2022-03-31 15:20:32.000000000 +0800
+@@ -74,6 +74,7 @@
+     name: {{ include "kubevela.serviceAccountName" . }}
+ 
+ ---
++{{ if not .Values.deployByPod }}
+ apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+@@ -186,4 +187,5 @@
+       {{- with .Values.tolerations }}
+       tolerations:
+     {{- toYaml . | nindent 8 }}
+-  {{- end }}
+\ No newline at end of file
++  {{- end }}
++{{ end }}
+\ No newline at end of file
+diff -ruN vela-core-new/templates/pod-only/pod-only-manifest.yaml vela-core/templates/pod-only/pod-only-manifest.yaml
+--- vela-core-new/templates/pod-only/pod-only-manifest.yaml	1970-01-01 08:00:00.000000000 +0800
++++ vela-core/templates/pod-only/pod-only-manifest.yaml	2022-03-28 17:41:46.000000000 +0800
+@@ -0,0 +1,83 @@
++{{ if .Values.deployByPod}}
++apiVersion: v1
++kind: Pod
++metadata:
++  name: {{ include "kubevela.fullname" . }}
++  namespace: {{ .Release.Namespace }}
++  labels:
++  {{- include "kubevela.labels" . | nindent 4 }}
++  annotations:
++    prometheus.io/path: /metrics
++    prometheus.io/port: "8080"
++    prometheus.io/scrape: "true"
++spec:
++  {{- include "kubevela.podSpec" . | nindent 2}}
++
++---
++
++apiVersion: v1
++kind: Pod
++metadata:
++  {{ include "kubevela-cluster-gateway-tls-secret-create.annotations" . | indent 2 }}
++  {{ include "kubevela-cluster-gateway-tls-secret-create.name-labels" . | indent 2 }}
++spec:
++  {{ include "kubevela-cluster-gateway-tls-secret-create.podSpec" . | indent 2}}
++
++---
++
++apiVersion: v1
++kind: Pod
++metadata:
++  name: {{ .Release.Name }}-cluster-gateway
++  namespace: {{ .Release.Namespace }}
++  labels:
++  {{- include "kubevela-cluster-gateway.selectorLabels" . | nindent 4 }}
++spec:
++  {{- include "kubevela-cluster-gateway.podSpec" . | nindent 2}}
++
++---
++
++apiVersion: v1
++kind: Pod
++metadata:
++  namespace: {{ .Release.Namespace }}
++  {{ include "kubevela-cluster-gateway-tls-secret-patch.name-labels" . | indent 2 }}
++  {{ include "kubevela-cluster-gateway-tls-secret-patch.annotations" . | indent 2 }}
++spec:
++  {{- include "kubevela-cluster-gateway-tls-secret-patch.podSpec" . | nindent 2}}
++
++---
++
++apiVersion: v1
++kind: Pod
++metadata:
++  name: {{ template "kubevela.fullname" . }}-admission-create
++  namespace: {{ .Release.Namespace }}
++  annotations:
++    "helm.sh/hook": pre-install,pre-upgrade
++    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
++  labels:
++    app: {{ template "kubevela.name" . }}-admission-create
++  {{- include "kubevela.labels" . | nindent 4 }}
++spec:
++  {{ include "kubevela-admission-webhook-create.podSpec" . | indent 2 }}
++
++---
++
++apiVersion: v1
++kind: Pod
++metadata:
++  name: {{ template "kubevela.fullname" . }}-admission-patch
++  namespace: {{ .Release.Namespace }}
++  annotations:
++    "helm.sh/hook": post-install,post-upgrade
++    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
++  labels:
++    app: {{ template "kubevela.name" . }}-admission-patch
++  {{- include "kubevela.labels" . | nindent 4 }}
++spec:
++  {{ include "kubevela-admission-webhook-patch.Podspec" . | indent 2 }}
++---
++
++{{ end }}
++
+diff -ruN vela-core-new/values.yaml vela-core/values.yaml
+--- vela-core-new/values.yaml	2022-03-29 16:58:50.000000000 +0800
++++ vela-core/values.yaml	2022-03-31 11:40:41.000000000 +0800
+@@ -210,3 +210,6 @@
+ kubeClient:
+   qps: 50
+   burst: 100
++
++## @param deployByPod Use pod instead of Deployment to deploy vela-core
++deployByPod: false

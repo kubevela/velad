@@ -90,11 +90,11 @@ spec:
   template:
     metadata:
       labels:
-      {{- include "kubevela.selectorLabels" . | nindent 8 }}
+    {{- include "kubevela.selectorLabels" . | nindent 8 }}
       annotations:
-        prometheus.io/path: /metrics
-        prometheus.io/port: "8080"
-        prometheus.io/scrape: "true"
+          prometheus.io/path: /metrics
+          prometheus.io/port: "8080"
+          prometheus.io/scrape: "true"
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -168,7 +168,7 @@ spec:
             - mountPath: {{ .Values.admissionWebhooks.certificate.mountPath }}
               name: tls-cert-vol
               readOnly: true
-      {{ end }}
+          {{ end }}
       {{ if .Values.admissionWebhooks.enabled }}
       volumes:
         - name: tls-cert-vol
@@ -186,7 +186,6 @@ spec:
       {{- end }}
       {{- with .Values.tolerations }}
       tolerations:
-  {{- toYaml . | nindent 8 }}
+    {{- toYaml . | nindent 8 }}
   {{- end }}
-
 {{ end }}
