@@ -8,6 +8,9 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ github.token }}
+  ENDPOINT: ${{ secrets.OSS_ENDPOINT }}
+  ACCESS_KEY: ${{ secrets.OSS_ACCESS_KEY }}
+  ACCESS_KEY_SECRET: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
 
 jobs:
   build:
@@ -77,3 +80,12 @@ jobs:
           name: sha256sums
           path: ./_bin/sha256-${{ steps.get_matrix.outputs.OS }}-${{ steps.get_matrix.outputs.ARCH }}.txt
           retention-days: 1
+      - name: Install ossutil
+        run: wget http://gosspublic.alicdn.com/ossutil/1.7.0/ossutil64 && chmod +x ossutil64 && mv ossutil64 ossutil
+      - name: Configure Alibaba Cloud OSSUTIL
+        run: ./ossutil --config-file .ossutilconfig config -i ${ACCESS_KEY} -k ${ACCESS_KEY_SECRET} -e ${ENDPOINT}
+      - name: Upload to OSS
+        run: |
+          ./ossutil --config-file .ossutilconfig cp\
+          ./_bin/velad/velad-${{ steps.get_matrix.outputs.OS }}-${{ steps.get_matrix.outputs.ARCH }}.tar.gz\
+          oss://kubevela-docs/binary/velad/velad-${{ steps.get_matrix.outputs.OS }}-${{ steps.get_matrix.outputs.ARCH }}.tar.gz
