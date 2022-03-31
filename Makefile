@@ -20,7 +20,9 @@ pack_vela_chart:
 	#tar -xzf ${CHART_DIR}/vela-core-${VELA_VERSION}.tgz -C ${CHART_DIR}
 	#patch -s -p1 -t -D ${CHART_DIR}/vela-core-${VELA_VERSION} < ${CHART_DIR}/vela-core.patch
 
-	tar -czf ${STATIC_DIR}/vela/charts/vela-core.tgz ${STATIC_DIR}/vela/charts/vela-core
+	cp -r ${STATIC_DIR}/vela/charts/vela-core .
+	tar -czf ${STATIC_DIR}/vela/charts/vela-core.tgz vela-core
+	rm -r vela-core
 
 .PHONY: clean
 clean:

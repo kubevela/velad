@@ -94,12 +94,16 @@ func Cleanup() error {
 	if err != nil {
 		return err
 	}
-	charts, err := filepath.Glob("/var/vela-core-*.tgz")
+	chartsTgz, err := filepath.Glob("/var/vela-core-*.tgz")
 	if err != nil {
 		return err
 	}
-
+	charts, err := filepath.Glob("/var/vela-core")
+	if err != nil {
+		return err
+	}
 	files = append(files, images...)
+	files = append(files, chartsTgz...)
 	files = append(files, charts...)
 	for _, f := range files {
 		if err := os.Remove(f); err != nil {

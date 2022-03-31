@@ -53,7 +53,7 @@ func PrepareVelaChart() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return "/var/charts/vela-core", nil
+	return "/var/vela-core", nil
 }
 
 func LoadVelaImages() error {
@@ -146,5 +146,3 @@ func PrepareK3sBin() error {
 	info("Successfully place k3s binary to " + k3sBinaryLocation)
 	return nil
 }
-
-
