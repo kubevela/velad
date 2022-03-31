@@ -3,7 +3,7 @@
 VELA_IMAGE_DIR=pkg/static/vela/images
 mkdir -p "$VELA_IMAGE_DIR"
 
-vela_images=("oamdev/vela-core:v1.3.0-alpha.1"
+vela_images=("oamdev/vela-core:v1.3.0-beta.2"
   "oamdev/cluster-gateway:v1.3.0"
   "oamdev/kube-webhook-certgen:v2.3")
 
