@@ -7,7 +7,7 @@ on:
   workflow_dispatch: { }
 
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_TOKEN: ${{ github.token }}
 
 jobs:
   build:
@@ -30,6 +30,8 @@ jobs:
       - name: Get release
         id: get_release
         uses: bruceadams/get-release@v1.2.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - name: Get version
         run: echo "VELAD_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
       - name: Get matrix
