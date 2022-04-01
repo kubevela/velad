@@ -17,6 +17,7 @@ var (
 	cArgs                      CtrlPlaneArgs
 	kubeConfigLocation         = "/etc/rancher/k3s/k3s.yaml"
 	externalKubeConfigLocation = "/etc/rancher/k3s/k3s-external.yaml"
+	VelaLinkPos                = "/usr/local/bin/vela"
 )
 
 // NewVeladCommand create velad command
@@ -36,8 +37,6 @@ func NewVeladCommand() *cobra.Command {
 		NewTokenCmd(),
 		NewUninstallCmd(),
 		NewVersionCmd(),
-
-		NewVelaCmd(),
 	)
 	return cmd
 }
@@ -84,7 +83,7 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 			defer func() {
 				err := Cleanup()
 				if err != nil {
-					errf("Fail to clean up install script: %v", err)
+					errf("Fail to clean up install script: %v\n", err)
 				}
 			}()
 
@@ -102,6 +101,8 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 				errf("Fail to set KUBECONFIG environment var: %v\n", err)
 				return
 			}
+
+			LinkToVela()
 
 			if !cArgs.IsStart {
 				// Step.3 load vela-core images
@@ -130,8 +131,6 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 					errf("Didn't install vela-core in control plane: %v. You can try \"vela install\" later\n", err)
 				}
 			}
-
-			LinkToVela()
 
 			// Step.6 Generate external kubeconfig
 			err = GenKubeconfig(cArgs.BindIP)
@@ -241,9 +240,15 @@ func LinkToVela() {
 	if err == nil {
 		return
 	}
-	linkPos := "/usr/local/bin/vela"
-	fmt.Println("Creating symlink to", linkPos)
-	exec.Command("ln", "-sf", "velad", linkPos)
+	info("Creating symlink to", VelaLinkPos)
+	link := exec.Command("ln", "-sf", "velad", VelaLinkPos)
+	output, err := link.CombinedOutput()
+	if len(output) != 0 {
+		info(string(output))
+	}
+	if err != nil {
+		errf("Fail to create symlink: %v", err)
+	}
 }
 
 // NewKubeConfigCmd create kubeconfig command for ctrl-plane
@@ -275,8 +280,17 @@ func NewUninstallCmd() *cobra.Command {
 		Short: "uninstall control plane",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// #nosec
-			uninstallCmd := exec.Command("/usr/local/bin/k3s-uninstall.sh")
-			return uninstallCmd.Run()
+			uCmd := exec.Command("/usr/local/bin/k3s-uninstall.sh")
+			err := uCmd.Run()
+			if err != nil {
+				errf("Fail to uninstall k3s: %v\n", err)
+			}
+			dCmd := exec.Command("rm", VelaLinkPos)
+			err = dCmd.Run()
+			if err != nil {
+				errf("Fail to delete vela symlink: %v\n", err)
+			}
+			return nil
 		},
 	}
 	return cmd

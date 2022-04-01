@@ -30,6 +30,7 @@ func (a App) Run() {
 	var cmd *cobra.Command
 	if isVela(a.args[0]) {
 		cmd = cli.NewCommand()
+		// TODO set right gitVersion
 		version.VelaVersion = veladVersion.VelaVersion
 	} else {
 		cmd = NewVeladCommand()

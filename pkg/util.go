@@ -106,7 +106,7 @@ func Cleanup() error {
 	files = append(files, chartsTgz...)
 	files = append(files, charts...)
 	for _, f := range files {
-		if err := os.Remove(f); err != nil {
+		if err := os.RemoveAll(f); err != nil {
 			return err
 		}
 	}
