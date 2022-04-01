@@ -88,4 +88,4 @@ jobs:
         run: |
           ./ossutil --config-file .ossutilconfig cp \
           ./_bin/velad/velad-${{ steps.get_matrix.outputs.OS }}-${{ steps.get_matrix.outputs.ARCH }}.tar.gz \
-          oss://kubevela-docs/binary/velad/velad-${{ steps.get_matrix.outputs.OS }}-${{ steps.get_matrix.outputs.ARCH }}.tar.gz
+          oss://kubevela-docs/binary/velad/velad-${{ steps.get_matrix.outputs.OS }}-${{ steps.get_matrix.outputs.ARCH }}-${{ env.VELA_VERSION }}.tar.gz
