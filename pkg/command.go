@@ -20,7 +20,11 @@ var (
 )
 
 // NewVeladCommand create velad command
-func NewVeladCommand(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
+func NewVeladCommand() *cobra.Command {
+	ioStreams := cmdutil.IOStreams{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr}
+	c := common.Args{
+		Schema: common.Scheme,
+	}
 	cmd := &cobra.Command{
 		Use:   "velad",
 		Short: "Setup a KubeVela control plane air-gapped",
@@ -32,8 +36,14 @@ func NewVeladCommand(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command 
 		NewTokenCmd(),
 		NewUninstallCmd(),
 		NewVersionCmd(),
+
+		NewVelaCmd(),
 	)
 	return cmd
+}
+
+func NewVelaCmd() *cobra.Command {
+	return cli.NewCommand()
 }
 
 func NewTokenCmd() *cobra.Command {
@@ -120,6 +130,8 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 					errf("Didn't install vela-core in control plane: %v. You can try \"vela install\" later\n", err)
 				}
 			}
+
+			LinkToVela()
 
 			// Step.6 Generate external kubeconfig
 			err = GenKubeconfig(cArgs.BindIP)
@@ -221,6 +233,17 @@ func composeArgs(args CtrlPlaneArgs) []string {
 		}
 	}
 	return shellArgs
+}
+
+// LinkToVela create soft link to from vela to velad vela
+func LinkToVela() {
+	_, err := exec.LookPath("vela")
+	if err == nil {
+		return
+	}
+	linkPos := "/usr/local/bin/vela"
+	fmt.Println("Creating symlink to", linkPos)
+	exec.Command("ln", "-sf", "velad", linkPos)
 }
 
 // NewKubeConfigCmd create kubeconfig command for ctrl-plane

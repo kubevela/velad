@@ -3,9 +3,10 @@ module github.com/oam-dev/velad
 go 1.17
 
 require (
-	github.com/oam-dev/kubevela v1.2.5
+	github.com/oam-dev/kubevela v1.3.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.2.1
+	k8s.io/utils v0.0.0-20210802155522-efc7438f0176
 )
 
 require (
@@ -43,7 +44,7 @@ require (
 	github.com/chai2010/gettext-go v0.0.0-20160711120539-c6fed771bfd5 // indirect
 	github.com/cockroachdb/apd/v2 v2.0.1 // indirect
 	github.com/containerd/cgroups v0.0.0-20200531161412-0dbf7f05ba59 // indirect
-	github.com/containerd/containerd v1.4.12 // indirect
+	github.com/containerd/containerd v1.4.13 // indirect
 	github.com/containerd/continuity v0.0.0-20201208142359-180525291bb7 // indirect
 	github.com/coreos/prometheus-operator v0.41.1 // indirect
 	github.com/crossplane/crossplane-runtime v0.14.1-0.20210722005935-0b469fcc77cd // indirect
@@ -132,9 +133,9 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f // indirect
 	github.com/oam-dev/cluster-gateway v1.1.6 // indirect
-	github.com/oam-dev/cluster-register v1.0.3 // indirect
+	github.com/oam-dev/cluster-register v1.0.4-0.20220325092210-cee4a3d3fb7d // indirect
 	github.com/oam-dev/terraform-config-inspect v0.0.0-20210418082552-fc72d929aa28 // indirect
-	github.com/oam-dev/terraform-controller v0.2.12 // indirect
+	github.com/oam-dev/terraform-controller v0.4.2 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/onsi/gomega v1.17.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
@@ -209,7 +210,7 @@ require (
 	k8s.io/kube-aggregator v0.22.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20210421082810-95288971da7e // indirect
 	k8s.io/kubectl v0.21.0 // indirect
-	k8s.io/utils v0.0.0-20210802155522-efc7438f0176 // indirect
+	k8s.io/metrics v0.21.0 // indirect
 	open-cluster-management.io/api v0.0.0-20210804091127-340467ff6239 // indirect
 	sigs.k8s.io/apiserver-network-proxy v0.0.24 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.24 // indirect

@@ -17,19 +17,10 @@ limitations under the License.
 package main
 
 import (
-	"github.com/oam-dev/kubevela/pkg/utils/common"
-	cmdutil "github.com/oam-dev/kubevela/pkg/utils/util"
 	"github.com/oam-dev/velad/pkg"
-	"os"
 )
 
 func main() {
-	ioStream := cmdutil.IOStreams{In: os.Stdin, Out: os.Stdout, ErrOut: os.Stderr}
-	commandArgs := common.Args{
-		Schema: common.Scheme,
-	}
-	cmd := pkg.NewVeladCommand(commandArgs, ioStream)
-	if err := cmd.Execute(); err != nil {
-		os.Exit(1)
-	}
+	app := pkg.NewApp()
+	app.Run()
 }
