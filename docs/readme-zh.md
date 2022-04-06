@@ -16,7 +16,7 @@
 ### 安装 velad
 
 ```shell
-curl -Lo velad.tar.gz https://github.com/oam-dev/velad/releases/download/v1.3.0/velad-v1.3.0-linux-amd64.tar.gz
+curl -Lo velad.tar.gz https://kubevela-docs.oss-cn-beijing.aliyuncs.com/binary/velad/velad-linux-amd64-v1.3.0.tar.gz
 tar -xzvf velad.tar.gz
 cp linux-amd64/velad /usr/local/bin/velad
 ```
