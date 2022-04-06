@@ -18,7 +18,7 @@ Lightweight KubeVela that runs as Daemon in single node with high availability.
 ```shell
 curl -Lo velad.tar.gz https://github.com/oam-dev/velad/releases/download/v1.3.0/velad-v1.3.0-linux-amd64.tar.gz
 tar -xzvf velad.tar.gz
-cp linux-amd64/velad /usr/local/velad
+cp linux-amd64/velad /usr/local/bin/velad
 ```
 
 ### Setup
@@ -81,7 +81,7 @@ velad install --database-endpoint="mysql://USER:PASSWORD@tcp(HOST:3306)/velad" -
 
 You can find more database endpoint format in this [doc](docs/db-connect-format.md)
 
-3. Now you have a KubeVela control plane which keep all the data in database. 
+3. Now you have a KubeVela control plane which keeps all the data in database. 
  
 If this control plane is shut down for some reason, or you run `velad uninstall`, you can restart it with `--start` flag and the same token.
 
