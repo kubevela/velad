@@ -6,7 +6,7 @@ English | [简体中文](docs/readme-zh.md)
 ## Features
 
 1. Air-gap install.
-2. High Availability with an External DB. (MySQL/MariaDB, PostgreSQL, ETCD)
+2. High Availability with an External DB. (optional)
 
 ## Prerequisites
 
