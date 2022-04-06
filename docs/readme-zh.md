@@ -80,7 +80,7 @@ velad uninstall
 velad install --database-endpoint="mysql://USER:PASSWORD@tcp(HOST:3306)/velad" --token="TOKEN"
 ```
 
-可以在[这里](docs/db-connect-format.md)找到更多数据库端点的格式
+可以在[这里](db-connect-format.md)找到更多数据库端点的格式
 
 3. 现在你已经启动了 KubeVela，所有数据存在数据库中。
 
