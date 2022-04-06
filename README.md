@@ -39,7 +39,9 @@ Setting up cluster...
 Successfully set up KubeVela control plane, run: export KUBECONFIG=$(velad kubeconfig) to access it
 ```
 There you go! You have set up a KubeVela control plane. See available components:
+
 ```shell
+export KUBECONFIG=$(velad kubeconfig --internal)
 vela comp
 ```
 ```shell
@@ -52,10 +54,17 @@ raw                     autodetects.core.oam.dev
 ref-objects             autodetects.core.oam.dev
 snstateful              statefulsets.apps
 task                    jobs.batch
-tekton-pr               pipelineruns.tekton.dev
 webservice              deployments.apps
 worker                  deployments.apps
 ```
+
+### uninstall
+
+```shell
+velad uninstall
+```
+
+## More Options
 
 ### Setup with high availability
 
@@ -80,8 +89,12 @@ If this control plane is shut down for some reason, or you run `velad uninstall`
 velad install --database-endpoint="mysql://USER:PASSWORD@tcp(HOST:3306)/velad" --token="TOKEN" --start
 ```
 
-### uninstall
+### Access from remote
 
-```shell
-velad uninstall
-```
+By default, you can only access this control plane on this node. Typically, you run `export KUBECONFIG=$(velad kubeconfig)`
+to access the control plane.
+
+You can also make it accessible outside the node.
+1. add `--bind-ip=NODE_IP` when `velad install`, which helps to generate the kubeconfig that can be used outside.
+2. `velad kubeconfig` (note without `--internal`) will print the kubeconfig position.
+3. copy this file to other machine, setup `KUBECONFIG`, and you can access KubeVela control plane remotely.
