@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"fmt"
 	"io"
 	"io/fs"
 	"io/ioutil"
@@ -8,10 +9,25 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/oam-dev/kubevela/references/cli"
 )
+
+var (
+	info func(a ...interface{})
+	errf func(format string, a ...interface{})
+)
+
+func init() {
+	info = func(a ...interface{}) {
+		fmt.Println(a...)
+	}
+	errf = func(format string, a ...interface{}) {
+		fmt.Printf(format, a...)
+	}
+}
 
 // SaveToTemp helps save an embedded file into a temporary file
 func SaveToTemp(file fs.File, format string) (string, error) {
@@ -75,7 +91,7 @@ func WarnSaveToken(token string) {
 		getToken := exec.Command("cat", "/var/lib/rancher/k3s/server/token")
 		_token, err := getToken.Output()
 		if err != nil {
-			errf("Fail to get token, please run `cat /var/lib/rancher/k3s/server/token` and save it.")
+			errf("Fail to get token, please run `cat /var/lib/rancher/k3s/server/token` and save it.\n")
 			return
 		}
 		token = string(_token)
@@ -111,4 +127,11 @@ func Cleanup() error {
 		}
 	}
 	return nil
+}
+
+func CheckLinux() bool {
+	if runtime.GOOS != "linux" {
+		return false
+	}
+	return true
 }

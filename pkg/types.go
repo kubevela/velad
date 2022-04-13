@@ -12,3 +12,9 @@ type CtrlPlaneArgs struct {
 	// InstallArgs is parameters passed to vela install command
 	InstallArgs cli.InstallArgs
 }
+
+// LoadBalancerArgs defines arguments for load balancer command
+type LoadBalancerArgs struct {
+	Hosts []string
+	Configuration string
+}
