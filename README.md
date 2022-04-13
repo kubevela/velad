@@ -1,4 +1,4 @@
-# velad
+# VelaD
 
 Lightweight KubeVela that runs as Daemon in single node with high availability.
 
