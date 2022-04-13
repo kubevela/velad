@@ -9,7 +9,10 @@ require (
 	k8s.io/utils v0.0.0-20210802155522-efc7438f0176
 )
 
-require github.com/zcalusic/sysinfo v0.9.5
+require (
+	github.com/zcalusic/sysinfo v0.9.5
+	k8s.io/client-go v0.22.1 // indirect
+)
 
 replace (
 	github.com/docker/cli => github.com/docker/cli v20.10.9+incompatible

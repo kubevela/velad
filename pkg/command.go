@@ -15,8 +15,8 @@ import (
 
 var (
 	cArgs                      CtrlPlaneArgs
-	kubeConfigLocation         = "/etc/rancher/k3s/k3s.yaml"
-	externalKubeConfigLocation = "/etc/rancher/k3s/k3s-external.yaml"
+	KubeConfigLocation         = "/etc/rancher/k3s/k3s.yaml"
+	ExternalKubeConfigLocation = "/etc/rancher/k3s/k3s-external.yaml"
 	VelaLinkPos                = "/usr/local/bin/vela"
 )
 
@@ -93,7 +93,7 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 			info("Successfully setup cluster")
 
 			// Step.2 Set KUBECONFIG
-			err = os.Setenv("KUBECONFIG", kubeConfigLocation)
+			err = os.Setenv("KUBECONFIG", KubeConfigLocation)
 			if err != nil {
 				errf("Fail to set KUBECONFIG environment var: %v\n", err)
 				return
@@ -130,11 +130,14 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 			}
 
 			// Step.6 Generate external kubeconfig
-			err = GenKubeconfig(cArgs.BindIP)
-			if err != nil {
-				return
+			if cArgs.BindIP != "" {
+				err = GenKubeconfig(cArgs.BindIP)
+				if err != nil {
+					return
+				}
 			}
 			WarnSaveToken(cArgs.Token)
+			info("Successfully install KubeVela control plane! Try: vela components")
 		},
 	}
 	cmd.Flags().BoolVar(&cArgs.IsStart, "start", false, "If set, start cluster without installing vela-core, typically used when restart a control plane where vela-core has been installed")
@@ -154,23 +157,19 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 
 // NewKubeConfigCmd create kubeconfig command for ctrl-plane
 func NewKubeConfigCmd() *cobra.Command {
-	var internal bool
+	var (
+		internal bool
+		external bool
+	)
 	cmd := &cobra.Command{
 		Use:   "kubeconfig",
 		Short: "print kubeconfig to access control plane",
 		Run: func(cmd *cobra.Command, args []string) {
-			configP := externalKubeConfigLocation
-			if internal {
-				configP = kubeConfigLocation
-			}
-			_, err := os.Stat(configP)
-			if err != nil {
-				return
-			}
-			fmt.Println(configP)
+			PrintKubeConfig(internal, external)
 		},
 	}
-	cmd.Flags().BoolVar(&internal, "internal", false, "If set, the kubeconfig printed can be only used in this machine")
+	cmd.Flags().BoolVar(&internal, "internal", false, "Print kubeconfig that can only be used in this machine")
+	cmd.Flags().BoolVar(&external, "external", false, "Print kubeconfig that can be used on other machine")
 	return cmd
 }
 
@@ -229,7 +228,7 @@ func NewLBInstallCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringSliceVar(&LBArgs.Hosts, "host", []string{}, "Host IPs of control plane node installed by velad, can be specified multiple or separate value by comma like: IP1,IP2")
-	cmd.Flags().StringVarP(&LBArgs.Configuration, "conf","c", "", "(Optional) Specify the nginx configuration file place, this file will be overwrite")
+	cmd.Flags().StringVarP(&LBArgs.Configuration, "conf", "c", "", "(Optional) Specify the nginx configuration file place, this file will be overwrite")
 	return cmd
 }
 

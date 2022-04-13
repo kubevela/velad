@@ -6,6 +6,7 @@ import (
 	"github.com/oam-dev/kubevela/version"
 	veladVersion "github.com/oam-dev/velad/version"
 	"github.com/spf13/cobra"
+	"k8s.io/client-go/tools/clientcmd"
 	"os"
 	"strings"
 )
@@ -29,6 +30,7 @@ func (a App) Run() {
 
 	var cmd *cobra.Command
 	if isVela(a.args[0]) {
+		setKubeConfigEnv()
 		cmd = cli.NewCommand()
 		// TODO set right gitVersion
 		version.VelaVersion = veladVersion.VelaVersion
@@ -45,4 +47,11 @@ func (a App) Run() {
 func isVela(s string) bool {
 	sl := strings.Split(s, "/")
 	return sl[len(sl)-1] == "vela"
+}
+
+func setKubeConfigEnv() {
+	kubeconfig := os.Getenv(clientcmd.RecommendedConfigPathEnvVar)
+	if kubeconfig==""{
+		_ = os.Setenv(clientcmd.RecommendedConfigPathEnvVar, KubeConfigLocation)
+	}
 }

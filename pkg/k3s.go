@@ -136,18 +136,14 @@ func composeArgs(args CtrlPlaneArgs) []string {
 func GenKubeconfig(bindIP string) error {
 	var err error
 	if bindIP != "" {
-		info("Generating kubeconfig for remote access into ", externalKubeConfigLocation)
-		originConf, err := os.ReadFile(kubeConfigLocation)
+		info("Generating kubeconfig for remote access into ", ExternalKubeConfigLocation)
+		originConf, err := os.ReadFile(KubeConfigLocation)
 		if err != nil {
 			return err
 		}
 		newConf := strings.Replace(string(originConf), "127.0.0.1", bindIP, 1)
-		err = os.WriteFile(externalKubeConfigLocation, []byte(newConf), 600)
+		err = os.WriteFile(ExternalKubeConfigLocation, []byte(newConf), 600)
 	}
-	internalFlag := ""
-	if bindIP == "" {
-		internalFlag = " --internal"
-	}
-	info("Successfully set up KubeVela control plane, run: export KUBECONFIG=$(velad kubeconfig" + internalFlag + ") to access it")
+	info("Successfully generate kubeconfig at ", ExternalKubeConfigLocation)
 	return err
 }
