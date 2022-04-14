@@ -75,7 +75,7 @@ func PrepareK3sBin() error {
 }
 
 // SetupK3s will set up K3s as control plane.
-func SetupK3s(cArgs CtrlPlaneArgs) error {
+func SetupK3s(cArgs InstallArgs) error {
 	info("Preparing cluster setup script...")
 	script, err := PrepareK3sScript()
 	if err != nil {
@@ -109,7 +109,7 @@ func SetupK3s(cArgs CtrlPlaneArgs) error {
 }
 
 // composeArgs convert args from command to ones passed to k3s install script
-func composeArgs(args CtrlPlaneArgs) []string {
+func composeArgs(args InstallArgs) []string {
 	var shellArgs []string
 	if args.DBEndpoint != "" {
 		shellArgs = append(shellArgs, "--datastore-endpoint="+args.DBEndpoint)

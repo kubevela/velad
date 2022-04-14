@@ -1,6 +1,6 @@
 K3S_VERSION ?= v1.21.10+k3s1
 STATIC_DIR := pkg/static
-VELA_VERSION := 1.3.0-beta.2
+#VELA_VERSION := 1.3.0
 
 all: download_vela_images download_k3s pack_vela_chart
 	go build -o bin/velad github.com/oam-dev/velad

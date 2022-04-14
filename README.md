@@ -1,8 +1,9 @@
 # VelaD
 
-Lightweight KubeVela that runs as Daemon in single node with high availability.
+Lightweight KubeVela that runs as Daemon in single node with k3s
 
 English | [简体中文](docs/readme-zh.md)
+
 ## Features
 
 1. Air-gap install.
@@ -47,8 +48,6 @@ vela comp
 ```
 ```shell
 NAME                    DEFINITION
-config-dex-connector    autodetects.core.oam.dev
-config-image-registry   autodetects.core.oam.dev
 k8s-objects             autodetects.core.oam.dev
 my-stateful             statefulsets.apps
 raw                     autodetects.core.oam.dev
@@ -100,3 +99,17 @@ You can also make it accessible outside the machine.
 is IP of machine where run the `velad`。
 2. `velad kubeconfig` (note without `--internal`) will print the kubeconfig position.
 3. copy this file to other machine, setup `KUBECONFIG`, and you can access KubeVela control plane remotely.
+
+
+## Build
+
+You could build velad yourself. This requires:
+
+- docker
+- go >= 1.17
+
+```shell
+git clone https://github.com/oam-dev/velad.git
+cd velad
+make
+```

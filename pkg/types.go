@@ -2,8 +2,8 @@ package pkg
 
 import "github.com/oam-dev/kubevela/references/cli"
 
-// CtrlPlaneArgs defines arguments for ctrl-plane command
-type CtrlPlaneArgs struct {
+// InstallArgs defines arguments for velad install command
+type InstallArgs struct {
 	BindIP      string
 	DBEndpoint  string
 	IsStart     bool
@@ -15,6 +15,6 @@ type CtrlPlaneArgs struct {
 
 // LoadBalancerArgs defines arguments for load balancer command
 type LoadBalancerArgs struct {
-	Hosts []string
+	Hosts         []string
 	Configuration string
 }

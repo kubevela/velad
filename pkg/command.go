@@ -14,8 +14,8 @@ import (
 )
 
 var (
-	cArgs                      CtrlPlaneArgs
-	KubeConfigLocation         = "/etc/rancher/k3s/k3s.yaml"
+	cArgs              InstallArgs
+	KubeConfigLocation = "/etc/rancher/k3s/k3s.yaml"
 	ExternalKubeConfigLocation = "/etc/rancher/k3s/k3s-external.yaml"
 	VelaLinkPos                = "/usr/local/bin/vela"
 )
