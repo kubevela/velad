@@ -22,7 +22,9 @@ func PrepareVelaChart() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return "/var/vela-core", nil
+	untarResult := "/var/vela-core"
+	AddTpTemp(untarResult)
+	return untarResult, nil
 }
 
 func LoadVelaImages() error {
@@ -60,9 +62,7 @@ func LinkToVela() {
 	info("Creating symlink to", VelaLinkPos)
 	link := exec.Command("ln", "-sf", "velad", VelaLinkPos)
 	output, err := link.CombinedOutput()
-	if len(output) != 0 {
-		info(string(output))
-	}
+	infoBytes(output)
 	if err != nil {
 		errf("Fail to create symlink: %v\n", err)
 		return

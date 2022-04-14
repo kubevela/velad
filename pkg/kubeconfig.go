@@ -7,9 +7,11 @@ import (
 func PrintKubeConfig(internal, external bool) {
 	if internal {
 		info(KubeConfigLocation)
+		return
 	}
 	if external {
 		info(ExternalKubeConfigLocation)
+		return
 	}
 	info("internal kubeconfig: ", KubeConfigLocation)
 	_, err := os.Stat(ExternalKubeConfigLocation)

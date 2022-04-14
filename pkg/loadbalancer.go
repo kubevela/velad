@@ -42,7 +42,7 @@ func UninstallNginx() error {
 	}
 	cmd := exec.Command("/bin/bash", scriptName)
 	output, err := cmd.CombinedOutput()
-	info(string(output))
+	infoBytes(output)
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func installNginx() error {
 	}
 	cmd := exec.Command("/bin/bash", scriptName)
 	output, err := cmd.CombinedOutput()
-	info(string(output))
+	infoBytes(output)
 	return err
 }
 
@@ -98,7 +98,7 @@ func startNginx(conf string) error {
 	_ = cmd.Run()
 	reloadCmd := exec.Command("nginx", "-c", conf)
 	output, err := reloadCmd.CombinedOutput()
-	info(string(output))
+	infoBytes(output)
 	return err
 }
 
@@ -170,4 +170,11 @@ func checkLBCondition() error {
 		return errors.New("not root")
 	}
 	return nil
+}
+
+func KillNginx() error {
+	kill := exec.Command("pkill", "-9", "nginx")
+	output, err := kill.CombinedOutput()
+	infoBytes(output)
+	return err
 }

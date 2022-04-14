@@ -80,7 +80,7 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 			defer func() {
 				err := Cleanup()
 				if err != nil {
-					errf("Fail to clean up install script: %v\n", err)
+					errf("Fail to clean up: %v\n", err)
 				}
 			}()
 
@@ -216,6 +216,13 @@ func NewLBInstallCmd() *cobra.Command {
 		Short: "Setup load balancer between nodes set up by VelaD",
 		Long:  "Setup load balancer between nodes set up by VelaD",
 		Run: func(cmd *cobra.Command, args []string) {
+			defer func() {
+				err := Cleanup()
+				if err != nil {
+					errf("Fail to clean up: %v\n", err)
+				}
+			}()
+
 			if len(LBArgs.Hosts) == 0 {
 				errf("Must specify one host at least\n")
 				os.Exit(1)
@@ -241,6 +248,10 @@ func NewLBUninstallCmd() *cobra.Command {
 			err := UninstallNginx()
 			if err != nil {
 				errf("Fail to uninstall load balancer (nginx): %v\n", err)
+			}
+			err = KillNginx()
+			if err != nil {
+				errf("Fail to kill nginx process: %v\n", err)
 			}
 		},
 	}
