@@ -118,3 +118,5 @@ git clone https://github.com/oam-dev/velad.git
 cd velad
 make
 ```
+
+See more options [here](docs/build-from-local.md)
