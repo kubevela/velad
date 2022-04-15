@@ -4,10 +4,15 @@ Lightweight KubeVela that runs as Daemon in single node with k3s
 
 English | [简体中文](docs/readme-zh.md)
 
+## Introduction
+
+VelaD helps to set up [KubeVela](https://github.com/oam-dev/kubevela) in one step. With the help of k3s, VelaD
+can build KubeVela control plane of higher availability, which consist of multiple node and one load balancer typically.
+
 ## Features
 
-1. Air-gap install.
-2. High Availability with an External DB. (optional)
+1. Set up KubeVela air-gapped
+2. Build KubeVela control plane with higher availability (Optional)
 
 ## Prerequisites
 
@@ -66,10 +71,10 @@ velad uninstall
 
 ## More Options
 
-### Setup with high availability
+### Setup with database
 
-If you run `velad install`, all metadata will be lost when `velad uninstall`. This section describes how to setup a
-high-availability KubeVela control plane with an external database.
+If you run `velad install`, all metadata will be lost when `velad uninstall`. You may need to keep the metadata for migration
+This section describes how to setup a KubeVela control plane with an external database.
 
 1. Prepare a database, MySQL/MariaDB, PostgreSQL, ETCD are both OK. Choose one as you like.
 2. Run velad with database connection string.
