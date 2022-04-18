@@ -36,7 +36,8 @@ Preparing k3s images
 Successfully prepare k3s image
 Setting up cluster...
 ...
-Successfully set up KubeVela control plane, run: export KUBECONFIG=$(velad kubeconfig) to access it
+
+Successfully install KubeVela control plane! Try: vela components
 ```
 恭喜！你已经设置好 KubeVela 了。用以下命令查看可用的组件。
 
