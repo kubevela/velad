@@ -30,3 +30,6 @@ clean:
 	rm -rf ${CHART_DIR}/vela-core
 	#rm ${STATIC_DIR}/vela/charts/vela-core.tgz
 	rm -f bin/velad
+
+echo:
+	echo ${K3S_VERSION}

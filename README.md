@@ -23,7 +23,7 @@ can build KubeVela control plane of higher availability, which consist of multip
 ### Installation
 
 ```shell
-curl -Lo velad.tar.gz https://github.com/oam-dev/velad/releases/download/v1.3.0/velad-v1.3.0-linux-amd64.tar.gz
+curl -Lo velad.tar.gz https://github.com/oam-dev/velad/releases/download/v1.3.1/velad-v1.3.1-linux-amd64.tar.gz
 tar -xzvf velad.tar.gz
 cp linux-amd64/velad /usr/local/bin/velad
 ```
@@ -48,7 +48,6 @@ Successfully set up KubeVela control plane, run: export KUBECONFIG=$(velad kubec
 There you go! You have set up a KubeVela. See available components:
 
 ```shell
-export KUBECONFIG=$(velad kubeconfig --internal)
 vela comp
 ```
 ```shell

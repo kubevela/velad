@@ -16,7 +16,7 @@
 ### 安装 velad
 
 ```shell
-curl -Lo velad.tar.gz https://kubevela-docs.oss-cn-beijing.aliyuncs.com/binary/velad/velad-linux-amd64-v1.3.0.tar.gz
+curl -Lo velad.tar.gz https://kubevela-docs.oss-cn-beijing.aliyuncs.com/binary/velad/velad-linux-amd64-v1.3.1.tar.gz
 tar -xzvf velad.tar.gz
 cp linux-amd64/velad /usr/local/bin/velad
 ```
@@ -39,10 +39,8 @@ Setting up cluster...
 Successfully set up KubeVela control plane, run: export KUBECONFIG=$(velad kubeconfig) to access it
 ```
 恭喜！你已经设置好 KubeVela 了。用以下命令查看可用的组件。
-There you go! You have set up a KubeVela. See available components:
 
 ```shell
-export KUBECONFIG=$(velad kubeconfig --internal)
 vela comp
 ```
 ```shell
