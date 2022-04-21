@@ -9,8 +9,6 @@ $PRINT "checking usable package manager"
 
 if command -v yum >/dev/null; then
   PKGM="yum"
-elif command -v apt >/dev/null; then
-  PKGM="apt"
 elif command -v apt-get >/dev/null; then
   PKGM="apt-get"
 else
@@ -19,7 +17,7 @@ else
 fi
 $PRINT "${GREEN}package manager found: ${PKGM}${CNone}"
 
-$PRINT "Removing nginx by${PKGM}..."
+$PRINT "Removing nginx by ${PKGM}..."
 $PKGM remove -y nginx
 ret=$?
 if [ $ret -ne 0 ]; then
