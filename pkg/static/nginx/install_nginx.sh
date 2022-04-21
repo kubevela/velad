@@ -29,7 +29,7 @@ fi
 
 STEAM_MOD="nginx-mod-stream"
 if [ $PKGM = "apt-get" ]; then
-    STEAM_MOD="libnginx-mod-stream"
+  STEAM_MOD="libnginx-mod-stream"
 fi
 
 $PRINT "Installing nginx stream modules by ${PKGM}..."
@@ -39,4 +39,12 @@ if [ $ret -ne 0 ]; then
   $PRINT "${RED}Fail to install nginx stream mod${CNone}"
 else
   $PRINT "${GREEN}Successfully install nginx stream mod${CNone}"
+fi
+
+$PRINT "Configuring nginx user..."
+if id "nginx" &>/dev/null; then
+  echo 'user nginx found'
+else
+  echo 'user nginx not found, creating...'
+  useradd nginx
 fi
