@@ -21,4 +21,7 @@ var (
 
 	//go:embed static/nginx
 	Nginx embed.FS
+
+	//go:embed static/vela/addons
+	VelaAddons embed.FS
 )

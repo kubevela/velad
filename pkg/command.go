@@ -14,8 +14,8 @@ import (
 )
 
 var (
-	cArgs              InstallArgs
-	KubeConfigLocation = "/etc/rancher/k3s/k3s.yaml"
+	cArgs                      InstallArgs
+	KubeConfigLocation         = "/etc/rancher/k3s/k3s.yaml"
 	ExternalKubeConfigLocation = "/etc/rancher/k3s/k3s-external.yaml"
 	VelaLinkPos                = "/usr/local/bin/vela"
 )
@@ -99,22 +99,29 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 				return
 			}
 
+			// Step.3 Install Vela CLI
 			LinkToVela()
 
-			if !cArgs.IsStart {
-				// Step.3 load vela-core images
-				err = LoadVelaImages()
-				if err != nil {
-					errf("Fail to load vela images: %v\n", err)
-				}
+			// Step.4 load vela-core images
+			err = LoadVelaImages()
+			if err != nil {
+				errf("Fail to load vela images: %v\n", err)
+			}
 
-				// Step.4 save vela-core chart
+			if !cArgs.ClusterOnly {
+
+				// Step.5 save vela-core chart and velaUX addon
 				chart, err := PrepareVelaChart()
 				if err != nil {
 					errf("Fail to prepare vela chart: %v\n", err)
 				}
-				// Step.5 install vela-core
+				err = PrepareVelaUX()
+				if err != nil {
+					errf("Fail to prepare velaUX: %v\n", err)
+				}
+				// Step.6 install vela-core
 				info("Installing vela-core Helm chart...")
+				ioStreams.Out = VeladWriter{os.Stdout}
 				installCmd := cli.NewInstallCommand(c, "1", ioStreams)
 				installArgs := []string{"--file", chart, "--detail=false", "--version", version.VelaVersion}
 				if IfDeployByPod(cArgs.Controllers) {
@@ -129,7 +136,7 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 				}
 			}
 
-			// Step.6 Generate external kubeconfig
+			// Step.7 Generate external kubeconfig
 			if cArgs.BindIP != "" {
 				err = GenKubeconfig(cArgs.BindIP)
 				if err != nil {
@@ -140,7 +147,7 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 			info("Successfully install KubeVela control plane! Try: vela components")
 		},
 	}
-	cmd.Flags().BoolVar(&cArgs.IsStart, "start", false, "If set, start cluster without installing vela-core, typically used when restart a control plane where vela-core has been installed")
+	cmd.Flags().BoolVar(&cArgs.ClusterOnly, "cluster-only", false, "If set, start cluster without installing vela-core, typically used when restart a control plane where vela-core has been installed")
 	cmd.Flags().StringVar(&cArgs.DBEndpoint, "database-endpoint", "", "Use an external database to store control plane metadata, please ref https://rancher.com/docs/k3s/latest/en/installation/datastore/#datastore-endpoint-format-and-functionality for the format")
 	cmd.Flags().StringVar(&cArgs.BindIP, "bind-ip", "", "Bind additional hostname or IP in the kubeconfig TLS cert")
 	cmd.Flags().StringVar(&cArgs.Token, "token", "", "Token for identify the cluster. Can be used to restart the control plane or register other node. If not set, random token will be generated")

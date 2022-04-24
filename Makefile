@@ -6,7 +6,7 @@ all: download_vela_images download_k3s pack_vela_chart
 	go build -o bin/velad github.com/oam-dev/velad
 
 download_vela_images:
-	./download_images.sh
+	./download_images_addons.sh
 
 download_k3s:
 	mkdir -p ${STATIC_DIR}/k3s

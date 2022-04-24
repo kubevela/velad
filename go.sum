@@ -1197,6 +1197,8 @@ github.com/oam-dev/cluster-register v1.0.4-0.20220325092210-cee4a3d3fb7d h1:ZZsB
 github.com/oam-dev/cluster-register v1.0.4-0.20220325092210-cee4a3d3fb7d/go.mod h1:nKEUMfuEB8pHKsaSah9IA+UQzezrPYebBdRozyNtlZc=
 github.com/oam-dev/kubevela v1.3.1 h1:bJ/3slDFeG/loT2q/dWqXKYiQ5mZbZuR5k0zKLZe7Bw=
 github.com/oam-dev/kubevela v1.3.1/go.mod h1:WqJH3ggV+q1/H3EGch/wfjdOGco9s8pop+Un1ePqIMM=
+github.com/oam-dev/kubevela v1.3.2 h1:PipjdUSceo7310LL2KBGy9onztTnEHRwkNdl36lSwc4=
+github.com/oam-dev/kubevela v1.3.2/go.mod h1:fmTvgFjzfB033KCri8vmTcv7c6F8KX1lHpX2ZIvarzw=
 github.com/oam-dev/stern v1.13.2 h1:jlGgtJbKmIVhzkH44ft5plkgs8XEfvxbFrQdX60CQR4=
 github.com/oam-dev/stern v1.13.2/go.mod h1:0pLjZt0amXE/ErF16Rdrgd98H2owN8Hmn3/7CX5+AeA=
 github.com/oam-dev/terraform-config-inspect v0.0.0-20210418082552-fc72d929aa28 h1:tD8HiFKnt0jnwdTWjeqUnfnUYLD/+Nsmj8ZGIxqDWiU=

@@ -1,6 +1,11 @@
 package pkg
 
-import "testing"
+import (
+	"bytes"
+	"fmt"
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
 
 func TestHaveController(t *testing.T) {
 	testCases := []struct {
@@ -54,4 +59,17 @@ func TestIsDeployByPod(t *testing.T) {
 		}
 	}
 
+}
+
+func TestVeladWriter(t *testing.T) {
+	buf := &bytes.Buffer{}
+	w := VeladWriter{buf}
+	_, err := w.Write([]byte(fmt.Sprintln("test")))
+	assert.NoError(t, err)
+	got := buf.String()
+	assert.Equal(t, "test\n", got)
+	_, err = w.Write([]byte(fmt.Sprintln("If you want to enable dashboard, please run \"vela addon enable velaux\"")))
+	assert.NoError(t, err)
+	got = buf.String()
+	assert.Equal(t, fmt.Sprintf("test\nIf you want to enable dashboard, please run \"vela addon enable %s\"\n", velauxDir), got)
 }

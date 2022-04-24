@@ -31,3 +31,4 @@ tmp/
 pkg/static/k3s
 pkg/static/vela/images
 pkg/static/vela/charts/vela-core.tgz
+pkg/static/vela/addons

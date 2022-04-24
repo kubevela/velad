@@ -3,7 +3,7 @@ module github.com/oam-dev/velad
 go 1.17
 
 require (
-	github.com/oam-dev/kubevela v1.3.1
+	github.com/oam-dev/kubevela v1.3.2
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.2.1
 	k8s.io/client-go v0.22.1

@@ -6,7 +6,7 @@ import "github.com/oam-dev/kubevela/references/cli"
 type InstallArgs struct {
 	BindIP      string
 	DBEndpoint  string
-	IsStart     bool
+	ClusterOnly bool
 	Token       string
 	Controllers string
 	// InstallArgs is parameters passed to vela install command
