@@ -3,6 +3,7 @@
 VELA_IMAGE_DIR=pkg/static/vela/images
 VELA_ADDON_DIR=pkg/static/vela/addons
 mkdir -p "$VELA_IMAGE_DIR"
+mkdir -p "$VELA_ADDON_DIR"
 
 vela_images=("oamdev/vela-core:v1.3.2"
   "oamdev/cluster-gateway:v1.3.2"
