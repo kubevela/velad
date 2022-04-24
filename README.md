@@ -4,6 +4,8 @@ Lightweight KubeVela that runs as Daemon in single node with k3s
 
 English | [简体中文](docs/readme-zh.md)
 
+![Build](https://github.com/kubevela/velad/actions/workflows/build.yaml/badge.svg)
+
 ## Introduction
 
 VelaD helps to set up [KubeVela](https://github.com/oam-dev/kubevela) in one step. With the help of k3s, VelaD
