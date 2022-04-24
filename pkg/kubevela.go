@@ -82,7 +82,7 @@ func PrepareVelaUX() error {
 	if err != nil {
 		return err
 	}
-	velaAddonDir := path.Join(home, ".vela", "addons")
+	velaAddonDir := path.Join(home, "addons")
 	if _, err := os.Stat(velaAddonDir); err != nil && os.IsNotExist(err) {
 		err := os.MkdirAll(velaAddonDir, 0750)
 		if err != nil {
@@ -96,7 +96,7 @@ func PrepareVelaUX() error {
 		return err
 	}
 	defer CloseQuietly(tar)
-	file, err := os.OpenFile(path.Join(velaAddonDir, filename), os.O_RDONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	file, err := os.OpenFile(path.Join(velaAddonDir, filename), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
