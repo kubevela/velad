@@ -11,6 +11,8 @@ English | [简体中文](docs/readme-zh.md)
 VelaD helps to set up [KubeVela](https://github.com/oam-dev/kubevela) in one step. With the help of k3s, VelaD
 can build KubeVela control plane of higher availability, which consist of multiple node and one load balancer typically.
 
+![demo](docs/resources/demo.gif)
+
 ## Features
 
 1. Set up KubeVela air-gapped
