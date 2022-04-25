@@ -19,16 +19,13 @@ download_k3d:
 	./hack/download_k3d_images.sh
 
 download_k3s: download_k3s_images
-	mkdir -p ${STATIC_DIR}/k3s
-	curl -Lo ${STATIC_DIR}/k3s/k3s https://github.com/k3s-io/k3s/releases/download/${K3S_VERSION}/k3s
-	curl -Lo ${STATIC_DIR}/k3s/setup.sh https://get.k3s.io
+	mkdir -p ${STATIC_DIR}/k3s/other
+	curl -Lo ${STATIC_DIR}/k3s/other/k3s https://github.com/k3s-io/k3s/releases/download/${K3S_VERSION}/k3s
+	curl -Lo ${STATIC_DIR}/k3s/other/setup.sh https://get.k3s.io
 
 download_k3s_images:
-	curl -Lo ${STATIC_DIR}/k3s/k3s-airgap-images-amd64.tar.gz https://github.com/k3s-io/k3s/releases/download/${K3S_VERSION}/k3s-airgap-images-amd64.tar.gz
-
-download_k3d_image:
-	mkdir -p ${STATIC_DIR}/k3d
-	curl -Lo ${STATIC_DIR}/k3d/k3d
+	mkdir -p ${STATIC_DIR}/k3s/images
+	curl -Lo ${STATIC_DIR}/k3s/images/k3s-airgap-images-amd64.tar.gz https://github.com/k3s-io/k3s/releases/download/${K3S_VERSION}/k3s-airgap-images-amd64.tar.gz
 
 CHART_DIR := ${STATIC_DIR}/vela/charts
 pack_vela_chart:
