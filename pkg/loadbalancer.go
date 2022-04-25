@@ -12,6 +12,8 @@ import (
 	"text/template"
 
 	"github.com/pkg/errors"
+
+	. "github.com/oam-dev/velad/pkg/resources"
 )
 
 func ConfigureNginx(args LoadBalancerArgs) error {

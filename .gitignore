@@ -28,7 +28,8 @@ _.yaml
 _tmp/
 tmp/
 
-pkg/static/k3s
-pkg/static/vela/images
-pkg/static/vela/charts/vela-core.tgz
-pkg/static/vela/addons
+pkg/resources/static/k3s
+pkg/resources/static/k3d/
+pkg/resources/static/vela/images
+pkg/resources/static/vela/charts/vela-core.tgz
+pkg/resources/static/vela/addons

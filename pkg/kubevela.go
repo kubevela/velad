@@ -2,14 +2,17 @@ package pkg
 
 import (
 	"fmt"
-	"github.com/oam-dev/kubevela/pkg/utils/system"
-	"github.com/oam-dev/velad/version"
-	"github.com/pkg/errors"
 	"io"
 	"os"
 	"os/exec"
 	"path"
 	"strings"
+
+	"github.com/oam-dev/kubevela/pkg/utils/system"
+	"github.com/pkg/errors"
+
+	. "github.com/oam-dev/velad/pkg/resources"
+	"github.com/oam-dev/velad/version"
 )
 
 func PrepareVelaChart() (string, error) {

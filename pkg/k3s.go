@@ -1,7 +1,11 @@
+//go:build linux
+// +build linux
+
 package pkg
 
 import (
 	"fmt"
+	. "github.com/oam-dev/velad/pkg/resources"
 	"github.com/pkg/errors"
 	"io"
 	"os"
@@ -11,17 +15,17 @@ import (
 
 // PrepareK3sImages Write embed images
 func PrepareK3sImages() error {
-	embedK3sImage, err := K3sDirectory.Open("static/k3s/k3s-airgap-images-amd64.tar.gz")
+	embedK3sImage, err := K3sImage.Open("static/k3s/images/k3s-airgap-images-amd64.tar.gz")
 	if err != nil {
 		return err
 	}
 	defer CloseQuietly(embedK3sImage)
-	err = os.MkdirAll(k3sImageDir, 600)
+	err = os.MkdirAll(K3sImageDir, 600)
 	if err != nil {
 		return err
 	}
 	/* #nosec */
-	bin, err := os.OpenFile(k3sImageLocation, os.O_CREATE|os.O_WRONLY, 0700)
+	bin, err := os.OpenFile(K3sImageLocation, os.O_CREATE|os.O_WRONLY, 0700)
 	if err != nil {
 		return err
 	}
@@ -30,7 +34,7 @@ func PrepareK3sImages() error {
 	if err != nil {
 		return err
 	}
-	unGzipCmd := exec.Command("gzip", "-f", "-d", k3sImageLocation)
+	unGzipCmd := exec.Command("gzip", "-f", "-d", K3sImageLocation)
 	output, err := unGzipCmd.CombinedOutput()
 	fmt.Print(string(output))
 	if err != nil {
@@ -42,7 +46,7 @@ func PrepareK3sImages() error {
 
 // PrepareK3sScript Write k3s install script to local
 func PrepareK3sScript() (string, error) {
-	embedScript, err := K3sDirectory.Open("static/k3s/setup.sh")
+	embedScript, err := K3sDirectory.Open("static/k3s/other/setup.sh")
 	if err != nil {
 		return "", err
 	}
@@ -55,13 +59,13 @@ func PrepareK3sScript() (string, error) {
 
 // PrepareK3sBin prepare k3s bin
 func PrepareK3sBin() error {
-	embedK3sBinary, err := K3sDirectory.Open("static/k3s/k3s")
+	embedK3sBinary, err := K3sDirectory.Open("static/k3s/other/k3s")
 	if err != nil {
 		return err
 	}
 	defer CloseQuietly(embedK3sBinary)
 	/* #nosec */
-	bin, err := os.OpenFile(k3sBinaryLocation, os.O_CREATE|os.O_WRONLY, 0700)
+	bin, err := os.OpenFile(K3sBinaryLocation, os.O_CREATE|os.O_WRONLY, 0700)
 	if err != nil {
 		return err
 	}
@@ -70,7 +74,7 @@ func PrepareK3sBin() error {
 	if err != nil {
 		return err
 	}
-	info("Successfully place k3s binary to " + k3sBinaryLocation)
+	info("Successfully place k3s binary to " + K3sBinaryLocation)
 	return nil
 }
 
