@@ -1,4 +1,4 @@
-package pkg
+package apis
 
 import "github.com/oam-dev/kubevela/references/cli"
 
@@ -18,3 +18,9 @@ type LoadBalancerArgs struct {
 	Hosts         []string
 	Configuration string
 }
+
+var (
+	KubeConfigLocation         = "/etc/rancher/k3s/k3s.yaml"
+	ExternalKubeConfigLocation = "/etc/rancher/k3s/k3s-external.yaml"
+	VelaLinkPos                = "/usr/local/bin/vela"
+)

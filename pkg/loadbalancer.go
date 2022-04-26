@@ -13,10 +13,12 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/oam-dev/velad/pkg/apis"
 	. "github.com/oam-dev/velad/pkg/resources"
+	"github.com/oam-dev/velad/pkg/utils"
 )
 
-func ConfigureNginx(args LoadBalancerArgs) error {
+func ConfigureNginx(args apis.LoadBalancerArgs) error {
 	var err error
 	err = checkLBCondition()
 	if err != nil {
@@ -38,13 +40,13 @@ func UninstallNginx() error {
 	if err != nil {
 		return err
 	}
-	scriptName, err := SaveToTemp(file, "install_nginx-*.sh")
+	scriptName, err := utils.SaveToTemp(file, "install_nginx-*.sh")
 	if err != nil {
 		return err
 	}
 	cmd := exec.Command("/bin/bash", scriptName)
 	output, err := cmd.CombinedOutput()
-	infoBytes(output)
+	utils.InfoBytes(output)
 	if err != nil {
 		return err
 	}
@@ -56,17 +58,17 @@ func installNginx() error {
 	if err != nil {
 		return err
 	}
-	scriptName, err := SaveToTemp(file, "install_nginx-*.sh")
+	scriptName, err := utils.SaveToTemp(file, "install_nginx-*.sh")
 	if err != nil {
 		return err
 	}
 	cmd := exec.Command("/bin/bash", scriptName)
 	output, err := cmd.CombinedOutput()
-	infoBytes(output)
+	utils.InfoBytes(output)
 	return err
 }
 
-func setNginxConf(args LoadBalancerArgs) (string, error) {
+func setNginxConf(args apis.LoadBalancerArgs) (string, error) {
 	var conf string
 	clause, err := getNginxStreamModClause()
 	if err != nil {
@@ -100,7 +102,7 @@ func startNginx(conf string) error {
 	_ = cmd.Run()
 	reloadCmd := exec.Command("nginx", "-c", conf)
 	output, err := reloadCmd.CombinedOutput()
-	infoBytes(output)
+	utils.InfoBytes(output)
 	return err
 }
 
@@ -177,6 +179,6 @@ func checkLBCondition() error {
 func KillNginx() error {
 	kill := exec.Command("pkill", "-9", "nginx")
 	output, err := kill.CombinedOutput()
-	infoBytes(output)
+	utils.InfoBytes(output)
 	return err
 }

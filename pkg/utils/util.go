@@ -1,4 +1,4 @@
-package pkg
+package utils
 
 import (
 	"fmt"
@@ -16,8 +16,8 @@ import (
 )
 
 var (
-	info func(a ...interface{})
-	errf func(format string, a ...interface{})
+	Info func(a ...interface{})
+	Errf func(format string, a ...interface{})
 
 	// tempFiles will be added while installation and clean up after install
 	// Can be added by SaveToTemp or AddToTemp
@@ -27,10 +27,10 @@ var (
 )
 
 func init() {
-	info = func(a ...interface{}) {
+	Info = func(a ...interface{}) {
 		fmt.Println(a...)
 	}
-	errf = func(format string, a ...interface{}) {
+	Errf = func(format string, a ...interface{}) {
 		fmt.Printf(format, a...)
 	}
 	dir, err := system.GetVelaHomeDir()
@@ -108,14 +108,14 @@ func WarnSaveToken(token string) {
 		getToken := exec.Command("cat", "/var/lib/rancher/k3s/server/token")
 		_token, err := getToken.Output()
 		if err != nil {
-			errf("Fail to get token, please run `cat /var/lib/rancher/k3s/server/token` and save it.\n")
+			Errf("Fail to get token, please run `cat /var/lib/rancher/k3s/server/token` and save it.\n")
 			return
 		}
 		token = string(_token)
 	}
-	info()
-	info("Keep the token below in case of restarting the control plane")
-	info(token)
+	Info()
+	Info("Keep the token below in case of restarting the control plane")
+	Info(token)
 }
 
 func Cleanup() error {
@@ -127,23 +127,23 @@ func Cleanup() error {
 	return nil
 }
 
-func infoBytes(b []byte) {
+func InfoBytes(b []byte) {
 	if len(b) != 0 {
-		info(string(b))
+		Info(string(b))
 	}
 }
 
 // VeladWriter will change "vela addon enable" hint and print else as it is.
 type VeladWriter struct {
-	w io.Writer
+	W io.Writer
 }
 
 var _ io.Writer = &VeladWriter{}
 
 func (v VeladWriter) Write(p []byte) (n int, err error) {
 	if strings.HasPrefix(string(p), "If you want to enable dashboard, please run \"vela addon enable velaux\"") {
-		return v.w.Write([]byte(fmt.Sprintf("If you want to enable dashboard, please run \"vela addon enable %s\"\n", velauxDir)))
+		return v.W.Write([]byte(fmt.Sprintf("If you want to enable dashboard, please run \"vela addon enable %s\"\n", velauxDir)))
 	} else {
-		return v.w.Write(p)
+		return v.W.Write(p)
 	}
 }

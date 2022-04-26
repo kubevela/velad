@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"fmt"
+	"github.com/oam-dev/velad/pkg/apis"
 	"io"
 	"os"
 	"os/exec"
@@ -12,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 
 	. "github.com/oam-dev/velad/pkg/resources"
+	"github.com/oam-dev/velad/pkg/utils"
 	"github.com/oam-dev/velad/version"
 )
 
@@ -20,7 +22,7 @@ func PrepareVelaChart() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	chartFile, err := SaveToTemp(charts, "vela-core-*.tgz")
+	chartFile, err := utils.SaveToTemp(charts, "vela-core-*.tgz")
 	if err != nil {
 		return "", err
 	}
@@ -31,7 +33,7 @@ func PrepareVelaChart() (string, error) {
 		return "", err
 	}
 	untarResult := "/var/vela-core"
-	AddToTemp(untarResult)
+	utils.AddToTemp(untarResult)
 	return untarResult, nil
 }
 
@@ -47,7 +49,7 @@ func LoadVelaImages() error {
 			return err
 		}
 		name := strings.Split(entry.Name(), ".")[0]
-		imageTar, err := SaveToTemp(file, "vela-image-"+name+"-*.tar")
+		imageTar, err := utils.SaveToTemp(file, "vela-image-"+name+"-*.tar")
 		if err != nil {
 			return err
 		}
@@ -68,15 +70,15 @@ func LinkToVela() {
 	if err == nil {
 		return
 	}
-	info("Creating symlink to", VelaLinkPos)
-	link := exec.Command("ln", "-sf", "velad", VelaLinkPos)
+	info("Creating symlink to", apis.VelaLinkPos)
+	link := exec.Command("ln", "-sf", "velad", apis.VelaLinkPos)
 	output, err := link.CombinedOutput()
-	infoBytes(output)
+	utils.InfoBytes(output)
 	if err != nil {
 		errf("Fail to create symlink: %v\n", err)
 		return
 	}
-	info("Successfully install vela CLI at: ", VelaLinkPos)
+	info("Successfully install vela CLI at: ", apis.VelaLinkPos)
 }
 
 // PrepareVelaUX place vela-ux chart in ~/.vela/addons/velaux/
@@ -98,12 +100,12 @@ func PrepareVelaUX() error {
 	if err != nil {
 		return err
 	}
-	defer CloseQuietly(tar)
+	defer utils.CloseQuietly(tar)
 	file, err := os.OpenFile(path.Join(velaAddonDir, filename), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
-	defer CloseQuietly(file)
+	defer utils.CloseQuietly(file)
 	_, err = io.Copy(file, tar)
 	if err != nil {
 		return errors.Wrap(err, "error when copy velaux-vx.y.z.tgz to local")
@@ -115,7 +117,7 @@ func PrepareVelaUX() error {
 	}
 	untar := exec.Command("tar", "-xzf", file.Name(), "-C", velaAddonDir)
 	output, err := untar.CombinedOutput()
-	infoBytes(output)
+	utils.InfoBytes(output)
 	if err != nil {
 		return errors.Wrap(err, "error when untar velaux-vx.y.z.tgz")
 	}

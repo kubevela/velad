@@ -2,10 +2,11 @@ package pkg
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
-
+	"github.com/oam-dev/velad/pkg/apis"
+	"github.com/oam-dev/velad/pkg/handler"
+	"github.com/oam-dev/velad/pkg/utils"
 	"github.com/oam-dev/velad/version"
+	"os"
 
 	"github.com/oam-dev/kubevela/pkg/utils/common"
 	cmdutil "github.com/oam-dev/kubevela/pkg/utils/util"
@@ -14,10 +15,11 @@ import (
 )
 
 var (
-	cArgs                      InstallArgs
-	KubeConfigLocation         = "/etc/rancher/k3s/k3s.yaml"
-	ExternalKubeConfigLocation = "/etc/rancher/k3s/k3s-external.yaml"
-	VelaLinkPos                = "/usr/local/bin/vela"
+	cArgs              apis.InstallArgs
+	KubeConfigLocation = "/etc/rancher/k3s/k3s.yaml"
+	errf               = utils.Errf
+	info               = utils.Info
+	h                  = handler.DefaultHandler
 )
 
 // NewVeladCommand create velad command
@@ -78,19 +80,17 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 			//	return
 			//}
 			defer func() {
-				err := Cleanup()
+				err := utils.Cleanup()
 				if err != nil {
 					errf("Fail to clean up: %v\n", err)
 				}
 			}()
 
 			// Step.1 Set up K3s as control plane cluster
-			err = SetupK3s(cArgs)
+			err = h.Install(cArgs)
 			if err != nil {
-				errf("Fail to setup k3s: %v\n", err)
-				return
+				errf("Fail to install K3s: %v\n", err)
 			}
-			info("Successfully setup cluster")
 
 			// Step.2 Set KUBECONFIG
 			err = os.Setenv("KUBECONFIG", KubeConfigLocation)
@@ -121,13 +121,13 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 				}
 				// Step.6 install vela-core
 				info("Installing vela-core Helm chart...")
-				ioStreams.Out = VeladWriter{os.Stdout}
+				ioStreams.Out = utils.VeladWriter{W: os.Stdout}
 				installCmd := cli.NewInstallCommand(c, "1", ioStreams)
 				installArgs := []string{"--file", chart, "--detail=false", "--version", version.VelaVersion}
-				if IfDeployByPod(cArgs.Controllers) {
+				if utils.IfDeployByPod(cArgs.Controllers) {
 					installArgs = append(installArgs, "--set", "deployByPod=true")
 				}
-				userDefinedArgs := TransArgsToString(cArgs.InstallArgs)
+				userDefinedArgs := utils.TransArgsToString(cArgs.InstallArgs)
 				installArgs = append(installArgs, userDefinedArgs...)
 				installCmd.SetArgs(installArgs)
 				err = installCmd.Execute()
@@ -138,12 +138,12 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 
 			// Step.7 Generate external kubeconfig
 			if cArgs.BindIP != "" {
-				err = GenKubeconfig(cArgs.BindIP)
+				err = h.GenKubeconfig(cArgs.BindIP)
 				if err != nil {
 					return
 				}
 			}
-			WarnSaveToken(cArgs.Token)
+			utils.WarnSaveToken(cArgs.Token)
 			info("Successfully install KubeVela control plane! Try: vela components")
 		},
 	}
@@ -172,7 +172,7 @@ func NewKubeConfigCmd() *cobra.Command {
 		Use:   "kubeconfig",
 		Short: "print kubeconfig to access control plane",
 		Run: func(cmd *cobra.Command, args []string) {
-			PrintKubeConfig(internal, external)
+			h.PrintKubeConfig(internal, external)
 		},
 	}
 	cmd.Flags().BoolVar(&internal, "internal", false, "Print kubeconfig that can only be used in this machine")
@@ -185,19 +185,12 @@ func NewUninstallCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "uninstall",
 		Short: "uninstall control plane",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			// #nosec
-			uCmd := exec.Command("/usr/local/bin/k3s-uninstall.sh")
-			err := uCmd.Run()
+		Run: func(cmd *cobra.Command, args []string) {
+			err := h.Uninstall()
 			if err != nil {
-				errf("Fail to uninstall k3s: %v\n", err)
+				errf("Failed to uninstall KubeVela control plane: %v\n", err)
 			}
-			dCmd := exec.Command("rm", VelaLinkPos)
-			err = dCmd.Run()
-			if err != nil {
-				errf("Fail to delete vela symlink: %v\n", err)
-			}
-			return nil
+			info("Successfully uninstall KubeVela control plane!")
 		},
 	}
 	return cmd
@@ -217,14 +210,14 @@ func NewLoadBalancerCmd() *cobra.Command {
 }
 
 func NewLBInstallCmd() *cobra.Command {
-	var LBArgs LoadBalancerArgs
+	var LBArgs apis.LoadBalancerArgs
 	cmd := &cobra.Command{
 		Use:   "install",
 		Short: "Setup load balancer between nodes set up by VelaD",
 		Long:  "Setup load balancer between nodes set up by VelaD",
 		Run: func(cmd *cobra.Command, args []string) {
 			defer func() {
-				err := Cleanup()
+				err := utils.Cleanup()
 				if err != nil {
 					errf("Fail to clean up: %v\n", err)
 				}
