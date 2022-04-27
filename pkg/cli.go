@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"fmt"
+	"github.com/oam-dev/velad/pkg/apis"
 	"os"
 	"strings"
 
@@ -9,7 +10,6 @@ import (
 	"github.com/oam-dev/kubevela/version"
 	veladVersion "github.com/oam-dev/velad/version"
 	"github.com/spf13/cobra"
-	"k8s.io/client-go/tools/clientcmd"
 )
 
 // App is entry of all CLI, created by NewApp
@@ -51,8 +51,9 @@ func isVela(s string) bool {
 }
 
 func setKubeConfigEnv() {
-	kubeconfig := os.Getenv(clientcmd.RecommendedConfigPathEnvVar)
+	RecommendedConfigPathEnvVar:="KUBECONFIG"
+	kubeconfig := os.Getenv(RecommendedConfigPathEnvVar)
 	if kubeconfig == "" {
-		_ = os.Setenv(clientcmd.RecommendedConfigPathEnvVar, KubeConfigLocation)
+		_ = os.Setenv(RecommendedConfigPathEnvVar, apis.KubeConfigLocation)
 	}
 }

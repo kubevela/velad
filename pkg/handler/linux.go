@@ -28,7 +28,7 @@ func (l LinuxHandler) Install(args apis.InstallArgs) error {
 	if err != nil {
 		return errors.Wrap(err, "fail to setup k3s")
 	}
-	utils.Info("Successfully setup cluster")
+	info("Successfully setup cluster")
 	return nil
 }
 
@@ -80,7 +80,7 @@ func PrepareK3sImages() error {
 	if err != nil {
 		return err
 	}
-	utils.Info("Successfully prepare k3s image")
+	info("Successfully prepare k3s image")
 	return nil
 }
 
@@ -114,31 +114,31 @@ func PrepareK3sBin() error {
 	if err != nil {
 		return err
 	}
-	utils.Info("Successfully place k3s binary to " + resources.K3sBinaryLocation)
+	info("Successfully place k3s binary to " + resources.K3sBinaryLocation)
 	return nil
 }
 
 // SetupK3s will set up K3s as control plane.
 func SetupK3s(cArgs apis.InstallArgs) error {
-	utils.Info("Preparing cluster setup script...")
+	info("Preparing cluster setup script...")
 	script, err := PrepareK3sScript()
 	if err != nil {
 		return errors.Wrap(err, "fail to prepare k3s setup script")
 	}
 
-	utils.Info("Preparing k3s binary...")
+	info("Preparing k3s binary...")
 	err = PrepareK3sBin()
 	if err != nil {
 		return errors.Wrap(err, "Fail to prepare k3s binary")
 	}
 
-	utils.Info("Preparing k3s images")
+	info("Preparing k3s images")
 	err = PrepareK3sImages()
 	if err != nil {
 		return errors.Wrap(err, "Fail to prepare k3s images")
 	}
 
-	utils.Info("Setting up cluster...")
+	info("Setting up cluster...")
 	args := []string{script}
 	other := composeArgs(cArgs)
 	args = append(args, other...)

@@ -73,3 +73,10 @@ func TestVeladWriter(t *testing.T) {
 	got = buf.String()
 	assert.Equal(t, fmt.Sprintf("test\nIf you want to enable dashboard, please run \"vela addon enable %s\"\n", velauxDir), got)
 }
+
+func TestGetTmpDir(t *testing.T) {
+	tmpDir,err := GetTmpDir()
+	assert.NoError(t, err)
+	fmt.Println(tmpDir)
+	assert.NotEmpty(t, tmpDir)
+}

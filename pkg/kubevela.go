@@ -26,14 +26,17 @@ func PrepareVelaChart() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	// open the tar to /var/vela-core
-	untar := exec.Command("tar", "-xzf", chartFile, "-C", "/var")
+	// open the tar to tmpDir/vela-core
+	tmpDir, err := utils.GetTmpDir()
+	if err != nil {
+		return "", err
+	}
+	untar := exec.Command("tar", "-xzf", chartFile, "-C", tmpDir)
 	err = untar.Run()
 	if err != nil {
 		return "", err
 	}
-	untarResult := "/var/vela-core"
-	utils.AddToTemp(untarResult)
+	untarResult:=path.Join(tmpDir, "vela-core")
 	return untarResult, nil
 }
 

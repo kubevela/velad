@@ -16,7 +16,6 @@ import (
 
 var (
 	cArgs              apis.InstallArgs
-	KubeConfigLocation = "/etc/rancher/k3s/k3s.yaml"
 	errf               = utils.Errf
 	info               = utils.Info
 	h                  = handler.DefaultHandler
@@ -93,7 +92,7 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 			}
 
 			// Step.2 Set KUBECONFIG
-			err = os.Setenv("KUBECONFIG", KubeConfigLocation)
+			err = os.Setenv("KUBECONFIG", apis.KubeConfigLocation)
 			if err != nil {
 				errf("Fail to set KUBECONFIG environment var: %v\n", err)
 				return

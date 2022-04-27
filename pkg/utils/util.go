@@ -6,22 +6,19 @@ import (
 	"io"
 	"io/fs"
 	"io/ioutil"
-	"k8s.io/utils/strings/slices"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
 	"github.com/oam-dev/kubevela/references/cli"
+	"k8s.io/utils/strings/slices"
 )
 
 var (
 	Info func(a ...interface{})
 	Errf func(format string, a ...interface{})
 
-	// tempFiles will be added while installation and clean up after install
-	// Can be added by SaveToTemp or AddToTemp
-	tempFiles []string
 
 	velauxDir string
 )
@@ -43,7 +40,11 @@ func init() {
 
 // SaveToTemp helps save an embedded file into a temporary file
 func SaveToTemp(file fs.File, format string) (string, error) {
-	tempFile, err := ioutil.TempFile("/var", format)
+	tmpDir, err := GetTmpDir()
+	if err != nil {
+		return "", err
+	}
+	tempFile, err := ioutil.TempFile(tmpDir, format)
 	if err != nil {
 		return "", err
 	}
@@ -53,12 +54,7 @@ func SaveToTemp(file fs.File, format string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	tempFiles = append(tempFiles, tempFile.Name())
 	return tempFile.Name(), nil
-}
-
-func AddToTemp(file string) {
-	tempFiles = append(tempFiles, file)
 }
 
 // CloseQuietly closes `io.Closer` quietly. Very handy and helpful for code
@@ -119,12 +115,11 @@ func WarnSaveToken(token string) {
 }
 
 func Cleanup() error {
-	for _, f := range tempFiles {
-		if err := os.RemoveAll(f); err != nil {
-			return err
-		}
+	tmpDir,err:= GetTmpDir()
+	if err!=nil{
+		return err
 	}
-	return nil
+	return os.Remove(tmpDir)
 }
 
 func InfoBytes(b []byte) {
@@ -146,4 +141,16 @@ func (v VeladWriter) Write(p []byte) (n int, err error) {
 	} else {
 		return v.W.Write(p)
 	}
+}
+
+func GetTmpDir() (string, error) {
+	dir, err := system.GetVelaHomeDir()
+	if err != nil {
+		return "", err
+	}
+	tmpDir := filepath.Join(dir, "tmp")
+	if err := os.MkdirAll(tmpDir, 0755); err != nil {
+		return "", err
+	}
+	return tmpDir, nil
 }
