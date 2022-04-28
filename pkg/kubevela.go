@@ -51,13 +51,20 @@ func LoadVelaImages() error {
 			return err
 		}
 		name := strings.Split(entry.Name(), ".")[0]
-		imageTar, err := utils.SaveToTemp(file, "vela-image-"+name+"-*.tar")
+		imageTgz, err := utils.SaveToTemp(file, "vela-image-"+name+"-*.tar.gz")
 		if err != nil {
 			return err
 		}
+		unzipCmd := exec.Command("gzip", "-d", imageTgz)
+		output, err := unzipCmd.CombinedOutput()
+		utils.InfoBytes(output)
+		if err != nil {
+			return err
+		}
+		imageTar := strings.TrimSuffix(imageTgz, ".gz")
 		importCmd := exec.Command("k3s", "ctr", "images", "import", imageTar)
-		output, err := importCmd.CombinedOutput()
-		fmt.Print(string(output))
+		output, err = importCmd.CombinedOutput()
+		utils.InfoBytes(output)
 		if err != nil {
 			return err
 		}

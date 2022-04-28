@@ -65,14 +65,13 @@ func (d *DockerHandler) Uninstall() error {
 		}
 	}
 
-	// check cluster existence
 	err = k3dClient.ClusterDelete(ctx, runtimes.SelectedRuntime, veladCluster, k3d.ClusterDeleteOpts{
 		SkipRegistryCheck: false,
 	})
 	if err != nil {
 		return errors.Wrap(err, "Fail to delete cluster")
 	}
-	// delete Kubeconfig
+	// TODO: delete Kubeconfig
 	return nil
 }
 
@@ -82,7 +81,7 @@ func (d *DockerHandler) GenKubeconfig(bindIP string) error {
 
 func (d *DockerHandler) SetKubeconfig() error {
 	// merge kubeconfig into default kubeconfig
-	info("Updating default kubeconfig with a new context for velad...")
+	info("Updating default kubeconfig with a new context for VelaD...")
 	if _, err := client.KubeconfigGetWrite(context.Background(), runtimes.SelectedRuntime, &d.cfg.Cluster, "",
 		&client.WriteKubeConfigOptions{UpdateExisting: true, OverwriteExisting: false, UpdateCurrentContext: true}); err != nil {
 		errf("Failed to update default kubeconfig: %v", err)
@@ -274,13 +273,20 @@ func LoadK3dImages() error {
 			return err
 		}
 		name := strings.Split(entry.Name(), ".")[0]
-		imageTar, err := utils.SaveToTemp(file, "k3d-image-"+name+"-*.tar")
+		imageTgz, err := utils.SaveToTemp(file, "k3d-image-"+name+"-*.tar.gz")
 		if err != nil {
 			return err
 		}
+		unzipCmd := exec.Command("gzip", "-d", imageTgz)
+		output, err := unzipCmd.CombinedOutput()
+		utils.InfoBytes(output)
+		if err != nil {
+			return err
+		}
+		imageTar := strings.TrimSuffix(imageTgz, ".gz")
 		importCmd := exec.Command("docker", "image", "load", "-i", imageTar)
-		output, err := importCmd.CombinedOutput()
-		fmt.Print(string(output))
+		output, err = importCmd.CombinedOutput()
+		utils.InfoBytes(output)
 		if err != nil {
 			return err
 		}

@@ -12,4 +12,5 @@ for IMG in ${vela_images[*]}; do
   echo saving "$IMG" to "$K3D_IMAGE_DIR"/"$IMAGE_NAME".tar
   docker pull "$IMG"
   docker save -o "$K3D_IMAGE_DIR"/"$IMAGE_NAME".tar "$IMG"
+  gzip -f "$K3D_IMAGE_DIR"/"$IMAGE_NAME".tar
 done
