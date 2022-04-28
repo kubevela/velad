@@ -6,7 +6,9 @@ import (
 	"github.com/oam-dev/velad/pkg/handler"
 	"github.com/oam-dev/velad/pkg/utils"
 	"github.com/oam-dev/velad/version"
+	"github.com/pkg/errors"
 	"os"
+	"runtime"
 
 	"github.com/oam-dev/kubevela/pkg/utils/common"
 	cmdutil "github.com/oam-dev/kubevela/pkg/utils/util"
@@ -15,10 +17,11 @@ import (
 )
 
 var (
-	cArgs              apis.InstallArgs
-	errf               = utils.Errf
-	info               = utils.Info
-	h                  = handler.DefaultHandler
+	cArgs apis.InstallArgs
+	errf  = utils.Errf
+	info  = utils.Info
+	infof = utils.Infof
+	h     = handler.DefaultHandler
 )
 
 // NewVeladCommand create velad command
@@ -92,9 +95,9 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 			}
 
 			// Step.2 Set KUBECONFIG
-			err = os.Setenv("KUBECONFIG", apis.KubeConfigLocation)
+			err = h.SetKubeconfig()
 			if err != nil {
-				errf("Fail to set KUBECONFIG environment var: %v\n", err)
+				errf("Fail to set kubeconfig environment var: %v\n", err)
 				return
 			}
 
@@ -200,6 +203,12 @@ func NewLoadBalancerCmd() *cobra.Command {
 		Use:   "load-balancer",
 		Short: "Configure load balancer between nodes set up by VelaD",
 		Long:  "Configure load balancer between nodes set up by VelaD",
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			if runtime.GOOS != "linux" {
+				return errors.New("Load balancer is only supported on linux")
+			}
+			return nil
+		},
 	}
 	cmd.AddCommand(
 		NewLBInstallCmd(),

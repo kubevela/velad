@@ -2,7 +2,7 @@ package pkg
 
 import (
 	"fmt"
-	"github.com/oam-dev/velad/pkg/apis"
+	"github.com/oam-dev/velad/pkg/utils"
 	"os"
 	"strings"
 
@@ -51,9 +51,10 @@ func isVela(s string) bool {
 }
 
 func setKubeConfigEnv() {
-	RecommendedConfigPathEnvVar:="KUBECONFIG"
+	RecommendedConfigPathEnvVar := "KUBECONFIG"
 	kubeconfig := os.Getenv(RecommendedConfigPathEnvVar)
 	if kubeconfig == "" {
-		_ = os.Setenv(RecommendedConfigPathEnvVar, apis.KubeConfigLocation)
+		kubeconfig = utils.GetDefaultKubeconfigPos()
+		_ = os.Setenv(RecommendedConfigPathEnvVar, kubeconfig)
 	}
 }

@@ -14,15 +14,16 @@ import (
 
 	"github.com/docker/go-connections/nat"
 	"github.com/oam-dev/kubevela/pkg/utils/system"
-	"github.com/oam-dev/velad/pkg/apis"
-	. "github.com/oam-dev/velad/pkg/resources"
-	"github.com/oam-dev/velad/pkg/utils"
 	"github.com/pkg/errors"
 	"github.com/rancher/k3d/v5/pkg/client"
 	k3dClient "github.com/rancher/k3d/v5/pkg/client"
 	config "github.com/rancher/k3d/v5/pkg/config/v1alpha3"
 	"github.com/rancher/k3d/v5/pkg/runtimes"
 	k3d "github.com/rancher/k3d/v5/pkg/types"
+
+	"github.com/oam-dev/velad/pkg/apis"
+	. "github.com/oam-dev/velad/pkg/resources"
+	"github.com/oam-dev/velad/pkg/utils"
 )
 
 var (
@@ -32,10 +33,12 @@ var (
 )
 
 type DockerHandler struct {
+	cfg config.ClusterConfig
 }
 
-func (d DockerHandler) Install(args apis.InstallArgs) error {
-	err := setupK3d(args)
+func (d *DockerHandler) Install(args apis.InstallArgs) error {
+	d.cfg = GetClusterRunConfig(args)
+	err := setupK3d(d.cfg)
 	if err != nil {
 		return errors.Wrap(err, "failed to setup k3d")
 	}
@@ -43,37 +46,73 @@ func (d DockerHandler) Install(args apis.InstallArgs) error {
 	return nil
 }
 
-func (d DockerHandler) Uninstall() error {
+func (d *DockerHandler) Uninstall() error {
+	ctx := context.Background()
+	clusterList, err := k3dClient.ClusterList(ctx, runtimes.SelectedRuntime)
+	if err != nil {
+		return errors.Wrap(err, "failed to get cluster list")
+	}
+
+	if len(clusterList) == 0 {
+		return errors.New("no cluster found")
+	}
+
+	var veladCluster *k3d.Cluster
+
+	for _, c := range clusterList {
+		if c.Name == "velad-cluster" {
+			veladCluster = c
+		}
+	}
+
+	// check cluster existence
+	err = k3dClient.ClusterDelete(ctx, runtimes.SelectedRuntime, veladCluster, k3d.ClusterDeleteOpts{
+		SkipRegistryCheck: false,
+	})
+	if err != nil {
+		return errors.Wrap(err, "Fail to delete cluster")
+	}
+	// delete Kubeconfig
 	return nil
 }
 
-func (d DockerHandler) GenKubeconfig(bindIP string) error {
+func (d *DockerHandler) GenKubeconfig(bindIP string) error {
 	return nil
 }
 
-func (d DockerHandler) PrintKubeConfig(internal, external bool) {
+func (d *DockerHandler) SetKubeconfig() error {
+	// merge kubeconfig into default kubeconfig
+	info("Updating default kubeconfig with a new context for velad...")
+	if _, err := client.KubeconfigGetWrite(context.Background(), runtimes.SelectedRuntime, &d.cfg.Cluster, "",
+		&client.WriteKubeConfigOptions{UpdateExisting: true, OverwriteExisting: false, UpdateCurrentContext: true}); err != nil {
+		errf("Failed to update default kubeconfig: %v", err)
+	}
+	pos := utils.GetDefaultKubeconfigPos()
+	return os.Setenv("KUBECONFIG", pos)
+}
+
+func (d *DockerHandler) PrintKubeConfig(internal, external bool) {
 
 }
 
-func setupK3d(args apis.InstallArgs) error {
-	info("Preparing k3d images...")
+func setupK3d(clusterConfig config.ClusterConfig) error {
+	info("Preparing K3s images...")
 	err := PrepareK3sImages()
 	if err != nil {
 		return errors.Wrap(err, "failed to prepare k3d images")
 	}
 	info("Successfully prepare k3d images")
 
-	info("Extracting k3d images...")
+	info("Loading k3d images...")
 	err = LoadK3dImages()
 	if err != nil {
 		return errors.Wrap(err, "failed to extract k3d images")
 	}
-	info("Successfully extract k3d images")
+	info("Successfully load k3d images")
 
 	info("Creating k3d cluster...")
-	cfg := GetClusterRunConfig(args)
 	ctx := context.Background()
-	runClusterIfNotExist(ctx, cfg)
+	runClusterIfNotExist(ctx, clusterConfig)
 	info("Successfully create k3d cluster")
 
 	return nil
@@ -95,6 +134,8 @@ func getClusterCreateOpts() k3d.ClusterCreateOpts {
 	clusterCreateOpts := k3d.ClusterCreateOpts{
 		GlobalLabels: map[string]string{}, // empty init
 		GlobalEnv:    []string{},          // empty init
+		// TODO: for now, we disable the LB, but we can enable it later for multi-server scenario
+		DisableLoadBalancer: true,
 	}
 
 	// ensure, that we have the default object labels
@@ -107,7 +148,7 @@ func getClusterCreateOpts() k3d.ClusterCreateOpts {
 
 // getClusterConfig will get different k3d.Cluster based on ordinal , storage for external storage, token is needed if storage is set
 func getClusterConfig(endpoint, token string) k3d.Cluster {
-	// All cluster will be created in one docker network
+	// Cluster will be created in one docker network
 	universalK3dNetwork := k3d.ClusterNetwork{
 		Name:     fmt.Sprintf("%s-%s", "k3d", "velad"),
 		External: false,
@@ -124,7 +165,7 @@ func getClusterConfig(endpoint, token string) k3d.Cluster {
 	}
 
 	// fill cluster config
-	clusterName := "velad-cluster-control-plane"
+	clusterName := "velad-cluster"
 	clusterConfig := k3d.Cluster{
 		Name:    clusterName,
 		Network: universalK3dNetwork,
@@ -143,7 +184,7 @@ func getClusterConfig(endpoint, token string) k3d.Cluster {
 	serverNode := k3d.Node{
 		Name:       client.GenerateNodeName(clusterConfig.Name, k3d.ServerRole, 0),
 		Role:       k3d.ServerRole,
-		Image:      "rancher/k3s:latest",
+		Image:      "rancher/k3s:v1.21.10-k3s1",
 		ServerOpts: k3d.ServerOpts{},
 		Volumes:    []string{k3sImageDir + ":/var/lib/rancher/k3s/agent/images/"},
 	}
@@ -156,6 +197,7 @@ func getClusterConfig(endpoint, token string) k3d.Cluster {
 }
 
 func getKubeconfigOptions() config.SimpleConfigOptionsKubeconfig {
+	// TODO: this not working yet, we are updating kubeconfig manually
 	opts := config.SimpleConfigOptionsKubeconfig{
 		UpdateDefaultKubeconfig: true,
 		SwitchCurrentContext:    true,
@@ -184,6 +226,7 @@ func runClusterIfNotExist(ctx context.Context, cluster config.ClusterConfig) {
 	}
 }
 
+// PrepareK3sImages extracts k3s images to ~/.vela/velad/k3s/images.tg
 func PrepareK3sImages() error {
 	embedK3sImage, err := K3sImage.Open("static/k3s/images/k3s-airgap-images-amd64.tar.gz")
 	if err != nil {
@@ -213,7 +256,7 @@ func getK3sImageDir() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	k3sImagesDir := filepath.Join(dir, "k3s")
+	k3sImagesDir := filepath.Join(dir, "velad", "k3s")
 	if err := os.MkdirAll(k3sImagesDir, 0755); err != nil {
 		return "", err
 	}
@@ -235,7 +278,7 @@ func LoadK3dImages() error {
 		if err != nil {
 			return err
 		}
-		importCmd := exec.Command("docker", "image", "load", imageTar)
+		importCmd := exec.Command("docker", "image", "load", "-i", imageTar)
 		output, err := importCmd.CombinedOutput()
 		fmt.Print(string(output))
 		if err != nil {

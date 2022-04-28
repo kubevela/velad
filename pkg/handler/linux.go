@@ -23,6 +23,8 @@ var (
 // LinuxHandler handle k3s in linux
 type LinuxHandler struct{}
 
+var _ Handler = &LinuxHandler{}
+
 func (l LinuxHandler) Install(args apis.InstallArgs) error {
 	err := SetupK3s(args)
 	if err != nil {
@@ -51,7 +53,10 @@ func (l LinuxHandler) Uninstall() error {
 	return nil
 }
 
-var _ Handler = &LinuxHandler{}
+func (l LinuxHandler) SetKubeconfig() error {
+	return os.Setenv("KUBECONFIG", apis.KubeConfigLocation)
+}
+
 
 // PrepareK3sImages Write embed images
 func PrepareK3sImages() error {

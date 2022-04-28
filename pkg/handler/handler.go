@@ -8,4 +8,5 @@ type Handler interface {
 	Uninstall() error
 	GenKubeconfig(bindIP string) error
 	PrintKubeConfig(internal, external bool)
+	SetKubeconfig() error
 }
