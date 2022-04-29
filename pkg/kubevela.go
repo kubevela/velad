@@ -62,9 +62,7 @@ func LoadVelaImages() error {
 			return err
 		}
 		imageTar := strings.TrimSuffix(imageTgz, ".gz")
-		importCmd := exec.Command("k3s", "ctr", "images", "import", imageTar)
-		output, err = importCmd.CombinedOutput()
-		utils.InfoBytes(output)
+		err = h.LoadImage(imageTar)
 		if err != nil {
 			return err
 		}

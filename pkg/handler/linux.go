@@ -57,6 +57,17 @@ func (l LinuxHandler) SetKubeconfig() error {
 	return os.Setenv("KUBECONFIG", apis.KubeConfigLocation)
 }
 
+func (d LinuxHandler) LoadImage(imageTar string)  error {
+	importCmd := exec.Command("k3s", "ctr", "images", "import", imageTar)
+	output, err = importCmd.CombinedOutput()
+	utils.InfoBytes(output)
+	if err != nil {
+		return errors.Wrap(err, "Fail to import image")
+	}
+	infof("Successfully import image %s\n", image)
+}
+
+
 
 // PrepareK3sImages Write embed images
 func PrepareK3sImages() error {

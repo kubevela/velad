@@ -9,4 +9,5 @@ type Handler interface {
 	GenKubeconfig(bindIP string) error
 	PrintKubeConfig(internal, external bool)
 	SetKubeconfig() error
+	LoadImage(image string) error
 }

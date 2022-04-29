@@ -27,18 +27,21 @@ import (
 )
 
 var (
-	DefaultHandler Handler = &DockerHandler{}
-	info                   = utils.Info
-	errf                   = utils.Errf
+	DefaultHandler Handler = &DockerHandler{
+		ctx: context.Background(),
+	}
+	info = utils.Info
+	errf = utils.Errf
 )
 
 type DockerHandler struct {
+	ctx context.Context
 	cfg config.ClusterConfig
 }
 
 func (d *DockerHandler) Install(args apis.InstallArgs) error {
 	d.cfg = GetClusterRunConfig(args)
-	err := setupK3d(d.cfg)
+	err := setupK3d(d.ctx, d.cfg)
 	if err != nil {
 		return errors.Wrap(err, "failed to setup k3d")
 	}
@@ -47,8 +50,7 @@ func (d *DockerHandler) Install(args apis.InstallArgs) error {
 }
 
 func (d *DockerHandler) Uninstall() error {
-	ctx := context.Background()
-	clusterList, err := k3dClient.ClusterList(ctx, runtimes.SelectedRuntime)
+	clusterList, err := k3dClient.ClusterList(d.ctx, runtimes.SelectedRuntime)
 	if err != nil {
 		return errors.Wrap(err, "failed to get cluster list")
 	}
@@ -65,7 +67,7 @@ func (d *DockerHandler) Uninstall() error {
 		}
 	}
 
-	err = k3dClient.ClusterDelete(ctx, runtimes.SelectedRuntime, veladCluster, k3d.ClusterDeleteOpts{
+	err = k3dClient.ClusterDelete(d.ctx, runtimes.SelectedRuntime, veladCluster, k3d.ClusterDeleteOpts{
 		SkipRegistryCheck: false,
 	})
 	if err != nil {
@@ -91,10 +93,15 @@ func (d *DockerHandler) SetKubeconfig() error {
 }
 
 func (d *DockerHandler) PrintKubeConfig(internal, external bool) {
-
 }
 
-func setupK3d(clusterConfig config.ClusterConfig) error {
+// LoadImage loads image from local path
+func (d *DockerHandler) LoadImage(image string) error {
+	err := client.ImageImportIntoClusterMulti(d.ctx, runtimes.SelectedRuntime, []string{image}, &d.cfg.Cluster, k3d.ImageImportOpts{})
+	return errors.Wrap(err, "failed to import image")
+}
+
+func setupK3d(ctx context.Context, clusterConfig config.ClusterConfig) error {
 	info("Preparing K3s images...")
 	err := PrepareK3sImages()
 	if err != nil {
@@ -110,7 +117,6 @@ func setupK3d(clusterConfig config.ClusterConfig) error {
 	info("Successfully load k3d images")
 
 	info("Creating k3d cluster...")
-	ctx := context.Background()
 	runClusterIfNotExist(ctx, clusterConfig)
 	info("Successfully create k3d cluster")
 
@@ -290,7 +296,6 @@ func LoadK3dImages() error {
 		if err != nil {
 			return err
 		}
-		fmt.Println("Successfully load image: ", imageTar)
 	}
 
 	return nil
