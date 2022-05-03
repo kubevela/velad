@@ -11,6 +11,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/kyokomi/emoji/v2"
 	"github.com/oam-dev/kubevela/pkg/utils/system"
 	"github.com/oam-dev/kubevela/references/cli"
 	"k8s.io/utils/strings/slices"
@@ -189,4 +190,18 @@ func GetKubeconfigDir() string {
 		kubeconfigDir = filepath.Join(os.Getenv("USERPROFILE"), ".kube")
 	}
 	return kubeconfigDir
+}
+
+func PrintGuide(args apis.InstallArgs) {
+	WarnSaveToken(args.Token)
+	if !args.ClusterOnly {
+		emoji.Println(":rocket: Successfully install KubeVela control plane")
+		emoji.Println(":telescope: See available commands with `vela help`")
+	} else {
+		emoji.Println(":rocket: Successfully install a pure cluster! ")
+		emoji.Println(":link: If you have a cluster with KubeVela, Join this as sub-cluster:")
+		emoji.Println("    vela cluster join $(velad kubeconfig --name foo --internal)")
+		emoji.Println(":key: To access the cluster, set KUBECONFIG:")
+		emoji.Printf("    KUBECONFIG=$(velad kubeconfig --name %s --internal)\n", args.Name)
+	}
 }

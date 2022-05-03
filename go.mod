@@ -3,12 +3,15 @@ module github.com/oam-dev/velad
 go 1.17
 
 require (
+	github.com/docker/docker v20.10.10+incompatible
 	github.com/docker/go-connections v0.4.0
+	github.com/kyokomi/emoji/v2 v2.2.9
 	github.com/oam-dev/kubevela v1.3.2
 	github.com/pkg/errors v0.9.1
 	github.com/rancher/k3d/v5 v5.2.2
 	github.com/spf13/cobra v1.3.0
 	github.com/stretchr/testify v1.7.0
+	k8s.io/klog/v2 v2.9.0
 	k8s.io/utils v0.0.0-20210930125809-cb0fa318a74b
 )
 
@@ -56,7 +59,6 @@ require (
 	github.com/deislabs/oras v0.11.1 // indirect
 	github.com/docker/cli v20.10.10+incompatible // indirect
 	github.com/docker/distribution v2.8.0-beta.1+incompatible // indirect
-	github.com/docker/docker v20.10.10+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.6.4 // indirect
 	github.com/docker/go v1.5.1-1.0.20160303222718-d30aec9fd63c // indirect
 	github.com/docker/go-metrics v0.0.1 // indirect
@@ -223,7 +225,6 @@ require (
 	k8s.io/client-go v0.22.3 // indirect
 	k8s.io/component-base v0.22.1 // indirect
 	k8s.io/klog v1.0.0 // indirect
-	k8s.io/klog/v2 v2.9.0 // indirect
 	k8s.io/kube-aggregator v0.22.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20211115234752-e816edb12b65 // indirect
 	k8s.io/kubectl v0.21.0 // indirect

@@ -9,11 +9,13 @@ import (
 	"io"
 	"io/ioutil"
 	"k8s.io/klog/v2"
+	"net"
 	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/docker/docker/client"
@@ -222,10 +224,14 @@ func getClusterConfig(name, endpoint, token string) k3d.Cluster {
 	kubeAPIExposureOpts := k3d.ExposureOpts{
 		Host: k3d.DefaultAPIHost,
 	}
+	port, err := findAvailablePort()
+	if err != nil {
+		panic(err)
+	}
 	kubeAPIExposureOpts.Port = k3d.DefaultAPIPort
 	kubeAPIExposureOpts.Binding = nat.PortBinding{
 		HostIP:   k3d.DefaultAPIHost,
-		HostPort: "6443",
+		HostPort: port,
 	}
 
 	// fill cluster config
@@ -357,3 +363,15 @@ func LoadK3dImages() error {
 	return nil
 }
 
+// find available port, 6443 by default
+func findAvailablePort() (string, error) {
+	for i := 6443; i < 65535; i++ {
+		listener, err := net.Listen("tcp", fmt.Sprintf(":%d", i))
+		if err != nil {
+			continue
+		}
+		utils.CloseQuietly(listener)
+		return strconv.Itoa(i), nil
+	}
+	return "", errors.New("no available port")
+}

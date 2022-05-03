@@ -103,13 +103,12 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 			// Step.3 Install Vela CLI
 			LinkToVela()
 
-			// Step.4 load vela-core images
-			err = LoadVelaImages()
-			if err != nil {
-				return errors.Wrap(err, "fail to load vela images")
-			}
-
 			if !cArgs.ClusterOnly {
+				// Step.4 load vela-core images
+				err = LoadVelaImages()
+				if err != nil {
+					return errors.Wrap(err, "fail to load vela images")
+				}
 
 				// Step.5 save vela-core chart and velaUX addon
 				chart, err := PrepareVelaChart()
@@ -137,8 +136,7 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 				}
 			}
 
-			utils.WarnSaveToken(cArgs.Token)
-			info("Successfully install KubeVela control plane! Try: vela components")
+			utils.PrintGuide(cArgs)
 			return nil
 		},
 	}

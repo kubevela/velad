@@ -51,7 +51,7 @@ func printKubeConfigDocker(args apis.KubeconfigArgs) error {
 		info(configPathExternal(clusterName))
 		return nil
 	}
-	info("kubeconfig for host:", configPath(clusterName), "(For accessing from host machine)")
+	info("host kubeconfig:", configPath(clusterName), "(For accessing from host machine)")
 	info("internal kubeconfig:", configPathInternal(clusterName), "(For \"vela cluster join\")")
 	cfgExt := configPathExternal(clusterName)
 	_, err := os.Stat(cfgExt)
