@@ -66,7 +66,6 @@ func LoadVelaImages() error {
 		if err != nil {
 			return err
 		}
-		fmt.Println("Successfully load image: ", imageTar)
 	}
 	return nil
 }
@@ -105,8 +104,9 @@ func getCLIInstallPos() string {
 		_ = os.MkdirAll(binDir, 0755)
 		return path.Join(binDir, "vela.exe")
 	default:
-		panic("Unsupported OS: " + runtime.GOOS)
+		utils.UnsupportOS(runtime.GOOS)
 	}
+	return ""
 }
 
 // PrepareVelaUX place vela-ux chart in ~/.vela/addons/velaux/

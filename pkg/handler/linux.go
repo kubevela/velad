@@ -15,9 +15,9 @@ import (
 )
 
 var (
-	info                               = utils.Info
-	errf                               = utils.Errf
-	DefaultHandler             Handler = &LinuxHandler{}
+	info                   = utils.Info
+	errf                   = utils.Errf
+	DefaultHandler Handler = &LinuxHandler{}
 )
 
 // LinuxHandler handle k3s in linux
@@ -54,10 +54,10 @@ func (l LinuxHandler) Uninstall() error {
 }
 
 func (l LinuxHandler) SetKubeconfig() error {
-	return os.Setenv("KUBECONFIG", apis.KubeConfigLocation)
+	return os.Setenv("KUBECONFIG", apis.K3sKubeConfigLocation)
 }
 
-func (d LinuxHandler) LoadImage(imageTar string)  error {
+func (d LinuxHandler) LoadImage(imageTar string) error {
 	importCmd := exec.Command("k3s", "ctr", "images", "import", imageTar)
 	output, err = importCmd.CombinedOutput()
 	utils.InfoBytes(output)
@@ -66,8 +66,6 @@ func (d LinuxHandler) LoadImage(imageTar string)  error {
 	}
 	infof("Successfully import image %s\n", image)
 }
-
-
 
 // PrepareK3sImages Write embed images
 func PrepareK3sImages() error {
@@ -191,33 +189,18 @@ func composeArgs(args apis.InstallArgs) []string {
 	return shellArgs
 }
 
+// GenKubeconfig generate kubeconfig for accessing from other machine
 func (l LinuxHandler) GenKubeconfig(bindIP string) error {
-	var err error
-	if bindIP != "" {
-		info("Generating kubeconfig for remote access into ", apis.ExternalKubeConfigLocation)
-		originConf, err := os.ReadFile(apis.KubeConfigLocation)
-		if err != nil {
-			return err
-		}
-		newConf := strings.Replace(string(originConf), "127.0.0.1", bindIP, 1)
-		err = os.WriteFile(apis.ExternalKubeConfigLocation, []byte(newConf), 600)
+	if bindIP == "" {
+		return nil
 	}
-	info("Successfully generate kubeconfig at ", apis.ExternalKubeConfigLocation)
+	info("Generating kubeconfig for remote access into ", apis.K3sExternalKubeConfigLocation)
+	originConf, err := os.ReadFile(apis.K3sKubeConfigLocation)
+	if err != nil {
+		return err
+	}
+	newConf := strings.Replace(string(originConf), "127.0.0.1", bindIP, 1)
+	err = os.WriteFile(apis.K3sExternalKubeConfigLocation, []byte(newConf), 600)
+	info("Successfully generate kubeconfig at ", apis.K3sExternalKubeConfigLocation)
 	return err
-}
-
-func (l LinuxHandler) PrintKubeConfig(internal, external bool) {
-	if internal {
-		info(apis.KubeConfigLocation)
-		return
-	}
-	if external {
-		info(apis.ExternalKubeConfigLocation)
-		return
-	}
-	info("internal kubeconfig: ", apis.KubeConfigLocation)
-	_, err := os.Stat(apis.ExternalKubeConfigLocation)
-	if err == nil {
-		info("external kubeconfig: ", apis.KubeConfigLocation)
-	}
 }

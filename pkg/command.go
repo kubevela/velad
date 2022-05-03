@@ -75,12 +75,8 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 		Use:   "install",
 		Short: "Quickly setup a KubeVela control plane",
 		Long:  "Quickly setup a KubeVela control plane, using K3s and only for Linux now",
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			var err error
-			//if runtime.GOOS != "linux" {
-			//	info("Launch control plane is not supported now in non-linux OS, exiting")
-			//	return
-			//}
 			defer func() {
 				err := utils.Cleanup()
 				if err != nil {
@@ -91,14 +87,17 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 			// Step.1 Set up K3s as control plane cluster
 			err = h.Install(cArgs)
 			if err != nil {
-				errf("Fail to install K3s: %v\n", err)
+				return errors.Wrap(err, "Fail to set up cluster")
 			}
 
-			// Step.2 Set KUBECONFIG
+			// Step.2 Deal with KUBECONFIG
+			err = h.GenKubeconfig(cArgs.BindIP)
+			if err != nil {
+				return errors.Wrap(err, "fail to generate kubeconfig")
+			}
 			err = h.SetKubeconfig()
 			if err != nil {
-				errf("Fail to set kubeconfig environment var: %v\n", err)
-				return
+				return errors.Wrap(err, "fail to set kubeconfig")
 			}
 
 			// Step.3 Install Vela CLI
@@ -107,7 +106,7 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 			// Step.4 load vela-core images
 			err = LoadVelaImages()
 			if err != nil {
-				errf("Fail to load vela images: %v\n", err)
+				return errors.Wrap(err, "fail to load vela images")
 			}
 
 			if !cArgs.ClusterOnly {
@@ -115,11 +114,11 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 				// Step.5 save vela-core chart and velaUX addon
 				chart, err := PrepareVelaChart()
 				if err != nil {
-					errf("Fail to prepare vela chart: %v\n", err)
+					return errors.Wrap(err, "fail to prepare vela chart")
 				}
 				err = PrepareVelaUX()
 				if err != nil {
-					errf("Fail to prepare velaUX: %v\n", err)
+					return errors.Wrap(err, "fail to prepare vela UX")
 				}
 				// Step.6 install vela-core
 				info("Installing vela-core Helm chart...")
@@ -138,15 +137,9 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 				}
 			}
 
-			// Step.7 Generate external kubeconfig
-			if cArgs.BindIP != "" {
-				err = h.GenKubeconfig(cArgs.BindIP)
-				if err != nil {
-					return
-				}
-			}
 			utils.WarnSaveToken(cArgs.Token)
 			info("Successfully install KubeVela control plane! Try: vela components")
+			return nil
 		},
 	}
 	cmd.Flags().BoolVar(&cArgs.ClusterOnly, "cluster-only", false, "If set, start cluster without installing vela-core, typically used when restart a control plane where vela-core has been installed")
@@ -154,6 +147,7 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 	cmd.Flags().StringVar(&cArgs.BindIP, "bind-ip", "", "Bind additional hostname or IP in the kubeconfig TLS cert")
 	cmd.Flags().StringVar(&cArgs.Token, "token", "", "Token for identify the cluster. Can be used to restart the control plane or register other node. If not set, random token will be generated")
 	cmd.Flags().StringVar(&cArgs.Controllers, "controllers", "*", "A list of controllers to enable, check \"--controllers\" argument for more spec in https://kubernetes.io/docs/reference/command-line-tools-reference/kube-controller-manager/")
+	cmd.Flags().StringVar(&cArgs.Name, "name", "default", "The name of the cluster. only works when NOT in linux environment")
 
 	// inherit args from `vela install`
 	cmd.Flags().StringArrayVarP(&cArgs.InstallArgs.Values, "set", "", []string{}, "set values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)")
@@ -166,19 +160,22 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 
 // NewKubeConfigCmd create kubeconfig command for ctrl-plane
 func NewKubeConfigCmd() *cobra.Command {
-	var (
-		internal bool
-		external bool
-	)
+	kArgs:=apis.KubeconfigArgs{}
 	cmd := &cobra.Command{
 		Use:   "kubeconfig",
 		Short: "print kubeconfig to access control plane",
-		Run: func(cmd *cobra.Command, args []string) {
-			h.PrintKubeConfig(internal, external)
+		RunE: func(cmd *cobra.Command, args []string) error{
+			err := kArgs.Validate()
+			if err != nil {
+				return errors.Wrap(err,"validate kubeconfig args")
+			}
+			return handler.PrintKubeConfig(kArgs)
 		},
 	}
-	cmd.Flags().BoolVar(&internal, "internal", false, "Print kubeconfig that can only be used in this machine")
-	cmd.Flags().BoolVar(&external, "external", false, "Print kubeconfig that can be used on other machine")
+	cmd.Flags().StringVarP(&kArgs.Name, "name", "n", "default", "The name of cluster, Only works in macOS/Windows")
+	cmd.Flags().BoolVar(&kArgs.Internal, "internal", false, "Print kubeconfig that used in Docker network. Typically used in \"vela cluster join\". Only works in macOS/Windows. ")
+	cmd.Flags().BoolVar(&kArgs.External, "external", false, "Print kubeconfig that can be used on other machine")
+	cmd.Flags().BoolVar(&kArgs.Host, "host", false, "Print kubeconfig path that can be used in this machine")
 	return cmd
 }
 
@@ -187,14 +184,20 @@ func NewUninstallCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "uninstall",
 		Short: "uninstall control plane",
-		Run: func(cmd *cobra.Command, args []string) {
-			err := h.Uninstall()
+		RunE: func(cmd *cobra.Command, args []string) error {
+			name, err := cmd.Flags().GetString("name")
 			if err != nil {
-				errf("Failed to uninstall KubeVela control plane: %v\n", err)
+				return err
+			}
+			err = h.Uninstall(name)
+			if err != nil {
+				return errors.Wrap(err, "Failed to uninstall KubeVela control plane")
 			}
 			info("Successfully uninstall KubeVela control plane!")
+			return nil
 		},
 	}
+	cmd.Flags().StringP("name", "n", "default", "The name of the control plane. Only works when NOT in linux environment")
 	return cmd
 }
 

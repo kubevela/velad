@@ -5,17 +5,21 @@ package handler
 import (
 	"context"
 	"fmt"
+	"github.com/docker/docker/api/types"
 	"io"
+	"io/ioutil"
+	"k8s.io/klog/v2"
 	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 
+	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/oam-dev/kubevela/pkg/utils/system"
 	"github.com/pkg/errors"
-	"github.com/rancher/k3d/v5/pkg/client"
 	k3dClient "github.com/rancher/k3d/v5/pkg/client"
 	config "github.com/rancher/k3d/v5/pkg/config/v1alpha3"
 	"github.com/rancher/k3d/v5/pkg/runtimes"
@@ -30,9 +34,22 @@ var (
 	DefaultHandler Handler = &DockerHandler{
 		ctx: context.Background(),
 	}
-	info = utils.Info
-	errf = utils.Errf
+	dockerCli client.APIClient
+	info      = utils.Info
+	errf      = utils.Errf
 )
+
+const (
+	K3dImageTag = "v1.21.10-k3s1"
+)
+
+func init() {
+	var err error
+	dockerCli, err = client.NewClientWithOpts(client.FromEnv)
+	if err != nil {
+		panic(err)
+	}
+}
 
 type DockerHandler struct {
 	ctx context.Context
@@ -49,7 +66,7 @@ func (d *DockerHandler) Install(args apis.InstallArgs) error {
 	return nil
 }
 
-func (d *DockerHandler) Uninstall() error {
+func (d *DockerHandler) Uninstall(name string) error {
 	clusterList, err := k3dClient.ClusterList(d.ctx, runtimes.SelectedRuntime)
 	if err != nil {
 		return errors.Wrap(err, "failed to get cluster list")
@@ -62,7 +79,7 @@ func (d *DockerHandler) Uninstall() error {
 	var veladCluster *k3d.Cluster
 
 	for _, c := range clusterList {
-		if c.Name == "velad-cluster" {
+		if c.Name == fmt.Sprintf("velad-cluster-%s", name) {
 			veladCluster = c
 		}
 	}
@@ -77,27 +94,70 @@ func (d *DockerHandler) Uninstall() error {
 	return nil
 }
 
+// GenKubeconfig generate three kinds of kubeconfig
+// 1. kubeconfig for access from host
+// 2. kubeconfig for access from other VelaD cluster
+// 3. kubeconfig for access from other machine (if bindIP provided)
 func (d *DockerHandler) GenKubeconfig(bindIP string) error {
+	var err error
+	var cluster = d.cfg.Cluster.Name
+	// 1. kubeconfig for access from host
+	cfg := configPath(cluster)
+	if _, err := k3dClient.KubeconfigGetWrite(context.Background(), runtimes.SelectedRuntime, &d.cfg.Cluster, cfg,
+		&k3dClient.WriteKubeConfigOptions{UpdateExisting: true, OverwriteExisting: false, UpdateCurrentContext: true}); err != nil {
+		return errors.Wrap(err, "failed to gen kubeconfig")
+	}
+
+	// 2. kubeconfig for access from other VelaD cluster
+	// Basically we replace the IP with IP inside the docker network
+	cfgContent, err := os.ReadFile(cfg)
+	if err != nil {
+		return errors.Wrap(err, "read kubeconfig")
+	}
+	cfgIn := configPathInternal(cluster)
+	networks, err := dockerCli.NetworkInspect(d.ctx, apis.VelaDDockerNetwork, types.NetworkInspectOptions{})
+	if err != nil {
+		klog.ErrorS(err, "inspect docker network")
+		return err
+	}
+	var containerIP string
+	cs := networks.Containers
+	for _, c := range cs {
+		if c.Name == fmt.Sprintf("k3d-%s-server-0", d.cfg.Cluster.Name) {
+			containerIP = strings.TrimSuffix(c.IPv4Address, "/16")
+		}
+	}
+	kubeConfig := string(cfgContent)
+	re := regexp.MustCompile(`0.0.0.0:\d{4}`)
+	cfgInContent := re.ReplaceAllString(kubeConfig, fmt.Sprintf("%s:6443", containerIP))
+	err = ioutil.WriteFile(cfgIn, []byte(cfgInContent), 0600)
+	if err != nil {
+		return err
+	}
+
+	// 3. kubeconfig for access from other machine
+	if bindIP != "" {
+		cfgOut := configPathExternal(cluster)
+		info("Generating kubeconfig for remote access into ", cfgOut)
+		originConf, err := os.ReadFile(cfg)
+		if err != nil {
+			return err
+		}
+		newConf := strings.Replace(string(originConf), "0.0.0.0", bindIP, 1)
+		err = os.WriteFile(cfgOut, []byte(newConf), 600)
+		info("Successfully generate kubeconfig at ", cfgOut)
+	}
 	return nil
 }
 
 func (d *DockerHandler) SetKubeconfig() error {
-	// merge kubeconfig into default kubeconfig
-	info("Updating default kubeconfig with a new context for VelaD...")
-	if _, err := client.KubeconfigGetWrite(context.Background(), runtimes.SelectedRuntime, &d.cfg.Cluster, "",
-		&client.WriteKubeConfigOptions{UpdateExisting: true, OverwriteExisting: false, UpdateCurrentContext: true}); err != nil {
-		errf("Failed to update default kubeconfig: %v", err)
-	}
-	pos := utils.GetDefaultKubeconfigPos()
-	return os.Setenv("KUBECONFIG", pos)
-}
-
-func (d *DockerHandler) PrintKubeConfig(internal, external bool) {
+	info("Setting kubeconfig env for VelaD...")
+	return os.Setenv("KUBECONFIG", configPath(d.cfg.Cluster.Name))
 }
 
 // LoadImage loads image from local path
 func (d *DockerHandler) LoadImage(image string) error {
-	err := client.ImageImportIntoClusterMulti(d.ctx, runtimes.SelectedRuntime, []string{image}, &d.cfg.Cluster, k3d.ImageImportOpts{})
+	err := k3dClient.ImageImportIntoClusterMulti(d.ctx, runtimes.SelectedRuntime, []string{image}, &d.cfg.Cluster, k3d.ImageImportOpts{})
 	return errors.Wrap(err, "failed to import image")
 }
 
@@ -117,14 +177,15 @@ func setupK3d(ctx context.Context, clusterConfig config.ClusterConfig) error {
 	info("Successfully load k3d images")
 
 	info("Creating k3d cluster...")
-	runClusterIfNotExist(ctx, clusterConfig)
+	if err = runClusterIfNotExist(ctx, clusterConfig); err != nil {
+		return err
+	}
 	info("Successfully create k3d cluster")
-
 	return nil
 }
 
 func GetClusterRunConfig(args apis.InstallArgs) config.ClusterConfig {
-	cluster := getClusterConfig(args.DBEndpoint, args.Token)
+	cluster := getClusterConfig(args.Name, args.DBEndpoint, args.Token)
 	createOpts := getClusterCreateOpts()
 	kubeconfigOpts := getKubeconfigOptions()
 	runConfig := config.ClusterConfig{
@@ -152,14 +213,12 @@ func getClusterCreateOpts() k3d.ClusterCreateOpts {
 }
 
 // getClusterConfig will get different k3d.Cluster based on ordinal , storage for external storage, token is needed if storage is set
-func getClusterConfig(endpoint, token string) k3d.Cluster {
+func getClusterConfig(name, endpoint, token string) k3d.Cluster {
 	// Cluster will be created in one docker network
-	universalK3dNetwork := k3d.ClusterNetwork{
-		Name:     fmt.Sprintf("%s-%s", "k3d", "velad"),
+	var universalK3dNetwork = k3d.ClusterNetwork{
+		Name:     apis.VelaDDockerNetwork,
 		External: false,
-	}
-
-	// api
+	} // api
 	kubeAPIExposureOpts := k3d.ExposureOpts{
 		Host: k3d.DefaultAPIHost,
 	}
@@ -170,7 +229,7 @@ func getClusterConfig(endpoint, token string) k3d.Cluster {
 	}
 
 	// fill cluster config
-	clusterName := "velad-cluster"
+	clusterName := fmt.Sprintf("velad-cluster-%s", name)
 	clusterConfig := k3d.Cluster{
 		Name:    clusterName,
 		Network: universalK3dNetwork,
@@ -187,9 +246,9 @@ func getClusterConfig(endpoint, token string) k3d.Cluster {
 		errf("failed to get k3s image dir: %v", err)
 	}
 	serverNode := k3d.Node{
-		Name:       client.GenerateNodeName(clusterConfig.Name, k3d.ServerRole, 0),
+		Name:       k3dClient.GenerateNodeName(clusterConfig.Name, k3d.ServerRole, 0),
 		Role:       k3d.ServerRole,
-		Image:      "rancher/k3s:v1.21.10-k3s1",
+		Image:      fmt.Sprintf("rancher/k3s:%s", K3dImageTag),
 		ServerOpts: k3d.ServerOpts{},
 		Volumes:    []string{k3sImageDir + ":/var/lib/rancher/k3s/agent/images/"},
 	}
@@ -219,16 +278,13 @@ func convertToNodeArgs(endpoint, token string) []string {
 	return res
 }
 
-func runClusterIfNotExist(ctx context.Context, cluster config.ClusterConfig) {
+func runClusterIfNotExist(ctx context.Context, cluster config.ClusterConfig) error {
 	if _, err := k3dClient.ClusterGet(ctx, runtimes.SelectedRuntime, &cluster.Cluster); err == nil {
 		info("Detect an existing cluster: ", cluster.Cluster.Name)
-		return
+		return nil
 	}
 	err := k3dClient.ClusterRun(ctx, runtimes.SelectedRuntime, &cluster)
-	if err != nil {
-		errf("Fail to create cluster: %s, err: %v", cluster.Cluster.Name, err)
-		return
-	}
+	return errors.Wrapf(err, "fail to create cluster: %s", cluster.Cluster.Name)
 }
 
 // PrepareK3sImages extracts k3s images to ~/.vela/velad/k3s/images.tg
@@ -300,3 +356,4 @@ func LoadK3dImages() error {
 
 	return nil
 }
+

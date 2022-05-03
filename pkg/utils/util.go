@@ -2,8 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"github.com/oam-dev/kubevela/pkg/utils/system"
-	"github.com/oam-dev/velad/pkg/apis"
 	"io"
 	"io/fs"
 	"io/ioutil"
@@ -13,8 +11,11 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/oam-dev/kubevela/pkg/utils/system"
 	"github.com/oam-dev/kubevela/references/cli"
 	"k8s.io/utils/strings/slices"
+
+	"github.com/oam-dev/velad/pkg/apis"
 )
 
 var (
@@ -164,17 +165,28 @@ func GetTmpDir() (string, error) {
 	return tmpDir, nil
 }
 
-func GetDefaultKubeconfigPos() string {
+func GetDefaultVelaDKubeconfigPos() string {
 	var kubeconfigPos string
 	switch runtime.GOOS {
 	case "darwin":
-		kubeconfigPos = filepath.Join(os.Getenv("HOME"), ".kube", "config")
+		kubeconfigPos = filepath.Join(os.Getenv("HOME"), ".kube", "velad-cluster-default")
 	case "linux":
-		kubeconfigPos = apis.KubeConfigLocation
+		kubeconfigPos = apis.K3sKubeConfigLocation
 	case "windows":
-		kubeconfigPos = filepath.Join(os.Getenv("USERPROFILE"), ".kube", "config")
+		kubeconfigPos = filepath.Join(os.Getenv("USERPROFILE"), ".kube", "velad-cluster-default")
 	default:
-		panic("unsupported platform: " + runtime.GOOS)
+		UnsupportOS(runtime.GOOS)
 	}
 	return kubeconfigPos
+}
+
+func GetKubeconfigDir() string {
+	var kubeconfigDir string
+	switch runtime.GOOS {
+	case "darwin", "linux":
+		kubeconfigDir = filepath.Join(os.Getenv("HOME"), ".kube")
+	case "windows":
+		kubeconfigDir = filepath.Join(os.Getenv("USERPROFILE"), ".kube")
+	}
+	return kubeconfigDir
 }
