@@ -17,6 +17,7 @@ import (
 var (
 	info                   = utils.Info
 	errf                   = utils.Errf
+	infof                  = utils.Infof
 	DefaultHandler Handler = &LinuxHandler{}
 )
 
@@ -34,7 +35,7 @@ func (l LinuxHandler) Install(args apis.InstallArgs) error {
 	return nil
 }
 
-func (l LinuxHandler) Uninstall() error {
+func (l LinuxHandler) Uninstall(name string) error {
 	// #nosec
 	info("Uninstall k3s...")
 	uCmd := exec.Command("/usr/local/bin/k3s-uninstall.sh")
@@ -59,12 +60,13 @@ func (l LinuxHandler) SetKubeconfig() error {
 
 func (d LinuxHandler) LoadImage(imageTar string) error {
 	importCmd := exec.Command("k3s", "ctr", "images", "import", imageTar)
-	output, err = importCmd.CombinedOutput()
+	output, err := importCmd.CombinedOutput()
 	utils.InfoBytes(output)
 	if err != nil {
 		return errors.Wrap(err, "Fail to import image")
 	}
-	infof("Successfully import image %s\n", image)
+	infof("Successfully import image %s\n", imageTar)
+	return nil
 }
 
 // PrepareK3sImages Write embed images

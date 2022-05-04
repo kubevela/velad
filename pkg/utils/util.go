@@ -202,6 +202,6 @@ func PrintGuide(args apis.InstallArgs) {
 		emoji.Println(":link: If you have a cluster with KubeVela, Join this as sub-cluster:")
 		emoji.Println("    vela cluster join $(velad kubeconfig --name foo --internal)")
 		emoji.Println(":key: To access the cluster, set KUBECONFIG:")
-		emoji.Printf("    KUBECONFIG=$(velad kubeconfig --name %s --internal)\n", args.Name)
+		emoji.Printf("    export KUBECONFIG=$(velad kubeconfig --name %s --internal)\n", args.Name)
 	}
 }
