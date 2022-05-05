@@ -1,6 +1,6 @@
 //go:build linux
 
-package handler
+package cluster
 
 import (
 	"fmt"

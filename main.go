@@ -17,10 +17,10 @@ limitations under the License.
 package main
 
 import (
-	"github.com/oam-dev/velad/pkg"
+	"github.com/oam-dev/velad/pkg/cmd"
 )
 
 func main() {
-	app := pkg.NewApp()
+	app := cmd.NewApp()
 	app.Run()
 }

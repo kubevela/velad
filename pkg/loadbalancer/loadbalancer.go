@@ -1,4 +1,4 @@
-package pkg
+package loadbalancer
 
 import (
 	"bytes"
@@ -16,6 +16,12 @@ import (
 	"github.com/oam-dev/velad/pkg/apis"
 	. "github.com/oam-dev/velad/pkg/resources"
 	"github.com/oam-dev/velad/pkg/utils"
+)
+
+var (
+	errf  = utils.Errf
+	info  = utils.Info
+	infof = utils.Infof
 )
 
 func ConfigureNginx(args apis.LoadBalancerArgs) error {

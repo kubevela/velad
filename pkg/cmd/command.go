@@ -1,10 +1,12 @@
-package pkg
+package cmd
 
 import (
 	"fmt"
 	"github.com/oam-dev/velad/pkg/apis"
-	"github.com/oam-dev/velad/pkg/handler"
+	"github.com/oam-dev/velad/pkg/cluster"
+	lb "github.com/oam-dev/velad/pkg/loadbalancer"
 	"github.com/oam-dev/velad/pkg/utils"
+	"github.com/oam-dev/velad/pkg/vela"
 	"github.com/oam-dev/velad/version"
 	"github.com/pkg/errors"
 	"os"
@@ -21,7 +23,7 @@ var (
 	errf  = utils.Errf
 	info  = utils.Info
 	infof = utils.Infof
-	h     = handler.DefaultHandler
+	h     = cluster.DefaultHandler
 )
 
 // NewVeladCommand create velad command
@@ -101,21 +103,21 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 			}
 
 			// Step.3 Install Vela CLI
-			LinkToVela()
+			vela.LinkToVela()
 
 			if !cArgs.ClusterOnly {
 				// Step.4 load vela-core images
-				err = LoadVelaImages()
+				err = vela.LoadVelaImages()
 				if err != nil {
 					return errors.Wrap(err, "fail to load vela images")
 				}
 
 				// Step.5 save vela-core chart and velaUX addon
-				chart, err := PrepareVelaChart()
+				chart, err := vela.PrepareVelaChart()
 				if err != nil {
 					return errors.Wrap(err, "fail to prepare vela chart")
 				}
-				err = PrepareVelaUX()
+				err = vela.PrepareVelaUX()
 				if err != nil {
 					return errors.Wrap(err, "fail to prepare vela UX")
 				}
@@ -158,16 +160,16 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 
 // NewKubeConfigCmd create kubeconfig command for ctrl-plane
 func NewKubeConfigCmd() *cobra.Command {
-	kArgs:=apis.KubeconfigArgs{}
+	kArgs := apis.KubeconfigArgs{}
 	cmd := &cobra.Command{
 		Use:   "kubeconfig",
 		Short: "print kubeconfig to access control plane",
-		RunE: func(cmd *cobra.Command, args []string) error{
+		RunE: func(cmd *cobra.Command, args []string) error {
 			err := kArgs.Validate()
 			if err != nil {
-				return errors.Wrap(err,"validate kubeconfig args")
+				return errors.Wrap(err, "validate kubeconfig args")
 			}
-			return handler.PrintKubeConfig(kArgs)
+			return cluster.PrintKubeConfig(kArgs)
 		},
 	}
 	cmd.Flags().StringVarP(&kArgs.Name, "name", "n", "default", "The name of cluster, Only works in macOS/Windows")
@@ -236,7 +238,7 @@ func NewLBInstallCmd() *cobra.Command {
 				errf("Must specify one host at least\n")
 				os.Exit(1)
 			}
-			err := ConfigureNginx(LBArgs)
+			err := lb.ConfigureNginx(LBArgs)
 			if err != nil {
 				errf("Fail to setup load balancer (nginx): %v\n", err)
 			}
@@ -254,11 +256,11 @@ func NewLBUninstallCmd() *cobra.Command {
 		Short: "Uninstall load balancer",
 		Long:  "Uninstall load balancer installed by VelaD",
 		Run: func(cmd *cobra.Command, args []string) {
-			err := UninstallNginx()
+			err := lb.UninstallNginx()
 			if err != nil {
 				errf("Fail to uninstall load balancer (nginx): %v\n", err)
 			}
-			err = KillNginx()
+			err = lb.KillNginx()
 			if err != nil {
 				errf("Fail to kill nginx process: %v\n", err)
 			}

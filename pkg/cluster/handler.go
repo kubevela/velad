@@ -1,4 +1,4 @@
-package handler
+package cluster
 
 import "github.com/oam-dev/velad/pkg/apis"
 

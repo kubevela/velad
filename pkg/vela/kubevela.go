@@ -1,8 +1,9 @@
-package pkg
+package vela
 
 import (
 	"fmt"
 	"github.com/oam-dev/kubevela/pkg/utils/system"
+	"github.com/oam-dev/velad/pkg/cluster"
 	"github.com/pkg/errors"
 	"io"
 	"os"
@@ -14,6 +15,13 @@ import (
 	. "github.com/oam-dev/velad/pkg/resources"
 	"github.com/oam-dev/velad/pkg/utils"
 	"github.com/oam-dev/velad/version"
+)
+
+var (
+	errf  = utils.Errf
+	info  = utils.Info
+	infof = utils.Infof
+	h     = cluster.DefaultHandler
 )
 
 func PrepareVelaChart() (string, error) {
