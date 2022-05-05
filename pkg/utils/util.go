@@ -205,3 +205,17 @@ func PrintGuide(args apis.InstallArgs) {
 		emoji.Printf("    export KUBECONFIG=$(velad kubeconfig --name %s --internal)\n", args.Name)
 	}
 }
+
+func IsVelaCommand(s string) bool {
+	sl := strings.Split(s, "/")
+	return sl[len(sl)-1] == "vela"
+}
+
+func SetDefaultKubeConfigEnv() {
+	RecommendedConfigPathEnvVar := "KUBECONFIG"
+	kubeconfig := os.Getenv(RecommendedConfigPathEnvVar)
+	if kubeconfig == "" {
+		kubeconfig = GetDefaultVelaDKubeconfigPos()
+		_ = os.Setenv(RecommendedConfigPathEnvVar, kubeconfig)
+	}
+}

@@ -2,14 +2,12 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/oam-dev/velad/pkg/utils"
-	"os"
-	"strings"
-
 	"github.com/oam-dev/kubevela/references/cli"
 	"github.com/oam-dev/kubevela/version"
+	"github.com/oam-dev/velad/pkg/utils"
 	veladVersion "github.com/oam-dev/velad/version"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 // App is entry of all CLI, created by NewApp
@@ -30,8 +28,8 @@ func (a App) Run() {
 	}
 
 	var cmd *cobra.Command
-	if isVela(a.args[0]) {
-		setKubeConfigEnv()
+	if utils.IsVelaCommand(a.args[0]) {
+		utils.SetDefaultKubeConfigEnv()
 		cmd = cli.NewCommand()
 		// TODO set right gitVersion
 		version.VelaVersion = veladVersion.VelaVersion
@@ -42,19 +40,5 @@ func (a App) Run() {
 	if err := cmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
-	}
-}
-
-func isVela(s string) bool {
-	sl := strings.Split(s, "/")
-	return sl[len(sl)-1] == "vela"
-}
-
-func setKubeConfigEnv() {
-	RecommendedConfigPathEnvVar := "KUBECONFIG"
-	kubeconfig := os.Getenv(RecommendedConfigPathEnvVar)
-	if kubeconfig == "" {
-		kubeconfig = utils.GetDefaultVelaDKubeconfigPos()
-		_ = os.Setenv(RecommendedConfigPathEnvVar, kubeconfig)
 	}
 }

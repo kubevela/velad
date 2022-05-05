@@ -14,6 +14,10 @@ type InstallArgs struct {
 	Name        string
 }
 
+type UninstallArgs struct {
+	Name string
+}
+
 type KubeconfigArgs struct {
 	Internal bool
 	External bool

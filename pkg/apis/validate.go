@@ -18,3 +18,12 @@ func (k KubeconfigArgs) Validate() error {
 	}
 	return nil
 }
+
+func (u UninstallArgs) Validate() error {
+	if runtime.GOOS == "linux" {
+		if u.Name != "default" {
+			return newErr("name flag not works in linux")
+		}
+	}
+	return nil
+}
