@@ -22,6 +22,7 @@ import (
 var (
 	Info  func(a ...interface{})
 	Infof func(format string, a ...interface{})
+	InfoP func(padding int, a ...interface{})
 	Errf  func(format string, a ...interface{})
 
 	velauxDir string
@@ -36,6 +37,10 @@ func init() {
 	}
 	Infof = func(format string, a ...interface{}) {
 		fmt.Printf(format, a...)
+	}
+	InfoP = func(padding int, a ...interface{}) {
+		fmt.Printf("%*s", padding, "")
+		fmt.Println(a...)
 	}
 	dir, err := system.GetVelaHomeDir()
 	if err != nil {
@@ -202,7 +207,7 @@ func PrintGuide(args apis.InstallArgs) {
 		emoji.Println(":link: If you have a cluster with KubeVela, Join this as sub-cluster:")
 		emoji.Println("    vela cluster join $(velad kubeconfig --name foo --internal)")
 		emoji.Println(":key: To access the cluster, set KUBECONFIG:")
-		emoji.Printf("    export KUBECONFIG=$(velad kubeconfig --name %s --internal)\n", args.Name)
+		emoji.Printf("    export KUBECONFIG=$(velad kubeconfig --name %s --host)\n", args.Name)
 	}
 }
 

@@ -9,4 +9,5 @@ type Handler interface {
 	GenKubeconfig(bindIP string) error
 	SetKubeconfig() error
 	LoadImage(image string) error
+	GetStatus() apis.ClusterStatus
 }

@@ -13,9 +13,11 @@ import (
 )
 
 var (
-	errf = utils.Errf
-	info = utils.Info
-	h    = cluster.DefaultHandler
+	errf  = utils.Errf
+	info  = utils.Info
+	infoP = utils.InfoP
+	infof = utils.Infof
+	h     = cluster.DefaultHandler
 )
 
 // NewVeladCommand create velad command
@@ -31,6 +33,7 @@ func NewVeladCommand() *cobra.Command {
 	}
 	cmd.AddCommand(
 		NewInstallCmd(c, ioStreams),
+		NewStatusCmd(),
 		NewLoadBalancerCmd(),
 		NewKubeConfigCmd(),
 		NewTokenCmd(),
@@ -76,6 +79,18 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 	cmd.Flags().BoolVarP(&iArgs.InstallArgs.Detail, "detail", "d", true, "show detail log of installation")
 	cmd.Flags().BoolVarP(&iArgs.InstallArgs.ReuseValues, "reuse", "r", true, "will re-use the user's last supplied values.")
 
+	return cmd
+}
+
+func NewStatusCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "status",
+		Short: "Show the status of the control plane",
+		Long:  "Show the status of the control plane",
+		Run: func(cmd *cobra.Command, args []string) {
+			statusCmd()
+		},
+	}
 	return cmd
 }
 

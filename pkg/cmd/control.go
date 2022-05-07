@@ -117,3 +117,15 @@ func uninstallCmd(uArgs apis.UninstallArgs) error {
 	return nil
 
 }
+
+func statusCmd() {
+	info("Checking cluster status...")
+	status := h.GetStatus()
+	stop := PrintClusterStatus(status)
+	if stop {
+		return
+	}
+	info("Checking KubeVela status...")
+	vStatus := vela.GetStatus()
+	PrintVelaStatus(vStatus)
+}

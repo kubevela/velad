@@ -3,6 +3,7 @@ package vela
 import (
 	"fmt"
 	"github.com/oam-dev/kubevela/pkg/utils/system"
+	"github.com/oam-dev/velad/pkg/apis"
 	"github.com/oam-dev/velad/pkg/cluster"
 	"github.com/pkg/errors"
 	"io"
@@ -119,17 +120,7 @@ func getCLIInstallPos() string {
 
 // PrepareVelaUX place vela-ux chart in ~/.vela/addons/velaux/
 func PrepareVelaUX() error {
-	home, err := system.GetVelaHomeDir()
-	if err != nil {
-		return err
-	}
-	velaAddonDir := path.Join(home, "addons")
-	if _, err := os.Stat(velaAddonDir); err != nil && os.IsNotExist(err) {
-		err := os.MkdirAll(velaAddonDir, 0750)
-		if err != nil {
-			return errors.Wrap(err, "error when create vela addon directory")
-		}
-	}
+	velaAddonDir, err := getVelaAddonDir()
 	// extract velaux-vx.y.z.tgz to local
 	filename := fmt.Sprintf("velaux-%s.tgz", version.VelaVersion)
 	tar, err := VelaAddons.Open(path.Join("static/vela/addons", filename))
@@ -158,4 +149,49 @@ func PrepareVelaUX() error {
 		return errors.Wrap(err, "error when untar velaux-vx.y.z.tgz")
 	}
 	return nil
+}
+
+func getVelaAddonDir() (string, error) {
+	home, err := system.GetVelaHomeDir()
+	if err != nil {
+		return "", err
+	}
+	velaAddonDir := path.Join(home, "addons")
+	if _, err := os.Stat(velaAddonDir); err != nil && os.IsNotExist(err) {
+		err := os.MkdirAll(velaAddonDir, 0750)
+		if err != nil {
+			return "", errors.Wrap(err, "error when create vela addon directory")
+		}
+	}
+	return velaAddonDir, nil
+}
+
+func GetStatus() apis.VelaStatus {
+	status := apis.VelaStatus{}
+	fillVelaCLIStatus(&status)
+	fillVelaUXStatus(&status)
+	return status
+}
+
+func fillVelaCLIStatus(status *apis.VelaStatus) {
+	pos := getCLIInstallPos()
+	if _, err := os.Stat(pos); err == nil {
+		status.VelaCLIInstalled = true
+		status.VelaCLIPath = pos
+	}
+}
+
+func fillVelaUXStatus(status *apis.VelaStatus) {
+	velaAddonDir, err := getVelaAddonDir()
+	if err != nil {
+		status.VelaUXAddonDirPresent = false
+		status.Reason = fmt.Sprintf("failed to get vela addon directory: %v", err)
+		return
+	}
+	velauxDir := path.Join(velaAddonDir, "velaux")
+	if _, err := os.Stat(velauxDir); err == nil {
+		status.VelaUXAddonDirPresent = true
+		status.VelaUXAddonDirPath = velauxDir
+	}
+
 }

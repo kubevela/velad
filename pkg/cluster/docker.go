@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/docker/docker/api/types"
+	"helm.sh/helm/v3/pkg/action"
 	"io"
 	"io/ioutil"
 	"k8s.io/klog/v2"
@@ -21,15 +22,15 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/oam-dev/kubevela/pkg/utils/system"
+	"github.com/oam-dev/velad/pkg/apis"
+	. "github.com/oam-dev/velad/pkg/resources"
+	"github.com/oam-dev/velad/pkg/utils"
 	"github.com/pkg/errors"
 	k3dClient "github.com/rancher/k3d/v5/pkg/client"
 	config "github.com/rancher/k3d/v5/pkg/config/v1alpha3"
 	"github.com/rancher/k3d/v5/pkg/runtimes"
 	k3d "github.com/rancher/k3d/v5/pkg/types"
-
-	"github.com/oam-dev/velad/pkg/apis"
-	. "github.com/oam-dev/velad/pkg/resources"
-	"github.com/oam-dev/velad/pkg/utils"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 var (
@@ -161,6 +162,87 @@ func (d *DockerHandler) SetKubeconfig() error {
 func (d *DockerHandler) LoadImage(image string) error {
 	err := k3dClient.ImageImportIntoClusterMulti(d.ctx, runtimes.SelectedRuntime, []string{image}, &d.cfg.Cluster, k3d.ImageImportOpts{})
 	return errors.Wrap(err, "failed to import image")
+}
+
+func (d *DockerHandler) GetStatus() apis.ClusterStatus {
+	var status apis.ClusterStatus
+	list, err := dockerCli.ImageList(d.ctx, types.ImageListOptions{})
+
+	if err != nil {
+		status.K3dImages.Reason = fmt.Sprintf("Failed to get image list: %s", err.Error())
+		return status
+	}
+	for _, image := range list {
+		fillK3dImageStatus(image, &status)
+	}
+
+	clusters, err := k3dClient.ClusterList(d.ctx, runtimes.SelectedRuntime)
+	if err != nil {
+		status.K3d.Reason = fmt.Sprintf("Failed to get cluster list: %s", err.Error())
+		return status
+	}
+	status.K3d.K3dContainer = []apis.K3dContainer{}
+	for _, cluster := range clusters {
+		fillK3dCluster(d.ctx, cluster, &status)
+	}
+	return status
+}
+
+func fillK3dImageStatus(image types.ImageSummary, status *apis.ClusterStatus) {
+	if len(image.RepoTags) == 0 {
+		return
+	}
+	for _, tag := range image.RepoTags {
+		switch tag {
+		case apis.K3dImageK3s:
+			status.K3dImages.K3s = true
+		case apis.K3dImageTools:
+			status.K3dImages.K3dTools = true
+		case apis.K3dImageProxy:
+			status.K3dImages.K3dProxy = true
+		}
+	}
+}
+
+func fillK3dCluster(ctx context.Context, cluster *k3d.Cluster, status *apis.ClusterStatus) {
+	if strings.HasPrefix(cluster.Name, "velad-cluster-") {
+		container := apis.K3dContainer{
+			Name:    strings.TrimPrefix(cluster.Name, "velad-cluster-"),
+			Running: true,
+		}
+
+		// get k3d cluster kubeconfig
+		kubeconfig, err := k3dClient.KubeconfigGet(ctx, runtimes.SelectedRuntime, cluster)
+		if err != nil {
+			container.Reason = fmt.Sprintf("Failed to get kubeconfig: %s", err.Error())
+		}
+		restConfig, err := clientcmd.NewDefaultClientConfig(*kubeconfig, nil).ClientConfig()
+		if err != nil {
+			container.Reason = fmt.Sprintf("Failed to get rest kubeconfig: %s", err.Error())
+		}
+		cfg, err := utils.NewActionConfig(restConfig, false)
+		if err != nil {
+			container.Reason = fmt.Sprintf("Failed to get helm action config: %s", err.Error())
+		}
+		list := action.NewList(cfg)
+		list.SetStateMask()
+		releases, err := list.Run()
+		if err != nil {
+			container.Reason = fmt.Sprintf("Failed to get helm releases: %s", err.Error())
+		}
+		for _, release := range releases {
+			if release.Name == apis.KubeVelaHelmRelease {
+				container.VelaStatus = release.Info.Status.String()
+			}
+		}
+		if container.VelaStatus == "" {
+			container.VelaStatus = apis.StatusVelaNotInstalled
+		}
+
+		status.K3d.K3dContainer = append(status.K3d.K3dContainer, container)
+	}
+	return
+
 }
 
 func setupK3d(ctx context.Context, clusterConfig config.ClusterConfig) error {
