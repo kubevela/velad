@@ -5,14 +5,18 @@ go 1.17
 require (
 	github.com/docker/docker v20.10.10+incompatible
 	github.com/docker/go-connections v0.4.0
+	github.com/fatih/color v1.13.0
 	github.com/kyokomi/emoji/v2 v2.2.9
 	github.com/oam-dev/kubevela v1.3.2
 	github.com/pkg/errors v0.9.1
 	github.com/rancher/k3d/v5 v5.2.2
 	github.com/spf13/cobra v1.3.0
 	github.com/stretchr/testify v1.7.0
+	helm.sh/helm/v3 v3.6.1
+	k8s.io/client-go v0.22.3
 	k8s.io/klog/v2 v2.9.0
 	k8s.io/utils v0.0.0-20210930125809-cb0fa318a74b
+	sigs.k8s.io/controller-runtime v0.9.5
 )
 
 require (
@@ -70,7 +74,6 @@ require (
 	github.com/evanphx/json-patch/v5 v5.1.0 // indirect
 	github.com/exponent-io/jsonpath v0.0.0-20151013193312-d6023ce2651d // indirect
 	github.com/fatih/camelcase v1.0.0 // indirect
-	github.com/fatih/color v1.13.0 // indirect
 	github.com/form3tech-oss/jwt-go v3.2.3+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/fvbommel/sortorder v1.0.2 // indirect
@@ -212,7 +215,6 @@ require (
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
-	helm.sh/helm/v3 v3.6.1 // indirect
 	inet.af/netaddr v0.0.0-20210903134321-85fa6c94624e // indirect
 	istio.io/api v0.0.0-20210128181506-0c4b8e54850f // indirect
 	istio.io/client-go v0.0.0-20210128182905-ee2edd059e02 // indirect
@@ -222,7 +224,6 @@ require (
 	k8s.io/apimachinery v0.22.3 // indirect
 	k8s.io/apiserver v0.22.1 // indirect
 	k8s.io/cli-runtime v0.21.0 // indirect
-	k8s.io/client-go v0.22.3 // indirect
 	k8s.io/component-base v0.22.1 // indirect
 	k8s.io/klog v1.0.0 // indirect
 	k8s.io/kube-aggregator v0.22.1 // indirect
@@ -233,7 +234,6 @@ require (
 	sigs.k8s.io/apiserver-network-proxy v0.0.24 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.24 // indirect
 	sigs.k8s.io/apiserver-runtime v1.0.3-0.20210913073608-0663f60bfee2 // indirect
-	sigs.k8s.io/controller-runtime v0.9.5 // indirect
 	sigs.k8s.io/kind v0.9.0 // indirect
 	sigs.k8s.io/kustomize/api v0.8.5 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.10.15 // indirect

@@ -1,0 +1,75 @@
+name: Go
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - master
+      - release-*
+  workflow_dispatch: { }
+
+env:
+  # Common versions
+  GO_VERSION: '1.17'
+  GOLANGCI_VERSION: 'v1.38'
+
+jobs:
+  staticcheck:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Install StaticCheck
+        run: GO111MODULE=on go get honnef.co/go/tools/cmd/staticcheck@v0.3.0
+
+      - name: Static Check
+        run: staticcheck ./...
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      # This action uses its own setup-go, which always seems to use the latest
+      # stable version of Go. We could run 'make lint' to ensure our desired Go
+      # version, but we prefer this action because it leaves 'annotations' (i.e.
+      # it comments on PRs to point out linter violations).
+      - name: Lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: ${{ env.GOLANGCI_VERSION }}
+
+  go-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Check Diff
+        run: make check-diff
+

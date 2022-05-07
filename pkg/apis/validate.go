@@ -1,8 +1,9 @@
 package apis
 
 import (
-	"github.com/pkg/errors"
 	"runtime"
+
+	"github.com/pkg/errors"
 )
 
 var newErr = errors.New

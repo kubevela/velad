@@ -2,12 +2,13 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/oam-dev/kubevela/references/cli"
 	"github.com/oam-dev/kubevela/version"
 	"github.com/oam-dev/velad/pkg/utils"
 	veladVersion "github.com/oam-dev/velad/version"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 // App is entry of all CLI, created by NewApp

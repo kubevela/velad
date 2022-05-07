@@ -2,10 +2,11 @@ package utils
 
 import (
 	"fmt"
+	"os"
+
 	cmdutil "github.com/oam-dev/kubevela/pkg/utils/util"
 	"helm.sh/helm/v3/pkg/action"
 	"k8s.io/client-go/rest"
-	"os"
 )
 
 func NewActionConfig(config *rest.Config, showDetail bool) (*action.Configuration, error) {

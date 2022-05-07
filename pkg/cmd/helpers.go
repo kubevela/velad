@@ -1,9 +1,10 @@
 package cmd
 
 import (
+	"runtime"
+
 	"github.com/fatih/color"
 	"github.com/oam-dev/velad/pkg/apis"
-	"runtime"
 )
 
 var (

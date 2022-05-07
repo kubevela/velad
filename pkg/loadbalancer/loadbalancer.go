@@ -14,14 +14,13 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/oam-dev/velad/pkg/apis"
-	. "github.com/oam-dev/velad/pkg/resources"
+	"github.com/oam-dev/velad/pkg/resources"
 	"github.com/oam-dev/velad/pkg/utils"
 )
 
 var (
-	errf  = utils.Errf
-	info  = utils.Info
-	infof = utils.Infof
+	errf = utils.Errf
+	info = utils.Info
 )
 
 func ConfigureNginx(args apis.LoadBalancerArgs) error {
@@ -42,7 +41,7 @@ func ConfigureNginx(args apis.LoadBalancerArgs) error {
 }
 
 func UninstallNginx() error {
-	file, err := Nginx.Open("static/nginx/remove_nginx.sh")
+	file, err := resources.Nginx.Open("static/nginx/remove_nginx.sh")
 	if err != nil {
 		return err
 	}
@@ -60,7 +59,7 @@ func UninstallNginx() error {
 }
 
 func installNginx() error {
-	file, err := Nginx.Open("static/nginx/install_nginx.sh")
+	file, err := resources.Nginx.Open("static/nginx/install_nginx.sh")
 	if err != nil {
 		return err
 	}
@@ -81,7 +80,7 @@ func setNginxConf(args apis.LoadBalancerArgs) (string, error) {
 		return "", err
 	}
 	conf += clause
-	tmpl, err := template.ParseFS(Nginx, "static/nginx/nginx.conf.tmpl")
+	tmpl, err := template.ParseFS(resources.Nginx, "static/nginx/nginx.conf.tmpl")
 	if err != nil {
 		return "", errors.Wrap(err, "parse tmpl")
 	}

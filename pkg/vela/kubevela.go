@@ -2,10 +2,6 @@ package vela
 
 import (
 	"fmt"
-	"github.com/oam-dev/kubevela/pkg/utils/system"
-	"github.com/oam-dev/velad/pkg/apis"
-	"github.com/oam-dev/velad/pkg/cluster"
-	"github.com/pkg/errors"
 	"io"
 	"os"
 	"os/exec"
@@ -13,7 +9,12 @@ import (
 	"runtime"
 	"strings"
 
-	. "github.com/oam-dev/velad/pkg/resources"
+	"github.com/oam-dev/kubevela/pkg/utils/system"
+	"github.com/oam-dev/velad/pkg/apis"
+	"github.com/oam-dev/velad/pkg/cluster"
+	"github.com/pkg/errors"
+
+	"github.com/oam-dev/velad/pkg/resources"
 	"github.com/oam-dev/velad/pkg/utils"
 	"github.com/oam-dev/velad/version"
 )
@@ -26,7 +27,7 @@ var (
 )
 
 func PrepareVelaChart() (string, error) {
-	charts, err := VelaChart.Open("static/vela/charts/vela-core.tgz")
+	charts, err := resources.VelaChart.Open("static/vela/charts/vela-core.tgz")
 	if err != nil {
 		return "", err
 	}
@@ -50,12 +51,12 @@ func PrepareVelaChart() (string, error) {
 
 // LoadVelaImages load vela-core and velaUX images
 func LoadVelaImages() error {
-	dir, err := VelaImages.ReadDir("static/vela/images")
+	dir, err := resources.VelaImages.ReadDir("static/vela/images")
 	if err != nil {
 		return err
 	}
 	for _, entry := range dir {
-		file, err := VelaImages.Open(path.Join("static/vela/images", entry.Name()))
+		file, err := resources.VelaImages.Open(path.Join("static/vela/images", entry.Name()))
 		if err != nil {
 			return err
 		}
@@ -121,9 +122,12 @@ func getCLIInstallPos() string {
 // PrepareVelaUX place vela-ux chart in ~/.vela/addons/velaux/
 func PrepareVelaUX() error {
 	velaAddonDir, err := getVelaAddonDir()
+	if err != nil {
+		return err
+	}
 	// extract velaux-vx.y.z.tgz to local
 	filename := fmt.Sprintf("velaux-%s.tgz", version.VelaVersion)
-	tar, err := VelaAddons.Open(path.Join("static/vela/addons", filename))
+	tar, err := resources.VelaAddons.Open(path.Join("static/vela/addons", filename))
 	if err != nil {
 		return err
 	}

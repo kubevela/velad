@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/oam-dev/kubevela/pkg/utils/common"
 	cmdutil "github.com/oam-dev/kubevela/pkg/utils/util"
 	"github.com/oam-dev/velad/pkg/apis"
@@ -9,14 +11,12 @@ import (
 	"github.com/oam-dev/velad/pkg/utils"
 	"github.com/oam-dev/velad/version"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 var (
 	errf  = utils.Errf
 	info  = utils.Info
 	infoP = utils.InfoP
-	infof = utils.Infof
 	h     = cluster.DefaultHandler
 )
 

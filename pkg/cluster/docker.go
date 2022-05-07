@@ -5,11 +5,8 @@ package cluster
 import (
 	"context"
 	"fmt"
-	"github.com/docker/docker/api/types"
-	"helm.sh/helm/v3/pkg/action"
 	"io"
 	"io/ioutil"
-	"k8s.io/klog/v2"
 	"net"
 	"os"
 	"os/exec"
@@ -19,11 +16,15 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/docker/docker/api/types"
+	"helm.sh/helm/v3/pkg/action"
+	"k8s.io/klog/v2"
+
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/oam-dev/kubevela/pkg/utils/system"
 	"github.com/oam-dev/velad/pkg/apis"
-	. "github.com/oam-dev/velad/pkg/resources"
+	"github.com/oam-dev/velad/pkg/resources"
 	"github.com/oam-dev/velad/pkg/utils"
 	"github.com/pkg/errors"
 	k3dClient "github.com/rancher/k3d/v5/pkg/client"
@@ -147,7 +148,10 @@ func (d *DockerHandler) GenKubeconfig(bindIP string) error {
 			return err
 		}
 		newConf := strings.Replace(string(originConf), "0.0.0.0", bindIP, 1)
-		err = os.WriteFile(cfgOut, []byte(newConf), 600)
+		err = os.WriteFile(cfgOut, []byte(newConf), 0600)
+		if err != nil {
+			return err
+		}
 		info("Successfully generate kubeconfig at ", cfgOut)
 	}
 	return nil
@@ -241,8 +245,6 @@ func fillK3dCluster(ctx context.Context, cluster *k3d.Cluster, status *apis.Clus
 
 		status.K3d.K3dContainer = append(status.K3d.K3dContainer, container)
 	}
-	return
-
 }
 
 func setupK3d(ctx context.Context, clusterConfig config.ClusterConfig) error {
@@ -377,7 +379,7 @@ func runClusterIfNotExist(ctx context.Context, cluster config.ClusterConfig) err
 
 // PrepareK3sImages extracts k3s images to ~/.vela/velad/k3s/images.tg
 func PrepareK3sImages() error {
-	embedK3sImage, err := K3sImage.Open("static/k3s/images/k3s-airgap-images-amd64.tar.gz")
+	embedK3sImage, err := resources.K3sImage.Open("static/k3s/images/k3s-airgap-images-amd64.tar.gz")
 	if err != nil {
 		return err
 	}
@@ -385,6 +387,9 @@ func PrepareK3sImages() error {
 
 	// save k3s image.tgz to ~/.vela/velad/k3s/images.tgz
 	k3sImagesDir, err := getK3sImageDir()
+	if err != nil {
+		return err
+	}
 	k3sImagesPath := filepath.Join(k3sImagesDir, "k3s-airgap-images-amd64.tgz")
 	k3sImagesFile, err := os.OpenFile(k3sImagesPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
@@ -413,12 +418,12 @@ func getK3sImageDir() (string, error) {
 }
 
 func LoadK3dImages() error {
-	dir, err := K3dImage.ReadDir("static/k3d/images")
+	dir, err := resources.K3dImage.ReadDir("static/k3d/images")
 	if err != nil {
 		return err
 	}
 	for _, entry := range dir {
-		file, err := K3dImage.Open(path.Join("static/k3d/images", entry.Name()))
+		file, err := resources.K3dImage.Open(path.Join("static/k3d/images", entry.Name()))
 		if err != nil {
 			return err
 		}

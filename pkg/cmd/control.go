@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/oam-dev/kubevela/pkg/utils/common"
 	cmdutil "github.com/oam-dev/kubevela/pkg/utils/util"
 	"github.com/oam-dev/kubevela/references/cli"
@@ -11,7 +13,6 @@ import (
 	"github.com/oam-dev/velad/pkg/vela"
 	"github.com/oam-dev/velad/version"
 	"github.com/pkg/errors"
-	"os"
 )
 
 func tokenCmd() {

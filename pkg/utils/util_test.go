@@ -3,8 +3,9 @@ package utils
 import (
 	"bytes"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestHaveController(t *testing.T) {
@@ -75,7 +76,7 @@ func TestVeladWriter(t *testing.T) {
 }
 
 func TestGetTmpDir(t *testing.T) {
-	tmpDir,err := GetTmpDir()
+	tmpDir, err := GetTmpDir()
 	assert.NoError(t, err)
 	fmt.Println(tmpDir)
 	assert.NotEmpty(t, tmpDir)

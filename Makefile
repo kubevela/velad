@@ -1,3 +1,5 @@
+include makefiles/dependency.mk
+
 K3S_VERSION ?= v1.21.10+k3s1
 STATIC_DIR := pkg/resources/static
 GOOS ?= linux
@@ -42,5 +44,23 @@ clean:
 	rm -f ${CHART_DIR}/vela-core.tgz
 	rm -f bin/velad
 
-echo:
-	echo ${K3S_VERSION}
+lint: golangci
+	$(GOLANGCILINT) run ./...
+
+staticcheck: staticchecktool
+	$(STATICCHECK) ./...
+
+fmt: goimports
+	$(GOIMPORTS) -local github.com/kubevela/velad -w $$(go list -f {{.Dir}} ./...)
+
+go-check:
+	go fmt ./...
+	go vet ./...
+
+reviewable: lint staticcheck fmt go-check
+	go mod tidy -compat=1.17
+
+check-diff: reviewable
+	git --no-pager diff
+	git diff --quiet || (echo please run 'make reviewable' to include all changes && false)
+	echo branch is clean

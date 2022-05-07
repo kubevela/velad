@@ -2,11 +2,12 @@ package cluster
 
 import (
 	"fmt"
-	"github.com/oam-dev/velad/pkg/apis"
-	"github.com/oam-dev/velad/pkg/utils"
 	"os"
 	"path/filepath"
 	"runtime"
+
+	"github.com/oam-dev/velad/pkg/apis"
+	"github.com/oam-dev/velad/pkg/utils"
 )
 
 func PrintKubeConfig(args apis.KubeconfigArgs) error {
