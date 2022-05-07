@@ -39,9 +39,7 @@ pack_vela_chart:
 
 .PHONY: clean
 clean:
-	rm -rf ${CHART_DIR}/vela-core-*
-	rm -rf ${CHART_DIR}/vela-core
-	#rm ${STATIC_DIR}/vela/charts/vela-core.tgz
+	rm -f ${CHART_DIR}/vela-core.tgz
 	rm -f bin/velad
 
 echo:
