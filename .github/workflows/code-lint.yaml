@@ -54,6 +54,12 @@ jobs:
         with:
           submodules: true
 
+      - name: Download resources
+        run: |
+          make download_vela_images_addons
+          make download_k3s
+          make pack_vela_chart
+
       # This action uses its own setup-go, which always seems to use the latest
       # stable version of Go. We could run 'make lint' to ensure our desired Go
       # version, but we prefer this action because it leaves 'annotations' (i.e.
@@ -75,6 +81,12 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: true
+
+      - name: Download resources
+        run: |
+          make download_vela_images_addons
+          make download_k3s
+          make pack_vela_chart
 
       - name: Check Diff
         run: make check-diff
