@@ -29,6 +29,12 @@ jobs:
         with:
           submodules: true
 
+      - name: Download resources
+        run: |
+          make download_vela_images_addons
+          make download_k3s
+          make pack_vela_chart
+
       - name: Install StaticCheck
         run: GO111MODULE=on go get honnef.co/go/tools/cmd/staticcheck@v0.3.0
 
