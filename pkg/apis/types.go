@@ -46,8 +46,10 @@ type ClusterStatus struct {
 }
 
 type K3sStatus struct {
-	K3sBinary         bool
-	K3sServiceRunning bool
+	K3sBinary        bool
+	K3sServiceStatus string
+	VelaStatus       string
+	Reason           string
 }
 
 type K3dStatus struct {

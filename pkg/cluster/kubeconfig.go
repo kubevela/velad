@@ -20,6 +20,7 @@ func PrintKubeConfig(args apis.KubeconfigArgs) error {
 	}
 	return nil
 }
+
 func printKubeConfigLinux(args apis.KubeconfigArgs) error {
 	if args.Host {
 		info(apis.K3sKubeConfigLocation)
@@ -64,9 +65,11 @@ func printKubeConfigDocker(args apis.KubeconfigArgs) error {
 func configPath(clusterName string) string {
 	return filepath.Join(utils.GetKubeconfigDir(), clusterName)
 }
+
 func configPathExternal(clusterName string) string {
 	return filepath.Join(utils.GetKubeconfigDir(), fmt.Sprintf("%s-external", clusterName))
 }
+
 func configPathInternal(clusterName string) string {
 	return filepath.Join(utils.GetKubeconfigDir(), fmt.Sprintf("%s-internal", clusterName))
 }

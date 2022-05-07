@@ -8,9 +8,11 @@ import (
 	"github.com/oam-dev/velad/pkg/resources"
 	"github.com/oam-dev/velad/pkg/utils"
 	"github.com/pkg/errors"
+	"helm.sh/helm/v3/pkg/action"
 	"io"
 	"os"
 	"os/exec"
+	config2 "sigs.k8s.io/controller-runtime/pkg/client/config"
 	"strings"
 )
 
@@ -70,7 +72,70 @@ func (l LinuxHandler) LoadImage(imageTar string) error {
 }
 
 func (l LinuxHandler) GetStatus() apis.ClusterStatus {
-	return apis.ClusterStatus{}
+	var status apis.ClusterStatus
+	fillK3sBinStatus(&status)
+	fillServiceStatus(&status)
+	fillVelaStatus(&status)
+	return status
+}
+
+func fillK3sBinStatus(status *apis.ClusterStatus) {
+	_, err := os.Stat(resources.K3sBinaryLocation)
+	if err == nil {
+		status.K3s.K3sBinary = true
+	} else {
+		status.K3s.K3sBinary = false
+	}
+}
+
+func fillServiceStatus(status *apis.ClusterStatus) {
+	if status.K3s.Reason != "" {
+		return
+	}
+	cmd := exec.Command("systemctl", "check", "k3s")
+	out, err := cmd.CombinedOutput()
+	status.K3s.K3sServiceStatus = string(out)
+	if err != nil {
+		if exitErr, ok := err.(*exec.ExitError); !ok {
+			status.K3s.Reason = fmt.Sprintf("fail to run systemctl: %v", exitErr.Error())
+		}
+	}
+}
+
+func fillVelaStatus(status *apis.ClusterStatus) {
+	if status.K3s.Reason != "" {
+		return
+	}
+	err := os.Setenv("KUBECONFIG", apis.K3sKubeConfigLocation)
+	if err != nil {
+		status.K3s.Reason = fmt.Sprintf("fail to set kubeconfig: %v", err)
+		return
+	}
+	restConfig, err := config2.GetConfig()
+	if err != nil {
+		status.K3s.Reason = fmt.Sprintf("fail to get config: %v", err)
+		return
+	}
+	cfg, err := utils.NewActionConfig(restConfig, false)
+	if err != nil {
+		status.K3s.Reason = fmt.Sprintf("Failed to get helm action config: %s", err.Error())
+		return
+	}
+	list := action.NewList(cfg)
+	list.SetStateMask()
+	releases, err := list.Run()
+	if err != nil {
+		status.K3s.Reason = fmt.Sprintf("Failed to get helm releases: %s", err.Error())
+		return
+	}
+	for _, release := range releases {
+		if release.Name == apis.KubeVelaHelmRelease {
+			status.K3s.VelaStatus = release.Info.Status.String()
+		}
+	}
+	if status.K3s.VelaStatus == "" {
+		status.K3s.VelaStatus = apis.StatusVelaNotInstalled
+	}
 }
 
 // PrepareK3sImages Write embed images

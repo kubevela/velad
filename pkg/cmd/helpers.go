@@ -54,10 +54,10 @@ func printClusterStatusK3d(status apis.ClusterStatus) bool {
 	}
 	for _, c := range status.K3d.K3dContainer {
 		if c.Reason != "" {
-			infoP(1, x, "cluster", c.Name, "not ready:", c.Reason)
+			infoP(1, x, "cluster", "["+c.Name+"]", "not ready:", c.Reason)
 			stop = true
 		} else {
-			infoP(1, y, "cluster", c.Name, "ready")
+			infoP(1, y, "cluster", "["+c.Name+"]", "ready")
 			if c.VelaStatus != apis.StatusVelaDeployed {
 				infoP(2, ar, "kubevela status:", c.VelaStatus)
 			} else {
@@ -73,6 +73,22 @@ func printClusterStatusK3d(status apis.ClusterStatus) bool {
 }
 
 func printClusterStatusK3s(status apis.ClusterStatus) bool {
+	infoP(0, "K3s images status:")
+	if status.Reason != "" {
+		info(x, "Check K3s status:", status.Reason)
+	}
+	if status.K3s.K3sBinary {
+		infoP(1, y, "k3s binary:", "ready")
+	} else {
+		infoP(1, x, "k3s binary:", "not ready")
+		return true
+	}
+	if status.K3s.K3sServiceStatus != "" {
+		infoP(1, y, "k3s service status:", status.K3s.K3sServiceStatus)
+	} else {
+		infoP(1, x, "k3s service status:", "not found")
+		return true
+	}
 	return false
 }
 
@@ -85,10 +101,10 @@ func PrintVelaStatus(status apis.VelaStatus) {
 		infoP(1, x, "Vela CLI not installed")
 	}
 	if status.VelaUXAddonDirPresent {
-		infoP(1, y, "Vela UX addon dir ready")
-		infoP(1, y, "Vela UX addon dir path:", status.VelaUXAddonDirPath)
+		infoP(1, y, "VelaUX addon dir ready")
+		infoP(1, y, "VelaUX addon dir path:", status.VelaUXAddonDirPath)
 	} else {
-		infoP(1, x, "Vela UX addon dir not ready")
+		infoP(1, x, "VelaUX addon dir not ready")
 	}
 	if status.Reason != "" {
 		info(x, "Check status err:", status.Reason)
