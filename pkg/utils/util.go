@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"io/fs"
@@ -118,24 +119,34 @@ func TransArgsToString(args cli.InstallArgs) []string {
 }
 
 // WarnSaveToken warns user to save token for cluster
-func WarnSaveToken(token string) {
+func WarnSaveToken(token string, clusterName string) {
 	// TODO: more OS support
-	if runtime.GOOS != "linux" {
-		return
-	}
+	var err error
 	if token == "" {
-		// #nosec
-		getToken := exec.Command("cat", "/var/lib/rancher/k3s/server/token")
-		_token, err := getToken.Output()
-		if err != nil {
-			Errf("Fail to get token, please run `cat /var/lib/rancher/k3s/server/token` and save it.\n")
-			return
+		switch runtime.GOOS {
+		case "linux":
+			// #nosec
+			getToken := exec.Command("cat", "/var/lib/rancher/k3s/server/token")
+			_token, err := getToken.Output()
+			if err != nil {
+				Errf("Fail to get token, please run `cat /var/lib/rancher/k3s/server/token` and save it.\n")
+				return
+			}
+			token = string(_token)
+		default:
+			token, err = GetTokenFromCluster(context.Background(), clusterName)
+			if err != nil {
+				Errf("Fail to get token from cluster: %v", err)
+			}
 		}
-		token = string(_token)
 	}
 	Info()
-	Info("Keep the token below in case of restarting the control plane")
-	Info(token)
+	Info("Keep the token below if you want to restart the control plane")
+	if token != "" {
+		Info(token)
+	} else {
+		Info("[No token found]")
+	}
 }
 
 // Cleanup removes the temporary directory
@@ -212,7 +223,7 @@ func GetKubeconfigDir() string {
 
 // PrintGuide will print guide for user.
 func PrintGuide(args apis.InstallArgs) {
-	WarnSaveToken(args.Token)
+	WarnSaveToken(args.Token, args.Name)
 	if !args.ClusterOnly {
 		emoji.Println(":rocket: Successfully install KubeVela control plane")
 		emoji.Println(":telescope: See available commands with `vela help`")

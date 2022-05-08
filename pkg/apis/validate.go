@@ -9,12 +9,12 @@ import (
 var newErr = errors.New
 
 // Validate validates the `kubeconfig` argument
-func (k KubeconfigArgs) Validate() error {
+func (a KubeconfigArgs) Validate() error {
 	if runtime.GOOS == "linux" {
-		if k.Name != "default" {
+		if a.Name != "default" {
 			return newErr("name flag not works in linux")
 		}
-		if k.Internal {
+		if a.Internal {
 			return newErr("internal flag not work in linux")
 		}
 	}
@@ -22,9 +22,19 @@ func (k KubeconfigArgs) Validate() error {
 }
 
 // Validate validates the uninstall arguments
-func (u UninstallArgs) Validate() error {
+func (a UninstallArgs) Validate() error {
 	if runtime.GOOS == "linux" {
-		if u.Name != "default" {
+		if a.Name != "default" {
+			return newErr("name flag not works in linux")
+		}
+	}
+	return nil
+}
+
+// Validate validates the token arguments
+func (a TokenArgs) Validate() error {
+	if runtime.GOOS == "linux" {
+		if a.Name != "default" {
 			return newErr("name flag not works in linux")
 		}
 	}

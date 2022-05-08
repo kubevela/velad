@@ -27,6 +27,7 @@ type KubeconfigArgs struct {
 	Name     string
 }
 
+// TokenArgs defines arguments for velad token command
 type TokenArgs struct {
 	Name string
 }
@@ -91,7 +92,8 @@ type VelaStatus struct {
 }
 
 var (
-	K3sTokenLoc = "/var/lib/rancher/k3s/server/token"
+	// K3sTokenPath is the path to k3s token
+	K3sTokenPath = "/var/lib/rancher/k3s/server/token"
 	// K3sKubeConfigLocation is default path of k3s kubeconfig
 	K3sKubeConfigLocation = "/etc/rancher/k3s/k3s.yaml"
 	// K3sExternalKubeConfigLocation is where to generate kubeconfig for external access
