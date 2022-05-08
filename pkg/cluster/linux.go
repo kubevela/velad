@@ -18,9 +18,9 @@ import (
 )
 
 var (
-	info                   = utils.Info
-	errf                   = utils.Errf
-	infof                  = utils.Infof
+	info  = utils.Info
+	infof = utils.Infof
+	// DefaultHandler is the default handler for k3s cluster
 	DefaultHandler Handler = &LinuxHandler{}
 )
 
@@ -29,6 +29,7 @@ type LinuxHandler struct{}
 
 var _ Handler = &LinuxHandler{}
 
+// Install install k3s cluster
 func (l LinuxHandler) Install(args apis.InstallArgs) error {
 	err := SetupK3s(args)
 	if err != nil {
@@ -38,6 +39,7 @@ func (l LinuxHandler) Install(args apis.InstallArgs) error {
 	return nil
 }
 
+// Uninstall uninstall k3s cluster
 func (l LinuxHandler) Uninstall(name string) error {
 	// #nosec
 	info("Uninstall k3s...")
@@ -57,10 +59,12 @@ func (l LinuxHandler) Uninstall(name string) error {
 	return nil
 }
 
+// SetKubeconfig set kubeconfig for k3s
 func (l LinuxHandler) SetKubeconfig() error {
 	return os.Setenv("KUBECONFIG", apis.K3sKubeConfigLocation)
 }
 
+// LoadImage load imageTar to k3s cluster
 func (l LinuxHandler) LoadImage(imageTar string) error {
 	importCmd := exec.Command("k3s", "ctr", "images", "import", imageTar)
 	output, err := importCmd.CombinedOutput()
@@ -72,6 +76,7 @@ func (l LinuxHandler) LoadImage(imageTar string) error {
 	return nil
 }
 
+// GetStatus get k3s status
 func (l LinuxHandler) GetStatus() apis.ClusterStatus {
 	var status apis.ClusterStatus
 	fillK3sBinStatus(&status)
@@ -146,7 +151,7 @@ func PrepareK3sImages() error {
 		return err
 	}
 	defer utils.CloseQuietly(embedK3sImage)
-	err = os.MkdirAll(resources.K3sImageDir, 600)
+	err = os.MkdirAll(resources.K3sImageDir, 0600)
 	if err != nil {
 		return err
 	}
@@ -272,7 +277,7 @@ func (l LinuxHandler) GenKubeconfig(bindIP string) error {
 		return err
 	}
 	newConf := strings.Replace(string(originConf), "127.0.0.1", bindIP, 1)
-	err = os.WriteFile(apis.K3sExternalKubeConfigLocation, []byte(newConf), 600)
+	err = os.WriteFile(apis.K3sExternalKubeConfigLocation, []byte(newConf), 0600)
 	info("Successfully generate kubeconfig at ", apis.K3sExternalKubeConfigLocation)
 	return err
 }

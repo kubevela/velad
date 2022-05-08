@@ -17,7 +17,10 @@ env:
 
 jobs:
   staticcheck:
-    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        machines: [ "ubuntu-20.04","macos-12" ]
+    runs-on: ${{ matrix.machines }}
     steps:
       - name: Setup Go
         uses: actions/setup-go@v2
@@ -42,7 +45,10 @@ jobs:
         run: staticcheck ./...
 
   lint:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        machines: [ "ubuntu-20.04","macos-12" ]
+    runs-on: ${{ matrix.machines }}
     steps:
       - name: Setup Go
         uses: actions/setup-go@v2
@@ -70,7 +76,10 @@ jobs:
           version: ${{ env.GOLANGCI_VERSION }}
 
   go-check:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        machines: [ "ubuntu-20.04","macos-12" ]
+    runs-on: ${{ matrix.machines }}
     steps:
       - name: Setup Go
         uses: actions/setup-go@v2
