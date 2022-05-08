@@ -41,8 +41,8 @@ func (l LinuxHandler) Install(args apis.InstallArgs) error {
 
 // Uninstall uninstall k3s cluster
 func (l LinuxHandler) Uninstall(name string) error {
-	// #nosec
 	info("Uninstall k3s...")
+	// #nosec
 	uCmd := exec.Command("/usr/local/bin/k3s-uninstall.sh")
 	err := uCmd.Run()
 	if err != nil {
@@ -50,6 +50,7 @@ func (l LinuxHandler) Uninstall(name string) error {
 	}
 	info("Successfully uninstall k3s")
 	info("Uninstall vela CLI...")
+	// #nosec
 	dCmd := exec.Command("rm", apis.VelaLinkPos)
 	err = dCmd.Run()
 	if err != nil {
@@ -66,6 +67,7 @@ func (l LinuxHandler) SetKubeconfig() error {
 
 // LoadImage load imageTar to k3s cluster
 func (l LinuxHandler) LoadImage(imageTar string) error {
+	// #nosec
 	importCmd := exec.Command("k3s", "ctr", "images", "import", imageTar)
 	output, err := importCmd.CombinedOutput()
 	utils.InfoBytes(output)
@@ -98,12 +100,14 @@ func fillServiceStatus(status *apis.ClusterStatus) {
 	if status.K3s.Reason != "" {
 		return
 	}
+	// #nosec
 	cmd := exec.Command("systemctl", "check", "k3s")
 	out, err := cmd.CombinedOutput()
 	status.K3s.K3sServiceStatus = string(out)
 	if err != nil {
-		if exitErr, ok := err.(*exec.ExitError); !ok {
-			status.K3s.Reason = fmt.Sprintf("fail to run systemctl: %v", exitErr.Error())
+		var extErr exec.ExitError
+		if ok := errors.As(err, &extErr); !ok {
+			status.K3s.Reason = fmt.Sprintf("fail to run systemctl: %v", extErr.Error())
 		}
 	}
 }
@@ -165,6 +169,7 @@ func PrepareK3sImages() error {
 	if err != nil {
 		return err
 	}
+	// #nosec
 	unGzipCmd := exec.Command("gzip", "-f", "-d", resources.K3sImageLocation)
 	output, err := unGzipCmd.CombinedOutput()
 	fmt.Print(string(output))

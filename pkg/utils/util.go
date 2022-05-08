@@ -124,6 +124,7 @@ func WarnSaveToken(token string) {
 		return
 	}
 	if token == "" {
+		// #nosec
 		getToken := exec.Command("cat", "/var/lib/rancher/k3s/server/token")
 		_token, err := getToken.Output()
 		if err != nil {

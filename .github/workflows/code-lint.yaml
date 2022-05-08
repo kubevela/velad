@@ -39,7 +39,13 @@ jobs:
         run: |
           make download_vela_images_addons
           make download_k3s
+          make download_k3d
           make pack_vela_chart
+
+      - name: Go Dependencies
+        run: |
+          go mod tidy -compat=1.17
+          go get -t -v -d ./...
 
       - name: Install StaticCheck
         run: GO111MODULE=on go get honnef.co/go/tools/cmd/staticcheck@v0.3.0
@@ -70,6 +76,7 @@ jobs:
         run: |
           make download_vela_images_addons
           make download_k3s
+          make download_k3d
           make pack_vela_chart
 
       # This action uses its own setup-go, which always seems to use the latest
@@ -97,6 +104,12 @@ jobs:
         with:
           submodules: true
 
+      - name: Go Dependencies
+        run: |
+          go mod tidy -compat=1.17
+          go get -t -v -d ./...
+
+
       - name: Setup Docker
         uses: docker-practice/actions-setup-docker@master
 
@@ -104,6 +117,7 @@ jobs:
         run: |
           make download_vela_images_addons
           make download_k3s
+          make download_k3d
           make pack_vela_chart
 
       - name: Check Diff
