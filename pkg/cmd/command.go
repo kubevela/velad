@@ -43,6 +43,7 @@ func NewVeladCommand() *cobra.Command {
 	return cmd
 }
 
+// NewTokenCmd create token command
 func NewTokenCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "token",
@@ -82,6 +83,7 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 	return cmd
 }
 
+// NewStatusCmd create status command
 func NewStatusCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "status",
@@ -125,6 +127,7 @@ func NewUninstallCmd() *cobra.Command {
 	return cmd
 }
 
+// NewVersionCmd create version command
 func NewVersionCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "version",

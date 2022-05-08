@@ -9,6 +9,7 @@ import (
 	"k8s.io/client-go/rest"
 )
 
+// NewActionConfig returns a new helm action config
 func NewActionConfig(config *rest.Config, showDetail bool) (*action.Configuration, error) {
 	cfg := new(action.Configuration)
 	restClientGetter := cmdutil.NewRestConfigGetterByConfig(config, "")

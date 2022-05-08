@@ -1,5 +1,6 @@
 package utils
 
-func UnsupportOS(os string) {
-	panic("unsupport os: " + os)
+// UnsupportedOS will panic with a message about the unsupported OS
+func UnsupportedOS(os string) {
+	panic("unsupported os: " + os)
 }

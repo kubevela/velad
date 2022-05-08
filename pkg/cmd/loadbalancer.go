@@ -12,6 +12,7 @@ import (
 	"github.com/oam-dev/velad/pkg/utils"
 )
 
+// NewLoadBalancerCmd return loca-balancer command
 func NewLoadBalancerCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "load-balancer",
@@ -31,6 +32,7 @@ func NewLoadBalancerCmd() *cobra.Command {
 	return cmd
 }
 
+// NewLBInstallCmd returns load-balancer install command
 func NewLBInstallCmd() *cobra.Command {
 	var LBArgs apis.LoadBalancerArgs
 	cmd := &cobra.Command{
@@ -61,6 +63,7 @@ func NewLBInstallCmd() *cobra.Command {
 	return cmd
 }
 
+// NewLBUninstallCmd returns a cobra command for uninstalling load balancer
 func NewLBUninstallCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "uninstall",

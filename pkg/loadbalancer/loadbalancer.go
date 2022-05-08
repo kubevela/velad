@@ -23,6 +23,7 @@ var (
 	info = utils.Info
 )
 
+// ConfigureNginx set nginx config file
 func ConfigureNginx(args apis.LoadBalancerArgs) error {
 	var err error
 	err = checkLBCondition()
@@ -40,6 +41,7 @@ func ConfigureNginx(args apis.LoadBalancerArgs) error {
 	return startNginx(confLocation)
 }
 
+// UninstallNginx uninstall nginx using package manager
 func UninstallNginx() error {
 	file, err := resources.Nginx.Open("static/nginx/remove_nginx.sh")
 	if err != nil {
@@ -49,6 +51,7 @@ func UninstallNginx() error {
 	if err != nil {
 		return err
 	}
+	// #nosec
 	cmd := exec.Command("/bin/bash", scriptName)
 	output, err := cmd.CombinedOutput()
 	utils.InfoBytes(output)
@@ -67,6 +70,7 @@ func installNginx() error {
 	if err != nil {
 		return err
 	}
+	// #nosec
 	cmd := exec.Command("/bin/bash", scriptName)
 	output, err := cmd.CombinedOutput()
 	utils.InfoBytes(output)
@@ -105,6 +109,7 @@ func startNginx(conf string) error {
 	info("Starting nginx")
 	cmd := exec.Command("nginx", "-s", "quit")
 	_ = cmd.Run()
+	// #nosec
 	reloadCmd := exec.Command("nginx", "-c", conf)
 	output, err := reloadCmd.CombinedOutput()
 	utils.InfoBytes(output)
@@ -120,6 +125,7 @@ func writeNginxConf(conf string, confLocation string) (string, error) {
 			return "", errors.Wrap(err, "locate default config fail, please try specify with -c")
 		}
 	}
+	// #nosec
 	confFile, err := os.OpenFile(loc, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return "", errors.Wrap(err, "open conf file")
@@ -181,6 +187,7 @@ func checkLBCondition() error {
 	return nil
 }
 
+// KillNginx kills nginx process
 func KillNginx() error {
 	kill := exec.Command("pkill", "-9", "nginx")
 	output, err := kill.CombinedOutput()

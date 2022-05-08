@@ -14,10 +14,12 @@ type InstallArgs struct {
 	Name        string
 }
 
+// UninstallArgs defines arguments for velad uninstall command
 type UninstallArgs struct {
 	Name string
 }
 
+// KubeconfigArgs defines arguments for velad kubeconfig command
 type KubeconfigArgs struct {
 	Internal bool
 	External bool
@@ -37,14 +39,15 @@ type ControlPlaneStatus struct {
 	Vela     VelaStatus
 }
 
+// ClusterStatus defines the status of cluster, including k3s/k3d
 type ClusterStatus struct {
 	// K3dImages only works for non-linux
 	K3dImages
-	K3s              K3sStatus
-	K3d              K3dStatus
-	KubeconfigStatus KubeconfigStatus
+	K3s K3sStatus
+	K3d K3dStatus
 }
 
+// K3sStatus defines the status of k3s
 type K3sStatus struct {
 	K3sBinary        bool
 	K3sServiceStatus string
@@ -52,11 +55,13 @@ type K3sStatus struct {
 	Reason           string
 }
 
+// K3dStatus defines the status of k3d
 type K3dStatus struct {
 	Reason       string
 	K3dContainer []K3dContainer
 }
 
+// K3dContainer defines the status of one k3d cluster
 type K3dContainer struct {
 	Name       string
 	Running    bool
@@ -64,13 +69,7 @@ type K3dContainer struct {
 	Reason     string
 }
 
-type KubeconfigStatus struct {
-	KubeconfigHostGenerated     bool
-	KubeconfigExternalGenerated bool
-	// KubeconfigInternalGenerated only works in non-linux
-	KubeconfigInternalGenerated bool
-}
-
+// K3dImages defines the status of k3d images
 type K3dImages struct {
 	K3s      bool
 	K3dTools bool
@@ -78,6 +77,7 @@ type K3dImages struct {
 	Reason   string
 }
 
+// VelaStatus is the status of vela in host machine
 type VelaStatus struct {
 	VelaUXAddonDirPresent bool
 	VelaUXAddonDirPath    string
@@ -87,16 +87,27 @@ type VelaStatus struct {
 }
 
 var (
-	K3sKubeConfigLocation         = "/etc/rancher/k3s/k3s.yaml"
+	// K3sKubeConfigLocation is default path of k3s kubeconfig
+	K3sKubeConfigLocation = "/etc/rancher/k3s/k3s.yaml"
+	// K3sExternalKubeConfigLocation is where to generate kubeconfig for external access
 	K3sExternalKubeConfigLocation = "/etc/rancher/k3s/k3s-external.yaml"
-	VelaLinkPos                   = "/usr/local/bin/vela"
-	VelaDDockerNetwork            = "k3d-velad"
+	// VelaLinkPos is path to save vela symlink in linux/macos
+	VelaLinkPos = "/usr/local/bin/vela"
+	// VelaDDockerNetwork is docker network for k3d cluster when `velad install`
+	// all cluster will be created in this network, so they can communicate with each other
+	VelaDDockerNetwork = "k3d-velad"
 
-	K3dImageK3s   = "rancher/k3s:v1.21.10-k3s1"
+	// K3dImageK3s is k3s image tag
+	K3dImageK3s = "rancher/k3s:v1.21.10-k3s1"
+	// K3dImageTools is k3d tools image tag
 	K3dImageTools = "rancher/k3d-tools:5.2.2"
+	// K3dImageProxy is k3d proxy image tag
 	K3dImageProxy = "rancher/k3d-proxy:5.2.2"
 
-	KubeVelaHelmRelease    = "kubevela"
+	// KubeVelaHelmRelease is helm release name for vela
+	KubeVelaHelmRelease = "kubevela"
+	// StatusVelaNotInstalled is status for kubevela helm chart not installed
 	StatusVelaNotInstalled = "not installed"
-	StatusVelaDeployed     = "deployed"
+	// StatusVelaDeployed is success status for kubevela helm chart deployed
+	StatusVelaDeployed = "deployed"
 )

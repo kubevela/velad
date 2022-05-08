@@ -26,6 +26,7 @@ var (
 	h     = cluster.DefaultHandler
 )
 
+// PrepareVelaChart copy the vela chart to the local directory
 func PrepareVelaChart() (string, error) {
 	charts, err := resources.VelaChart.Open("static/vela/charts/vela-core.tgz")
 	if err != nil {
@@ -40,6 +41,7 @@ func PrepareVelaChart() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	// #nosec
 	untar := exec.Command("tar", "-xzf", chartFile, "-C", tmpDir)
 	err = untar.Run()
 	if err != nil {
@@ -65,6 +67,7 @@ func LoadVelaImages() error {
 		if err != nil {
 			return err
 		}
+		// #nosec
 		unzipCmd := exec.Command("gzip", "-d", imageTgz)
 		output, err := unzipCmd.CombinedOutput()
 		utils.InfoBytes(output)
@@ -111,10 +114,10 @@ func getCLIInstallPos() string {
 	case "windows":
 		dir, _ := system.GetVelaHomeDir()
 		binDir := path.Join(dir, "bin")
-		_ = os.MkdirAll(binDir, 0755)
+		_ = os.MkdirAll(binDir, 0750)
 		return path.Join(binDir, "vela.exe")
 	default:
-		utils.UnsupportOS(runtime.GOOS)
+		utils.UnsupportedOS(runtime.GOOS)
 	}
 	return ""
 }
@@ -132,7 +135,8 @@ func PrepareVelaUX() error {
 		return err
 	}
 	defer utils.CloseQuietly(tar)
-	file, err := os.OpenFile(path.Join(velaAddonDir, filename), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	// #nosec
+	file, err := os.OpenFile(path.Join(velaAddonDir, filename), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
 	}
@@ -146,6 +150,7 @@ func PrepareVelaUX() error {
 	if err != nil {
 		return errors.Wrap(err, "error when remove velaux directory")
 	}
+	// #nosec
 	untar := exec.Command("tar", "-xzf", file.Name(), "-C", velaAddonDir)
 	output, err := untar.CombinedOutput()
 	utils.InfoBytes(output)
@@ -170,6 +175,7 @@ func getVelaAddonDir() (string, error) {
 	return velaAddonDir, nil
 }
 
+// GetStatus get kubevela status
 func GetStatus() apis.VelaStatus {
 	status := apis.VelaStatus{}
 	fillVelaCLIStatus(&status)

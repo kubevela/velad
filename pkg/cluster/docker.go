@@ -35,6 +35,7 @@ import (
 )
 
 var (
+	// DefaultHandler is the default handler for k3d cluster
 	DefaultHandler Handler = &DockerHandler{
 		ctx: context.Background(),
 	}
@@ -44,6 +45,7 @@ var (
 )
 
 const (
+	// K3dImageTag is image tag of k3d
 	K3dImageTag = "v1.21.10-k3s1"
 )
 
@@ -55,11 +57,13 @@ func init() {
 	}
 }
 
+// DockerHandler will handle the k3d cluster creation and management
 type DockerHandler struct {
 	ctx context.Context
 	cfg config.ClusterConfig
 }
 
+// Install will install a k3d cluster
 func (d *DockerHandler) Install(args apis.InstallArgs) error {
 	d.cfg = GetClusterRunConfig(args)
 	err := setupK3d(d.ctx, d.cfg)
@@ -70,6 +74,7 @@ func (d *DockerHandler) Install(args apis.InstallArgs) error {
 	return nil
 }
 
+// Uninstall removes a k3d cluster of certain name
 func (d *DockerHandler) Uninstall(name string) error {
 	clusterList, err := k3dClient.ClusterList(d.ctx, runtimes.SelectedRuntime)
 	if err != nil {
@@ -157,6 +162,7 @@ func (d *DockerHandler) GenKubeconfig(bindIP string) error {
 	return nil
 }
 
+// SetKubeconfig set kubeconfig environment of cluster stored in DockerHandler
 func (d *DockerHandler) SetKubeconfig() error {
 	info("Setting kubeconfig env for VelaD...")
 	return os.Setenv("KUBECONFIG", configPath(d.cfg.Cluster.Name))
@@ -168,6 +174,7 @@ func (d *DockerHandler) LoadImage(image string) error {
 	return errors.Wrap(err, "failed to import image")
 }
 
+// GetStatus returns the status of the cluster
 func (d *DockerHandler) GetStatus() apis.ClusterStatus {
 	var status apis.ClusterStatus
 	list, err := dockerCli.ImageList(d.ctx, types.ImageListOptions{})
@@ -270,6 +277,7 @@ func setupK3d(ctx context.Context, clusterConfig config.ClusterConfig) error {
 	return nil
 }
 
+// GetClusterRunConfig returns the run-config for the k3d cluster
 func GetClusterRunConfig(args apis.InstallArgs) config.ClusterConfig {
 	cluster := getClusterConfig(args.Name, args.DBEndpoint, args.Token)
 	createOpts := getClusterCreateOpts()
@@ -280,8 +288,8 @@ func GetClusterRunConfig(args apis.InstallArgs) config.ClusterConfig {
 		KubeconfigOpts:    kubeconfigOpts,
 	}
 	return runConfig
-
 }
+
 func getClusterCreateOpts() k3d.ClusterCreateOpts {
 	clusterCreateOpts := k3d.ClusterCreateOpts{
 		GlobalLabels: map[string]string{}, // empty init
@@ -391,7 +399,8 @@ func PrepareK3sImages() error {
 		return err
 	}
 	k3sImagesPath := filepath.Join(k3sImagesDir, "k3s-airgap-images-amd64.tgz")
-	k3sImagesFile, err := os.OpenFile(k3sImagesPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
+	// #nosec
+	k3sImagesFile, err := os.OpenFile(k3sImagesPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
 	}
@@ -411,12 +420,13 @@ func getK3sImageDir() (string, error) {
 		return "", err
 	}
 	k3sImagesDir := filepath.Join(dir, "velad", "k3s")
-	if err := os.MkdirAll(k3sImagesDir, 0755); err != nil {
+	if err := os.MkdirAll(k3sImagesDir, 0700); err != nil {
 		return "", err
 	}
 	return k3sImagesDir, nil
 }
 
+// LoadK3dImages loads local k3d images to docker
 func LoadK3dImages() error {
 	dir, err := resources.K3dImage.ReadDir("static/k3d/images")
 	if err != nil {
@@ -432,6 +442,7 @@ func LoadK3dImages() error {
 		if err != nil {
 			return err
 		}
+		// #nosec
 		unzipCmd := exec.Command("gzip", "-d", imageTgz)
 		output, err := unzipCmd.CombinedOutput()
 		utils.InfoBytes(output)
@@ -439,6 +450,7 @@ func LoadK3dImages() error {
 			return err
 		}
 		imageTar := strings.TrimSuffix(imageTgz, ".gz")
+		// #nosec
 		importCmd := exec.Command("docker", "image", "load", "-i", imageTar)
 		output, err = importCmd.CombinedOutput()
 		utils.InfoBytes(output)

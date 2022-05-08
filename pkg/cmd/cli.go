@@ -22,6 +22,7 @@ func NewApp() App {
 	return app
 }
 
+// Run run the app, it can be vela or velad, depends on os.Args
 func (a App) Run() {
 	if len(a.args) == 0 {
 		fmt.Println("No args")

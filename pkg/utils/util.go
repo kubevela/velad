@@ -20,10 +20,14 @@ import (
 )
 
 var (
-	Info  func(a ...interface{})
+	// Info print message
+	Info func(a ...interface{})
+	// Infof print message with format
 	Infof func(format string, a ...interface{})
+	// InfoP print message with padding
 	InfoP func(padding int, a ...interface{})
-	Errf  func(format string, a ...interface{})
+	// Errf print error with format
+	Errf func(format string, a ...interface{})
 
 	velauxDir string
 )
@@ -75,6 +79,7 @@ func CloseQuietly(d io.Closer) {
 	_ = d.Close()
 }
 
+// IfDeployByPod returns true if the given controllers doesn't contain one of Deployment/Job/ReplicaSet
 func IfDeployByPod(controllers string) bool {
 	needControllers := []string{"deployment", "job", "replicaset"}
 	for _, c := range needControllers {
@@ -85,15 +90,16 @@ func IfDeployByPod(controllers string) bool {
 	return false
 }
 
+// HaveController returns true if the given controllers contains the given controller
 func HaveController(controllers string, c string) bool {
 	cs := strings.Split(controllers, ",")
 	if slices.Contains(cs, "*") {
 		return !slices.Contains(cs, "-"+c)
-	} else {
-		return slices.Contains(cs, c)
 	}
+	return slices.Contains(cs, c)
 }
 
+// TransArgsToString converts args to string array, which helps to pass args to vela install command
 func TransArgsToString(args cli.InstallArgs) []string {
 	var res []string
 	if args.Values != nil {
@@ -111,6 +117,7 @@ func TransArgsToString(args cli.InstallArgs) []string {
 	return res
 }
 
+// WarnSaveToken warns user to save token for cluster
 func WarnSaveToken(token string) {
 	// TODO: more OS support
 	if runtime.GOOS != "linux" {
@@ -130,6 +137,7 @@ func WarnSaveToken(token string) {
 	Info(token)
 }
 
+// Cleanup removes the temporary directory
 func Cleanup() error {
 	tmpDir, err := GetTmpDir()
 	if err != nil {
@@ -138,6 +146,7 @@ func Cleanup() error {
 	return os.RemoveAll(tmpDir)
 }
 
+// InfoBytes is a helper function to print a byte array
 func InfoBytes(b []byte) {
 	if len(b) != 0 {
 		Info(string(b))
@@ -151,27 +160,29 @@ type VeladWriter struct {
 
 var _ io.Writer = &VeladWriter{}
 
+// Write implements io.Writer. Change the hint to "vela addon enable velaux" and print it with local dir.
 func (v VeladWriter) Write(p []byte) (n int, err error) {
 	if strings.HasPrefix(string(p), "If you want to enable dashboard, please run \"vela addon enable velaux\"") {
 		return v.W.Write([]byte(fmt.Sprintf("If you want to enable dashboard, please run \"vela addon enable %s\"\n", velauxDir)))
-	} else {
-		return v.W.Write(p)
 	}
+	return v.W.Write(p)
 }
 
+// GetTmpDir returns the temporary directory when want to save some files
 func GetTmpDir() (string, error) {
 	dir, err := system.GetVelaHomeDir()
 	if err != nil {
 		return "", err
 	}
 	tmpDir := filepath.Join(dir, "tmp")
-	if err := os.MkdirAll(tmpDir, 0755); err != nil {
+	if err := os.MkdirAll(tmpDir, 0700); err != nil {
 		return "", err
 	}
 	return tmpDir, nil
 }
 
-func GetDefaultVelaDKubeconfigPos() string {
+// GetDefaultVelaDKubeconfigPath returns the default kubeconfig path for VelaD
+func GetDefaultVelaDKubeconfigPath() string {
 	var kubeconfigPos string
 	switch runtime.GOOS {
 	case "darwin":
@@ -181,11 +192,12 @@ func GetDefaultVelaDKubeconfigPos() string {
 	case "windows":
 		kubeconfigPos = filepath.Join(os.Getenv("USERPROFILE"), ".kube", "velad-cluster-default")
 	default:
-		UnsupportOS(runtime.GOOS)
+		UnsupportedOS(runtime.GOOS)
 	}
 	return kubeconfigPos
 }
 
+// GetKubeconfigDir returns the kubeconfig directory.
 func GetKubeconfigDir() string {
 	var kubeconfigDir string
 	switch runtime.GOOS {
@@ -197,6 +209,7 @@ func GetKubeconfigDir() string {
 	return kubeconfigDir
 }
 
+// PrintGuide will print guide for user.
 func PrintGuide(args apis.InstallArgs) {
 	WarnSaveToken(args.Token)
 	if !args.ClusterOnly {
@@ -211,16 +224,18 @@ func PrintGuide(args apis.InstallArgs) {
 	}
 }
 
+// IsVelaCommand judge if app start by vela
 func IsVelaCommand(s string) bool {
 	sl := strings.Split(s, "/")
 	return sl[len(sl)-1] == "vela"
 }
 
+// SetDefaultKubeConfigEnv helps set KUBECONFIG to the default location
 func SetDefaultKubeConfigEnv() {
 	RecommendedConfigPathEnvVar := "KUBECONFIG"
 	kubeconfig := os.Getenv(RecommendedConfigPathEnvVar)
 	if kubeconfig == "" {
-		kubeconfig = GetDefaultVelaDKubeconfigPos()
+		kubeconfig = GetDefaultVelaDKubeconfigPath()
 		_ = os.Setenv(RecommendedConfigPathEnvVar, kubeconfig)
 	}
 }

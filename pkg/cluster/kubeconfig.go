@@ -10,6 +10,7 @@ import (
 	"github.com/oam-dev/velad/pkg/utils"
 )
 
+// PrintKubeConfig helps print kubeconfig locations
 func PrintKubeConfig(args apis.KubeconfigArgs) error {
 	switch runtime.GOOS {
 	case "darwin", "windows":
@@ -17,7 +18,7 @@ func PrintKubeConfig(args apis.KubeconfigArgs) error {
 	case "linux":
 		return printKubeConfigLinux(args)
 	default:
-		utils.UnsupportOS(runtime.GOOS)
+		utils.UnsupportedOS(runtime.GOOS)
 	}
 	return nil
 }

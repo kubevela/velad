@@ -17,6 +17,7 @@ var (
 	ar             = yellow("➤")
 )
 
+// PrintClusterStatus helps print cluster status
 func PrintClusterStatus(status apis.ClusterStatus) bool {
 	switch runtime.GOOS {
 	case "linux":
@@ -93,6 +94,7 @@ func printClusterStatusK3s(status apis.ClusterStatus) bool {
 	return false
 }
 
+// PrintVelaStatus helps print kubevela status
 func PrintVelaStatus(status apis.VelaStatus) {
 	infoP(0, "Vela status:")
 	if status.VelaCLIInstalled {

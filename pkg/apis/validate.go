@@ -8,6 +8,7 @@ import (
 
 var newErr = errors.New
 
+// Validate validates the `kubeconfig` argument
 func (k KubeconfigArgs) Validate() error {
 	if runtime.GOOS == "linux" {
 		if k.Name != "default" {
@@ -20,6 +21,7 @@ func (k KubeconfigArgs) Validate() error {
 	return nil
 }
 
+// Validate validates the uninstall arguments
 func (u UninstallArgs) Validate() error {
 	if runtime.GOOS == "linux" {
 		if u.Name != "default" {
