@@ -45,14 +45,16 @@ func NewVeladCommand() *cobra.Command {
 
 // NewTokenCmd create token command
 func NewTokenCmd() *cobra.Command {
+	var tokenArgs apis.TokenArgs
 	cmd := &cobra.Command{
 		Use:   "token",
 		Short: "Print control plane token",
 		Long:  "Print control plane token, only works if control plane has been set up",
-		Run: func(cmd *cobra.Command, args []string) {
-			tokenCmd()
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return tokenCmd(cmd.Context(), tokenArgs)
 		},
 	}
+	cmd.Flags().StringVarP(&tokenArgs.Name, "name", "n", "default", "which cluster token to print")
 	return cmd
 }
 

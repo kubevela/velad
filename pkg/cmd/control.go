@@ -1,9 +1,10 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
-	"os"
-
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
 	"github.com/oam-dev/kubevela/pkg/utils/common"
 	cmdutil "github.com/oam-dev/kubevela/pkg/utils/util"
 	"github.com/oam-dev/kubevela/references/cli"
@@ -13,22 +14,60 @@ import (
 	"github.com/oam-dev/velad/pkg/vela"
 	"github.com/oam-dev/velad/version"
 	"github.com/pkg/errors"
+	"os"
+	"runtime"
 )
 
-func tokenCmd() {
-	tokenLoc := "/var/lib/rancher/k3s/server/token"
-	_, err := os.Stat(tokenLoc)
-	if err == nil {
-		file, err := os.ReadFile("/var/lib/rancher/k3s/server/token")
-		if err != nil {
-			errf("Fail to read token file: %s: %v\n", tokenLoc, err)
-			return
+func tokenCmd(ctx context.Context, args apis.TokenArgs) error {
+	switch runtime.GOOS {
+	case "linux":
+		_, err := os.Stat(apis.K3sTokenLoc)
+		if err == nil {
+			file, err := os.ReadFile("/var/lib/rancher/k3s/server/token")
+			if err != nil {
+				return errors.Wrapf(err, "fail to read token file: %s", apis.K3sTokenLoc)
+			}
+			fmt.Println(string(file))
 		}
-		fmt.Println(string(file))
-		return
-	}
-	info("No token found, control plane not set up yet.")
+		info("No token found, control plane not set up yet.")
+	default:
+		dockerCli, err := client.NewClientWithOpts(client.FromEnv)
+		if err != nil {
+			return errors.Wrap(err, "failed to create docker client")
+		}
+		defer func(dockerCli *client.Client) {
+			_ = dockerCli.Close()
+		}(dockerCli)
 
+		containers, err := dockerCli.ContainerList(ctx, types.ContainerListOptions{})
+		if err != nil {
+			return errors.Wrap(err, "failed to list containers")
+		}
+		var ID string
+		for _, c := range containers {
+			for _, name := range c.Names {
+				if name == fmt.Sprintf("/k3d-velad-cluster-%s-server-0", args.Name) {
+					ID = c.ID
+				}
+			}
+		}
+		if ID == "" {
+			return errors.Errorf("No cluster with name %s found.", args.Name)
+		}
+		exec, err := utils.Exec(ctx, dockerCli, ID, []string{"cat", apis.K3sTokenLoc})
+		if err != nil {
+			return errors.Wrap(err, "failed to create docker exec command")
+		}
+		resp, err := utils.InspectExecResp(ctx, dockerCli, exec.ID)
+		if err != nil {
+			return errors.Wrap(err, "failed to inspect exec command result")
+		}
+		if resp.ExitCode != 0 {
+			return errors.Errorf("failed to get token, exit code: %d, stderr: %s", resp.ExitCode, resp.StdErr)
+		}
+		fmt.Println(resp.StdOut)
+	}
+	return nil
 }
 
 func installCmd(c common.Args, ioStreams cmdutil.IOStreams, args apis.InstallArgs) error {
