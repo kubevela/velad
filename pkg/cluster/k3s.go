@@ -21,16 +21,16 @@ var (
 	info  = utils.Info
 	infof = utils.Infof
 	// DefaultHandler is the default handler for k3s cluster
-	DefaultHandler Handler = &LinuxHandler{}
+	DefaultHandler Handler = &K3sHandler{}
 )
 
-// LinuxHandler handle k3s in linux
-type LinuxHandler struct{}
+// K3sHandler handle k3s in linux
+type K3sHandler struct{}
 
-var _ Handler = &LinuxHandler{}
+var _ Handler = &K3sHandler{}
 
 // Install install k3s cluster
-func (l LinuxHandler) Install(args apis.InstallArgs) error {
+func (l K3sHandler) Install(args apis.InstallArgs) error {
 	err := SetupK3s(args)
 	if err != nil {
 		return errors.Wrap(err, "fail to setup k3s")
@@ -40,7 +40,7 @@ func (l LinuxHandler) Install(args apis.InstallArgs) error {
 }
 
 // Uninstall uninstall k3s cluster
-func (l LinuxHandler) Uninstall(name string) error {
+func (l K3sHandler) Uninstall(name string) error {
 	info("Uninstall k3s...")
 	// #nosec
 	uCmd := exec.Command("/usr/local/bin/k3s-uninstall.sh")
@@ -61,12 +61,12 @@ func (l LinuxHandler) Uninstall(name string) error {
 }
 
 // SetKubeconfig set kubeconfig for k3s
-func (l LinuxHandler) SetKubeconfig() error {
+func (l K3sHandler) SetKubeconfig() error {
 	return os.Setenv("KUBECONFIG", apis.K3sKubeConfigLocation)
 }
 
 // LoadImage load imageTar to k3s cluster
-func (l LinuxHandler) LoadImage(imageTar string) error {
+func (l K3sHandler) LoadImage(imageTar string) error {
 	// #nosec
 	importCmd := exec.Command("k3s", "ctr", "images", "import", imageTar)
 	output, err := importCmd.CombinedOutput()
@@ -79,7 +79,7 @@ func (l LinuxHandler) LoadImage(imageTar string) error {
 }
 
 // GetStatus get k3s status
-func (l LinuxHandler) GetStatus() apis.ClusterStatus {
+func (l K3sHandler) GetStatus() apis.ClusterStatus {
 	var status apis.ClusterStatus
 	fillK3sBinStatus(&status)
 	fillServiceStatus(&status)
@@ -236,7 +236,7 @@ func SetupK3s(cArgs apis.InstallArgs) error {
 
 	info("Setting up cluster...")
 	args := []string{script}
-	other := composeArgs(cArgs)
+	other := GetK3sServerArgs(cArgs)
 	args = append(args, other...)
 	/* #nosec */
 	cmd := exec.Command("/bin/bash", args...)
@@ -248,31 +248,8 @@ func SetupK3s(cArgs apis.InstallArgs) error {
 	return errors.Wrap(err, "K3s install script failed")
 }
 
-// composeArgs convert args from command to ones passed to k3s install script
-func composeArgs(args apis.InstallArgs) []string {
-	var shellArgs []string
-	if args.DBEndpoint != "" {
-		shellArgs = append(shellArgs, "--datastore-endpoint="+args.DBEndpoint)
-	}
-	if args.BindIP != "" {
-		shellArgs = append(shellArgs, "--tls-san="+args.BindIP)
-	}
-	if args.Token != "" {
-		shellArgs = append(shellArgs, "--token="+args.Token)
-	}
-	if args.Controllers != "*" {
-		shellArgs = append(shellArgs, "--kube-controller-manager-arg=controllers="+args.Controllers)
-		// TODO : deal with coredns/local-path-provisioner/metrics-server Deployment when no deployment controllers
-		if !utils.HaveController(args.Controllers, "job") {
-			// Traefik use Job to install, which is impossible without Job Controller
-			shellArgs = append(shellArgs, "--disable", "traefik")
-		}
-	}
-	return shellArgs
-}
-
 // GenKubeconfig generate kubeconfig for accessing from other machine
-func (l LinuxHandler) GenKubeconfig(bindIP string) error {
+func (l K3sHandler) GenKubeconfig(bindIP string) error {
 	if bindIP == "" {
 		return nil
 	}

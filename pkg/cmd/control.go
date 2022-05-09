@@ -46,6 +46,11 @@ func tokenCmd(ctx context.Context, args apis.TokenArgs) error {
 
 func installCmd(c common.Args, ioStreams cmdutil.IOStreams, args apis.InstallArgs) error {
 	var err error
+	err = args.Validate()
+	if err != nil {
+		return err
+	}
+
 	defer func() {
 		err := utils.Cleanup()
 		if err != nil {

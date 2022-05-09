@@ -8,10 +8,20 @@ import (
 
 var newErr = errors.New
 
+// Validate validates the `install` argument
+func (a InstallArgs) Validate() error {
+	if runtime.GOOS == "linux" {
+		if a.Name != DefaultVelaDClusterName {
+			return newErr("name flag not works in linux")
+		}
+	}
+	return nil
+}
+
 // Validate validates the `kubeconfig` argument
 func (a KubeconfigArgs) Validate() error {
 	if runtime.GOOS == "linux" {
-		if a.Name != "default" {
+		if a.Name != DefaultVelaDClusterName {
 			return newErr("name flag not works in linux")
 		}
 		if a.Internal {
@@ -24,7 +34,7 @@ func (a KubeconfigArgs) Validate() error {
 // Validate validates the uninstall arguments
 func (a UninstallArgs) Validate() error {
 	if runtime.GOOS == "linux" {
-		if a.Name != "default" {
+		if a.Name != DefaultVelaDClusterName {
 			return newErr("name flag not works in linux")
 		}
 	}
@@ -34,7 +44,7 @@ func (a UninstallArgs) Validate() error {
 // Validate validates the token arguments
 func (a TokenArgs) Validate() error {
 	if runtime.GOOS == "linux" {
-		if a.Name != "default" {
+		if a.Name != DefaultVelaDClusterName {
 			return newErr("name flag not works in linux")
 		}
 	}

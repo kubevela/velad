@@ -54,7 +54,7 @@ func NewTokenCmd() *cobra.Command {
 			return tokenCmd(cmd.Context(), tokenArgs)
 		},
 	}
-	cmd.Flags().StringVarP(&tokenArgs.Name, "name", "n", "default", "which cluster token to print")
+	cmd.Flags().StringVarP(&tokenArgs.Name, "name", "n", apis.DefaultVelaDClusterName, "which cluster token to print")
 	return cmd
 }
 
@@ -74,7 +74,7 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 	cmd.Flags().StringVar(&iArgs.BindIP, "bind-ip", "", "Bind additional hostname or IP in the kubeconfig TLS cert")
 	cmd.Flags().StringVar(&iArgs.Token, "token", "", "Token for identify the cluster. Can be used to restart the control plane or register other node. If not set, random token will be generated")
 	cmd.Flags().StringVar(&iArgs.Controllers, "controllers", "*", "A list of controllers to enable, check \"--controllers\" argument for more spec in https://kubernetes.io/docs/reference/command-line-tools-reference/kube-controller-manager/")
-	cmd.Flags().StringVar(&iArgs.Name, "name", "default", "The name of the cluster. only works when NOT in linux environment")
+	cmd.Flags().StringVar(&iArgs.Name, "name", apis.DefaultVelaDClusterName, "The name of the cluster. only works when NOT in linux environment")
 
 	// inherit args from `vela install`
 	cmd.Flags().StringArrayVarP(&iArgs.InstallArgs.Values, "set", "", []string{}, "set values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)")
@@ -108,7 +108,7 @@ func NewKubeConfigCmd() *cobra.Command {
 			return kubeconfigCmd(kArgs)
 		},
 	}
-	cmd.Flags().StringVarP(&kArgs.Name, "name", "n", "default", "The name of cluster, Only works in macOS/Windows")
+	cmd.Flags().StringVarP(&kArgs.Name, "name", "n", apis.DefaultVelaDClusterName, "The name of cluster, Only works in macOS/Windows")
 	cmd.Flags().BoolVar(&kArgs.Internal, "internal", false, "Print kubeconfig that used in Docker network. Typically used in \"vela cluster join\". Only works in macOS/Windows. ")
 	cmd.Flags().BoolVar(&kArgs.External, "external", false, "Print kubeconfig that can be used on other machine")
 	cmd.Flags().BoolVar(&kArgs.Host, "host", false, "Print kubeconfig path that can be used in this machine")
@@ -125,7 +125,7 @@ func NewUninstallCmd() *cobra.Command {
 			return uninstallCmd(uArgs)
 		},
 	}
-	cmd.Flags().StringVarP(&uArgs.Name, "name", "n", "default", "The name of the control plane. Only works when NOT in linux environment")
+	cmd.Flags().StringVarP(&uArgs.Name, "name", "n", apis.DefaultVelaDClusterName, "The name of the control plane. Only works when NOT in linux environment")
 	return cmd
 }
 

@@ -117,4 +117,7 @@ var (
 	StatusVelaNotInstalled = "not installed"
 	// StatusVelaDeployed is success status for kubevela helm chart deployed
 	StatusVelaDeployed = "deployed"
+
+	// DefaultVelaDClusterName is default cluster name for velad install/token/kubeconfig/uninstall
+	DefaultVelaDClusterName = "default"
 )
