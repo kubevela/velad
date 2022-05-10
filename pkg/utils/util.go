@@ -120,7 +120,6 @@ func TransArgsToString(args cli.InstallArgs) []string {
 
 // WarnSaveToken warns user to save token for cluster
 func WarnSaveToken(token string, clusterName string) {
-	// TODO: more OS support
 	var err error
 	if token == "" {
 		switch runtime.GOOS {
