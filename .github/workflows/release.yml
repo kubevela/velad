@@ -57,7 +57,7 @@ jobs:
           ${{ env.GO_BUILD_ENV }} GOOS=${{ steps.get_matrix.outputs.OS }} GOARCH=${{ steps.get_matrix.outputs.ARCH }} \
             go build -ldflags "${{ env.LDFLAGS }}" \
             -o _bin/velad/${{ steps.get_matrix.outputs.OS }}-${{ steps.get_matrix.outputs.ARCH }}/velad -v \
-            main.go
+            cmd/velad/main.go
       - name: Compress
         run: |
           echo "\n## Release Info\nVERSION: ${{ env.VELA_VERSION }}" >> README.md && \
