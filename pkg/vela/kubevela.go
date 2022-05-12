@@ -19,10 +19,8 @@ import (
 )
 
 var (
-	errf  = utils.Errf
-	info  = utils.Info
-	infof = utils.Infof
-	h     = cluster.DefaultHandler
+	info = utils.Info
+	h    = cluster.DefaultHandler
 )
 
 // PrepareVelaChart copy the vela chart to the local directory
