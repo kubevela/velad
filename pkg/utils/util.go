@@ -225,6 +225,7 @@ func PrintGuide(args apis.InstallArgs) {
 	WarnSaveToken(args.Token, args.Name)
 	if !args.ClusterOnly {
 		emoji.Println(":rocket: Successfully install KubeVela control plane")
+		printWindowsPathGuide()
 		emoji.Println(":telescope: See available commands with `vela help`")
 	} else {
 		emoji.Println(":rocket: Successfully install a pure cluster! ")
@@ -235,10 +236,22 @@ func PrintGuide(args apis.InstallArgs) {
 	}
 }
 
+func printWindowsPathGuide() {
+	if runtime.GOOS != "windows" {
+		return
+	}
+	path := GetCLIInstallPath()
+	velaDir := filepath.Dir(path)
+	emoji.Println(":hammer: To add vela to PATH, if you are using cmd:")
+	Infof("      set PATH=%%PATH%%;%s\n", velaDir)
+	Info("    If you are using Powershell:")
+	Infof("      $Env:PATH += ';%s'\n", velaDir)
+}
+
 // IsVelaCommand judge if app start by vela
 func IsVelaCommand(s string) bool {
-	sl := strings.Split(s, "/")
-	return sl[len(sl)-1] == "vela"
+	base := filepath.Base(s)
+	return base == "vela" || base == "vela.exe"
 }
 
 // SetDefaultKubeConfigEnv helps set KUBECONFIG to the default location
@@ -249,4 +262,21 @@ func SetDefaultKubeConfigEnv() {
 		kubeconfig = GetDefaultVelaDKubeconfigPath()
 		_ = os.Setenv(RecommendedConfigPathEnvVar, kubeconfig)
 	}
+}
+
+// GetCLIInstallPath get vela CLI install path
+func GetCLIInstallPath() string {
+	// get vela CLI link position depends on the OS
+	switch runtime.GOOS {
+	case "linux", "darwin":
+		return "/usr/local/bin/vela"
+	case "windows":
+		dir, _ := system.GetVelaHomeDir()
+		binDir := filepath.Join(dir, "bin")
+		_ = os.MkdirAll(binDir, 0750)
+		return filepath.Join(binDir, "vela.exe")
+	default:
+		UnsupportedOS(runtime.GOOS)
+	}
+	return ""
 }

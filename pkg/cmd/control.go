@@ -75,7 +75,11 @@ func installCmd(c common.Args, ioStreams cmdutil.IOStreams, args apis.InstallArg
 	}
 
 	// Step.3 Install Vela CLI
-	vela.LinkToVela()
+	err = vela.InstallVelaCLI()
+	if err != nil {
+		// not return because this is acceptable
+		errf("fail to install vela CLI: %v\n", err)
+	}
 
 	if !args.ClusterOnly {
 		// Step.4 load vela-core images
@@ -134,7 +138,6 @@ func uninstallCmd(uArgs apis.UninstallArgs) error {
 	}
 	info("Successfully uninstall KubeVela control plane!")
 	return nil
-
 }
 
 func statusCmd() {

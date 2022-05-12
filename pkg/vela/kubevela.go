@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/exec"
 	"path"
-	"runtime"
 	"strings"
 
 	"github.com/oam-dev/kubevela/pkg/utils/system"
@@ -83,43 +82,32 @@ func LoadVelaImages() error {
 	return nil
 }
 
-// LinkToVela create soft link to from vela to velad vela
-func LinkToVela() {
+// InstallVelaCLI install vela CLI to local
+func InstallVelaCLI() error {
 	info("Checking and installing vela CLI...")
 	_, err := exec.LookPath("vela")
 	if err == nil {
 		info("vela CLI is already installed, skip")
-		return
+		return nil
 	}
 
 	info("vela CLI is not installed, installing...")
-	pos := getCLIInstallPos()
-	err = os.Symlink("velad", pos)
-	if err != nil {
-		errf("Fail to create symlink: %v\n", err)
-		return
-	}
-	info("Successfully install vela CLI at: ", pos)
-	if runtime.GOOS == "windows" {
-		info("To add vela to PATH, run:")
-		infof("  set PATH=%PATH%;%s", pos)
-	}
+	return installVelaCLI()
 }
 
-func getCLIInstallPos() string {
-	// get vela CLI link position depends on the OS
-	switch runtime.GOOS {
-	case "linux", "darwin":
-		return "/usr/local/bin/vela"
-	case "windows":
-		dir, _ := system.GetVelaHomeDir()
-		binDir := path.Join(dir, "bin")
-		_ = os.MkdirAll(binDir, 0750)
-		return path.Join(binDir, "vela.exe")
-	default:
-		utils.UnsupportedOS(runtime.GOOS)
+// installVelaCLI helps install vela CLI
+func installVelaCLI() error {
+	pos := utils.GetCLIInstallPath()
+	dest, err := os.Executable()
+	if err != nil {
+		return err
 	}
-	return ""
+	err = os.Symlink(dest, pos)
+	if err != nil {
+		return errors.Wrap(err, "Fail to create symlink")
+	}
+	info("Successfully install vela CLI at: ", pos)
+	return nil
 }
 
 // PrepareVelaUX place vela-ux chart in ~/.vela/addons/velaux/
@@ -184,7 +172,7 @@ func GetStatus() apis.VelaStatus {
 }
 
 func fillVelaCLIStatus(status *apis.VelaStatus) {
-	pos := getCLIInstallPos()
+	pos := utils.GetCLIInstallPath()
 	if _, err := os.Stat(pos); err == nil {
 		status.VelaCLIInstalled = true
 		status.VelaCLIPath = pos
