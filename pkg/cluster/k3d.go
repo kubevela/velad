@@ -65,8 +65,12 @@ type K3dHandler struct {
 
 // Install will install a k3d cluster
 func (d *K3dHandler) Install(args apis.InstallArgs) error {
-	d.cfg = GetClusterRunConfig(args)
-	err := setupK3d(d.ctx, d.cfg)
+	var err error
+	d.cfg, err = GetClusterRunConfig(args)
+	if err != nil {
+		return err
+	}
+	err = setupK3d(d.ctx, d.cfg)
 	if err != nil {
 		return errors.Wrap(err, "failed to setup k3d")
 	}
@@ -278,24 +282,27 @@ func setupK3d(ctx context.Context, clusterConfig config.ClusterConfig) error {
 }
 
 // GetClusterRunConfig returns the run-config for the k3d cluster
-func GetClusterRunConfig(args apis.InstallArgs) config.ClusterConfig {
-	cluster := getClusterConfig(args)
+func GetClusterRunConfig(args apis.InstallArgs) (config.ClusterConfig, error) {
 	createOpts := getClusterCreateOpts()
+	cluster, err := getClusterConfig(args, createOpts)
+	if err != nil {
+		return config.ClusterConfig{}, err
+	}
 	kubeconfigOpts := getKubeconfigOptions()
 	runConfig := config.ClusterConfig{
 		Cluster:           cluster,
 		ClusterCreateOpts: createOpts,
 		KubeconfigOpts:    kubeconfigOpts,
 	}
-	return runConfig
+	return runConfig, nil
 }
 
 func getClusterCreateOpts() k3d.ClusterCreateOpts {
 	clusterCreateOpts := k3d.ClusterCreateOpts{
 		GlobalLabels: map[string]string{}, // empty init
 		GlobalEnv:    []string{},          // empty init
-		// TODO: for now, we disable the LB, but we can enable it later for multi-server scenario
-		DisableLoadBalancer: true,
+		// Enable LoadBalancer for using Ingress to access services
+		DisableLoadBalancer: false,
 	}
 
 	// ensure, that we have the default object labels
@@ -307,7 +314,7 @@ func getClusterCreateOpts() k3d.ClusterCreateOpts {
 }
 
 // getClusterConfig will get different k3d.Cluster based on ordinal , storage for external storage, token is needed if storage is set
-func getClusterConfig(args apis.InstallArgs) k3d.Cluster {
+func getClusterConfig(args apis.InstallArgs, ops k3d.ClusterCreateOpts) (k3d.Cluster, error) {
 	// Cluster will be created in one docker network
 	var universalK3dNetwork = k3d.ClusterNetwork{
 		Name:     apis.VelaDDockerNetwork,
@@ -316,7 +323,7 @@ func getClusterConfig(args apis.InstallArgs) k3d.Cluster {
 	kubeAPIExposureOpts := k3d.ExposureOpts{
 		Host: k3d.DefaultAPIHost,
 	}
-	port, err := findAvailablePort()
+	port, err := findAvailablePort(6443)
 	if err != nil {
 		panic(err)
 	}
@@ -335,7 +342,15 @@ func getClusterConfig(args apis.InstallArgs) k3d.Cluster {
 	}
 
 	// nodes
-	clusterConfig.Nodes = []*k3d.Node{}
+	var nodes []*k3d.Node
+
+	// load-balancer for servers
+
+	clusterConfig.ServerLoadBalancer, err = prepareLoadbalancer(clusterConfig, ops)
+	if err != nil {
+		return clusterConfig, err
+	}
+	nodes = append(nodes, clusterConfig.ServerLoadBalancer.Node)
 
 	k3sImageDir, err := getK3sImageDir()
 	if err != nil {
@@ -350,9 +365,22 @@ func getClusterConfig(args apis.InstallArgs) k3d.Cluster {
 	}
 
 	serverNode.Args = GetK3sServerArgs(args)
-	clusterConfig.Nodes = append(clusterConfig.Nodes, &serverNode)
+	nodes = append(nodes, &serverNode)
+	clusterConfig.Nodes = nodes
 
-	return clusterConfig
+	clusterConfig.ServerLoadBalancer.Config.Ports[fmt.Sprintf("%s.tcp", k3d.DefaultAPIPort)] = append(clusterConfig.ServerLoadBalancer.Config.Ports[fmt.Sprintf("%s.tcp", k3d.DefaultAPIPort)], serverNode.Name)
+
+	// Other configurations
+	portWithFilter, err := getPortWithFilters()
+	if err != nil {
+		return clusterConfig, errors.Wrap(err, "failed to get http ports")
+	}
+	err = k3dClient.TransformPorts(context.Background(), runtimes.SelectedRuntime, &clusterConfig, []config.PortWithNodeFilters{portWithFilter})
+	if err != nil {
+		return clusterConfig, errors.Wrap(err, "failed to transform ports")
+	}
+
+	return clusterConfig, nil
 }
 
 func getKubeconfigOptions() config.SimpleConfigOptionsKubeconfig {
@@ -450,9 +478,9 @@ func LoadK3dImages() error {
 	return nil
 }
 
-// find available port, 6443 by default
-func findAvailablePort() (string, error) {
-	for i := 6443; i < 65535; i++ {
+// findAvailablePort find available port, start by default
+func findAvailablePort(start int) (string, error) {
+	for i := start; i < 65535; i++ {
 		listener, err := net.Listen("tcp", fmt.Sprintf(":%d", i))
 		if err != nil {
 			continue
@@ -461,4 +489,70 @@ func findAvailablePort() (string, error) {
 		return strconv.Itoa(i), nil
 	}
 	return "", errors.New("no available port")
+}
+
+func prepareLoadbalancer(cluster k3d.Cluster, opts k3d.ClusterCreateOpts) (*k3d.Loadbalancer, error) {
+	lb := k3d.NewLoadbalancer()
+
+	labels := map[string]string{}
+	if opts.GlobalLabels == nil && len(opts.GlobalLabels) == 0 {
+		labels = opts.GlobalLabels
+	}
+
+	lb.Node.Name = fmt.Sprintf("%s-%s-serverlb", k3d.DefaultObjectNamePrefix, cluster.Name)
+	lb.Node.Image = apis.K3dImageProxy
+	lb.Node.Ports = nat.PortMap{
+		k3d.DefaultAPIPort: []nat.PortBinding{cluster.KubeAPI.Binding},
+	}
+	lb.Node.Networks = []string{cluster.Network.Name}
+
+	// fixed the lb image
+	lb.Node.RuntimeLabels = labels
+	lb.Node.Restart = true
+
+	//if len(lb.Config.Ports) == 0 {
+	//	lbConfig, err := k3dClient.LoadbalancerGenerateConfig(&cluster)
+	//	if err != nil {
+	//		return lb, errors.Wrap(err, "generating loadbalancer config")
+	//	}
+	//	lb.Config = &lbConfig
+	//}
+	//
+	////ensure lables
+	//lb.Node.FillRuntimeLabels()
+	//for k, v := range opts.GlobalLabels {
+	//	lb.Node.RuntimeLabels[k] = v
+	//}
+	//
+	//// prepare to write config to lb container
+	//configyaml, err := yaml.Marshal(lb.Config)
+	//if err != nil {
+	//	return lb, errors.Wrap(err, "marshal loadbalancer config")
+	//}
+	//
+	//writeLbConfigAction := k3d.NodeHook{
+	//	Stage: k3d.LifecycleStagePreStart,
+	//	Action: actions.WriteFileAction{
+	//		Runtime:     runtimes.SelectedRuntime,
+	//		Dest:        k3d.DefaultLoadbalancerConfigPath,
+	//		Mode:        0744,
+	//		Content:     configyaml,
+	//		Description: "Write Loadbalancer Configuration",
+	//	},
+	//}
+	//
+	//lb.Node.HookActions = append(lb.Node.HookActions, writeLbConfigAction)
+
+	return lb, nil
+}
+
+func getPortWithFilters() (config.PortWithNodeFilters, error) {
+	var port config.PortWithNodeFilters
+	hostPort, err := findAvailablePort(8080)
+	if err != nil {
+		return port, err
+	}
+	port.Port = fmt.Sprintf("%s:80", hostPort)
+	port.NodeFilters = []string{"loadbalancer"}
+	return port, nil
 }
