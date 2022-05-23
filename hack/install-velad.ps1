@@ -55,7 +55,7 @@ if (!$Version.startswith("v")) {
     $Version = "v" + $Version
 }
 
-$assetName = "${vela_cli_filename}-${Version}-${os_arch}.zip"
+$assetName = "${vela_cli_filename}-${os_arch}-${Version}.zip"
 $zipFileUrl = "${RemoteURL}/${Version}/${assetName}"
 
 $zipFilePath = $VelaRoot + "\" + $assetName
