@@ -44,7 +44,7 @@ jobs:
           SHA_LONG=$(curl -s -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/kubevela/kubevela/git/refs/tags/${{ env.VELAD_VERSION }} |jq -r ".object.sha")
           VELA_SHA_SHORT="${SHA_LONG:0:7}"
           echo $VELA_SHA_SHORT
-          echo "VELA_SHA_SHORT" >> $GITHUB_ENV
+          echo "VELA_SHA_SHORT=$VELA_SHA_SHORT" >> $GITHUB_ENV
       - name: Get matrix
         id: get_matrix
         run: |
