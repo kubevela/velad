@@ -120,4 +120,11 @@ var (
 
 	// DefaultVelaDClusterName is default cluster name for velad install/token/kubeconfig/uninstall
 	DefaultVelaDClusterName = "default"
+
+	// GoosLinux is os.GOOS linux string
+	GoosLinux = "linux"
+	// GoosDarwin is os.GOOS darwin string
+	GoosDarwin = "darwin"
+	// GoosWindows is os.GOOS windows string
+	GoosWindows = "windows"
 )

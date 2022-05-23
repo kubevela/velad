@@ -36,7 +36,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
       - name: Get version
-        run: echo "VELA_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        run: echo "VELAD_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
       - name: Get matrix
         id: get_matrix
         run: |
@@ -46,7 +46,7 @@ jobs:
       - name: Get ldflags
         id: get_ldflags
         run: |
-          LDFLAGS="-s -w -X ${{ env.VELA_VERSION_KEY }}=${{ env.VELA_VERSION }}"
+          LDFLAGS="-s -w -X ${{ env.VELA_VERSION_KEY }}=${{ env.VELAD_VERSION }}"
           echo "LDFLAGS=${LDFLAGS}" >> $GITHUB_ENV
       - name: Build
         run: |
@@ -60,20 +60,28 @@ jobs:
             cmd/velad/main.go
       - name: Compress
         run: |
-          echo "\n## Release Info\nVERSION: ${{ env.VELA_VERSION }}" >> README.md && \
+          echo "\n## Release Info\nVERSION: ${{ env.VELAD_VERSION }}" >> README.md && \
           echo "GIT_COMMIT: ${GITHUB_SHA}\n" >> README.md && \
           cd _bin/velad && \
           ${{ env.DIST_DIRS }} cp ../../LICENSE {} \; && \
           ${{ env.DIST_DIRS }} cp ../../README.md {} \; && \
           ${{ env.DIST_DIRS }} tar -zcf velad-{}.tar.gz {} \; && \
+          ${{ env.DIST_DIRS }} zip -r velad-{}.zip {} \; && \
           cd .. && \
           sha256sum velad/velad-* >> sha256-${{ steps.get_matrix.outputs.OS }}-${{ steps.get_matrix.outputs.ARCH }}.txt \
-      - name: Upload Vela tar.gz
+      - name: Upload VelaD tar.gz
         uses: actions/upload-release-asset@v1.0.2
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
           asset_path: ./_bin/velad/velad-${{ steps.get_matrix.outputs.OS }}-${{ steps.get_matrix.outputs.ARCH }}.tar.gz
-          asset_name: velad-${{ env.VELA_VERSION }}-${{ steps.get_matrix.outputs.OS }}-${{ steps.get_matrix.outputs.ARCH }}.tar.gz
+          asset_name: velad-${{ env.VELAD_VERSION }}-${{ steps.get_matrix.outputs.OS }}-${{ steps.get_matrix.outputs.ARCH }}.tar.gz
+          asset_content_type: binary/octet-stream
+      - name: Upload VelaD zip
+        uses: actions/upload-release-asset@v1.0.2
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./_bin/velad/velad-${{ steps.get_matrix.outputs.OS }}-${{ steps.get_matrix.outputs.ARCH }}.zip
+          asset_name: velad-${{ env.VELAD_VERSION }}-${{ steps.get_matrix.outputs.OS }}-${{ steps.get_matrix.outputs.ARCH }}.zip
           asset_content_type: binary/octet-stream
       - name: Post sha256
         uses: actions/upload-artifact@v2
@@ -87,6 +95,10 @@ jobs:
         run: ./ossutil --config-file .ossutilconfig config -i ${ACCESS_KEY} -k ${ACCESS_KEY_SECRET} -e ${ENDPOINT}
       - name: Upload to OSS
         run: |
-          ./ossutil --config-file .ossutilconfig cp \
-          ./_bin/velad/velad-${{ steps.get_matrix.outputs.OS }}-${{ steps.get_matrix.outputs.ARCH }}.tar.gz \
-          oss://kubevela-docs/binary/velad/velad-${{ steps.get_matrix.outputs.OS }}-${{ steps.get_matrix.outputs.ARCH }}-${{ env.VELA_VERSION }}.tar.gz
+          ./ossutil --config-file .ossutilconfig sync \
+          ./_bin/velad oss://kubevela-docs/binary/velad/${{ env.VELAD_VERSION }}
+      - name: sync the velad latest version file
+        run: |
+          echo ${{ env.VELAD_VERSION }} > ./velad_latest_version
+          ./ossutil --config-file .ossutilconfig cp -u ./velad_latest_version oss://kubevela-docs/binary/velad/latest_version
+

@@ -13,9 +13,9 @@ import (
 // PrintKubeConfig helps print kubeconfig locations
 func PrintKubeConfig(args apis.KubeconfigArgs) error {
 	switch runtime.GOOS {
-	case "darwin", "windows":
+	case apis.GoosDarwin, apis.GoosWindows:
 		return printKubeConfigDocker(args)
-	case "linux":
+	case apis.GoosLinux:
 		return printKubeConfigLinux(args)
 	default:
 		utils.UnsupportedOS(runtime.GOOS)

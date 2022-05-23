@@ -346,10 +346,7 @@ func getClusterConfig(args apis.InstallArgs, ops k3d.ClusterCreateOpts) (k3d.Clu
 
 	// load-balancer for servers
 
-	clusterConfig.ServerLoadBalancer, err = prepareLoadbalancer(clusterConfig, ops)
-	if err != nil {
-		return clusterConfig, err
-	}
+	clusterConfig.ServerLoadBalancer = prepareLoadbalancer(clusterConfig, ops)
 	nodes = append(nodes, clusterConfig.ServerLoadBalancer.Node)
 
 	k3sImageDir, err := getK3sImageDir()
@@ -491,7 +488,7 @@ func findAvailablePort(start int) (string, error) {
 	return "", errors.New("no available port")
 }
 
-func prepareLoadbalancer(cluster k3d.Cluster, opts k3d.ClusterCreateOpts) (*k3d.Loadbalancer, error) {
+func prepareLoadbalancer(cluster k3d.Cluster, opts k3d.ClusterCreateOpts) *k3d.Loadbalancer {
 	lb := k3d.NewLoadbalancer()
 
 	labels := map[string]string{}
@@ -510,40 +507,7 @@ func prepareLoadbalancer(cluster k3d.Cluster, opts k3d.ClusterCreateOpts) (*k3d.
 	lb.Node.RuntimeLabels = labels
 	lb.Node.Restart = true
 
-	//if len(lb.Config.Ports) == 0 {
-	//	lbConfig, err := k3dClient.LoadbalancerGenerateConfig(&cluster)
-	//	if err != nil {
-	//		return lb, errors.Wrap(err, "generating loadbalancer config")
-	//	}
-	//	lb.Config = &lbConfig
-	//}
-	//
-	////ensure lables
-	//lb.Node.FillRuntimeLabels()
-	//for k, v := range opts.GlobalLabels {
-	//	lb.Node.RuntimeLabels[k] = v
-	//}
-	//
-	//// prepare to write config to lb container
-	//configyaml, err := yaml.Marshal(lb.Config)
-	//if err != nil {
-	//	return lb, errors.Wrap(err, "marshal loadbalancer config")
-	//}
-	//
-	//writeLbConfigAction := k3d.NodeHook{
-	//	Stage: k3d.LifecycleStagePreStart,
-	//	Action: actions.WriteFileAction{
-	//		Runtime:     runtimes.SelectedRuntime,
-	//		Dest:        k3d.DefaultLoadbalancerConfigPath,
-	//		Mode:        0744,
-	//		Content:     configyaml,
-	//		Description: "Write Loadbalancer Configuration",
-	//	},
-	//}
-	//
-	//lb.Node.HookActions = append(lb.Node.HookActions, writeLbConfigAction)
-
-	return lb, nil
+	return lb
 }
 
 func getPortWithFilters() (config.PortWithNodeFilters, error) {

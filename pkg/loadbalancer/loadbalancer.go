@@ -171,7 +171,7 @@ func getNginxDefaultConfLoc() (string, error) {
 
 func checkLBCondition() error {
 	info("Checking system...")
-	if runtime.GOOS != "linux" {
+	if runtime.GOOS != apis.GoosLinux {
 		errf("Linux is required for Launching load balancer\n")
 		return errors.New("not linux")
 	}

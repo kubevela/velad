@@ -6,7 +6,6 @@ require (
 	github.com/docker/docker v20.10.10+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/fatih/color v1.13.0
-	github.com/gobuffalo/logger v1.0.1
 	github.com/kyokomi/emoji/v2 v2.2.9
 	github.com/oam-dev/kubevela v1.3.3
 	github.com/pkg/errors v0.9.1
@@ -89,7 +88,6 @@ require (
 	github.com/go-openapi/swag v0.19.14 // indirect
 	github.com/go-resty/resty/v2 v2.7.0 // indirect
 	github.com/go-test/deep v1.0.8 // indirect
-	github.com/gobuffalo/envy v1.7.1 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
@@ -114,7 +112,6 @@ require (
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/jmoiron/sqlx v1.3.1 // indirect
-	github.com/joho/godotenv v1.3.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
@@ -166,7 +163,6 @@ require (
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.26.0 // indirect
 	github.com/prometheus/procfs v0.6.0 // indirect
-	github.com/rogpeppe/go-internal v1.8.0 // indirect
 	github.com/rubenv/sql-migrate v0.0.0-20200616145509-8d140a17f351 // indirect
 	github.com/russross/blackfriday v1.5.2 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect

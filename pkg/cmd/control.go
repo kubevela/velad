@@ -24,7 +24,7 @@ func tokenCmd(ctx context.Context, args apis.TokenArgs) error {
 		return err
 	}
 	switch runtime.GOOS {
-	case "linux":
+	case apis.GoosLinux:
 		_, err := os.Stat(apis.K3sTokenPath)
 		if err == nil {
 			file, err := os.ReadFile("/var/lib/rancher/k3s/server/token")

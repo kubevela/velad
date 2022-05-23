@@ -20,7 +20,7 @@ var (
 // PrintClusterStatus helps print cluster status
 func PrintClusterStatus(status apis.ClusterStatus) bool {
 	switch runtime.GOOS {
-	case "linux":
+	case apis.GoosLinux:
 		return printClusterStatusK3s(status)
 	default:
 		return printClusterStatusK3d(status)

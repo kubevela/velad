@@ -12,6 +12,8 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
 	"github.com/kyokomi/emoji/v2"
 	"github.com/oam-dev/kubevela/pkg/utils/system"
 	"github.com/oam-dev/kubevela/references/cli"
@@ -123,7 +125,7 @@ func WarnSaveToken(token string, clusterName string) {
 	var err error
 	if token == "" {
 		switch runtime.GOOS {
-		case "linux":
+		case apis.GoosLinux:
 			// #nosec
 			getToken := exec.Command("cat", "/var/lib/rancher/k3s/server/token")
 			_token, err := getToken.Output()
@@ -196,11 +198,11 @@ func GetTmpDir() (string, error) {
 func GetDefaultVelaDKubeconfigPath() string {
 	var kubeconfigPos string
 	switch runtime.GOOS {
-	case "darwin":
+	case apis.GoosDarwin:
 		kubeconfigPos = filepath.Join(os.Getenv("HOME"), ".kube", "velad-cluster-default")
-	case "linux":
+	case apis.GoosLinux:
 		kubeconfigPos = apis.K3sKubeConfigLocation
-	case "windows":
+	case apis.GoosWindows:
 		kubeconfigPos = filepath.Join(os.Getenv("USERPROFILE"), ".kube", "velad-cluster-default")
 	default:
 		UnsupportedOS(runtime.GOOS)
@@ -212,9 +214,9 @@ func GetDefaultVelaDKubeconfigPath() string {
 func GetKubeconfigDir() string {
 	var kubeconfigDir string
 	switch runtime.GOOS {
-	case "darwin", "linux":
+	case apis.GoosDarwin, apis.GoosLinux:
 		kubeconfigDir = filepath.Join(os.Getenv("HOME"), ".kube")
-	case "windows":
+	case apis.GoosWindows:
 		kubeconfigDir = filepath.Join(os.Getenv("USERPROFILE"), ".kube")
 	}
 	return kubeconfigDir
@@ -225,19 +227,21 @@ func PrintGuide(args apis.InstallArgs) {
 	WarnSaveToken(args.Token, args.Name)
 	if !args.ClusterOnly {
 		emoji.Println(":rocket: Successfully install KubeVela control plane")
+		printHTTPGuide(args.Name)
 		printWindowsPathGuide()
 		emoji.Println(":telescope: See available commands with `vela help`")
 	} else {
 		emoji.Println(":rocket: Successfully install a pure cluster! ")
 		emoji.Println(":link: If you have a cluster with KubeVela, Join this as sub-cluster:")
 		emoji.Println("    vela cluster join $(velad kubeconfig --name foo --internal)")
+		printHTTPGuide(args.Name)
 		emoji.Println(":key: To access the cluster, set KUBECONFIG:")
 		emoji.Printf("    export KUBECONFIG=$(velad kubeconfig --name %s --host)\n", args.Name)
 	}
 }
 
 func printWindowsPathGuide() {
-	if runtime.GOOS != "windows" {
+	if runtime.GOOS != apis.GoosWindows {
 		return
 	}
 	path := GetCLIInstallPath()
@@ -268,9 +272,9 @@ func SetDefaultKubeConfigEnv() {
 func GetCLIInstallPath() string {
 	// get vela CLI link position depends on the OS
 	switch runtime.GOOS {
-	case "linux", "darwin":
+	case apis.GoosLinux, apis.GoosDarwin:
 		return "/usr/local/bin/vela"
-	case "windows":
+	case apis.GoosWindows:
 		dir, _ := system.GetVelaHomeDir()
 		binDir := filepath.Join(dir, "bin")
 		_ = os.MkdirAll(binDir, 0750)
@@ -279,4 +283,36 @@ func GetCLIInstallPath() string {
 		UnsupportedOS(runtime.GOOS)
 	}
 	return ""
+}
+
+func printHTTPGuide(clusterName string) {
+	// TODO: validate process within linux (with K3s)
+	if runtime.GOOS == apis.GoosLinux {
+		return
+	}
+	dockerCli, err := client.NewClientWithOpts(client.FromEnv)
+	if err != nil {
+		Errf("Failed to create docker client: %v", err)
+	}
+	list, err := dockerCli.ContainerList(context.Background(), types.ContainerListOptions{})
+	if err != nil {
+		Errf("Failed to list containers: %v", err)
+	}
+	var ports []types.Port
+	for _, c := range list {
+		for _, name := range c.Names {
+			if name == fmt.Sprintf("/k3d-velad-cluster-%s-serverlb", clusterName) {
+				ports = c.Ports
+			}
+		}
+	}
+	if len(ports) == 0 {
+		Errf("Failed to find cluster serverlb container")
+	}
+	for _, p := range ports {
+		if p.PrivatePort == 80 {
+			emoji.Printf(":laptop: When using gateway trait, you can access with 127.0.0.1:%d\n", p.PublicPort)
+		}
+	}
+
 }

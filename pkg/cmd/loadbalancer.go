@@ -19,7 +19,7 @@ func NewLoadBalancerCmd() *cobra.Command {
 		Short: "Configure load balancer between nodes set up by VelaD",
 		Long:  "Configure load balancer between nodes set up by VelaD",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			if runtime.GOOS != "linux" {
+			if runtime.GOOS != apis.GoosLinux {
 				return errors.New("Load balancer is only supported on linux")
 			}
 			return nil
