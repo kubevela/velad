@@ -33,8 +33,8 @@ func (a App) Run() {
 	if utils.IsVelaCommand(a.args[0]) {
 		utils.SetDefaultKubeConfigEnv()
 		cmd = cli.NewCommand()
-		// TODO set right gitVersion
 		version.VelaVersion = veladVersion.VelaVersion
+		version.GitRevision = veladVersion.VelaGitRevision
 	} else {
 		cmd = NewVeladCommand()
 	}

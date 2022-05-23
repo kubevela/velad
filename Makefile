@@ -2,9 +2,9 @@ include makefiles/dependency.mk
 
 K3S_VERSION ?= v1.21.10+k3s1
 STATIC_DIR := pkg/resources/static
+VELA_VERSION ?= v1.3.4
 GOOS ?= linux
 GOARCH ?= amd64
-#VELA_VERSION := 1.3.0
 
 .DEFAULT_GOAL := linux-amd64
 linux-amd64: download_vela_images_addons download_k3s pack_vela_chart
@@ -14,8 +14,8 @@ darwin-amd64 windows-amd64: download_vela_images_addons download_k3d pack_vela_c
 	GOOS=${GOOS} GOARCH=${GOARCH} go build -o bin/velad-${GOOS}-${GOARCH} github.com/oam-dev/velad/cmd/velad
 
 download_vela_images_addons:
-	./hack/download_vela_images.sh
-	./hack/download_addons.sh
+	./hack/download_vela_images.sh ${VELA_VERSION}
+	./hack/download_addons.sh ${VELA_VERSION}
 
 download_k3d:
 	./hack/download_k3d_images.sh
