@@ -232,11 +232,18 @@ func PrintGuide(args apis.InstallArgs) {
 		emoji.Println(":telescope: See available commands with `vela help`")
 	} else {
 		emoji.Println(":rocket: Successfully install a pure cluster! ")
-		emoji.Println(":link: If you have a cluster with KubeVela, Join this as sub-cluster:")
-		emoji.Println("    vela cluster join $(velad kubeconfig --name foo --internal)")
+		if runtime.GOOS != apis.GoosLinux {
+			emoji.Println(":link: If you have a cluster with KubeVela, Join this as sub-cluster:")
+			emoji.Printf("    vela cluster join $(velad kubeconfig --name %s --internal)\n", args.Name)
+		}
 		printHTTPGuide(args.Name)
 		emoji.Println(":key: To access the cluster, set KUBECONFIG:")
-		emoji.Printf("    export KUBECONFIG=$(velad kubeconfig --name %s --host)\n", args.Name)
+		var kubeconfigArg = "--host"
+		if args.BindIP != "" {
+			kubeconfigArg = "--external"
+		}
+		emoji.Printf("    export KUBECONFIG=$(velad kubeconfig --name %s %s)\n", args.Name, kubeconfigArg)
+
 	}
 }
 
