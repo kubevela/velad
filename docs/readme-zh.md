@@ -1,6 +1,10 @@
 # velad
 
-轻量级 KubeVela，在单节点作为守护进程运行且具备高可用性。
+VelaD 是一个轻量级部署工具，能帮助你快速搭建 [KubeVela](https://github.com/kubevela/kubevela) 环境。
+
+使用 VelaD，能方便地搭建 KubeVela 环境，包括一个安装有 KubeVela 的集群、配套命令行工具 vela CLI、Web 控制面板 VelaUX
+
+VelaD 是上手 KubeVela 的最快方式。
 
 ## 特性
 
@@ -9,16 +13,15 @@
 
 ## 安装条件
 
-- Linux
+如果你的操作系统是Windows/macOS，VelaD的运行需要[Docker](https://www.docker.com/products/docker-desktop/) 。
 
 ## 快速开始
 
 ### 安装 velad
 
 ```shell
-curl -Lo velad.tar.gz https://kubevela-docs.oss-cn-beijing.aliyuncs.com/binary/velad/velad-linux-amd64-v1.3.1.tar.gz
-tar -xzvf velad.tar.gz
-cp linux-amd64/velad /usr/local/bin/velad
+```shell
+curl -fsSl https://static.kubevela.net/script/install-velad.sh | bash -s 1.3.4
 ```
 
 ### 启动 KubeVela

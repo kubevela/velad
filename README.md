@@ -8,8 +8,12 @@ English | [简体中文](docs/readme-zh.md)
 
 ## Introduction
 
-VelaD helps to set up [KubeVela](https://github.com/oam-dev/kubevela) in one step. With the help of k3s, VelaD
-can build KubeVela control plane of higher availability, which consist of multiple node and one load balancer typically.
+VelaD is lightweight deployment tool to set up [KubeVela](https://github.com/kubevela/kubevela).
+
+VelaD make it very easy to set up KubeVela environment, including a cluster with KubeVela installed, VelaUX/Vela CLI prepared.
+
+VelaD is the fastest way to get started with KubeVela.
+
 
 ![demo](docs/resources/demo.gif)
 
@@ -20,16 +24,14 @@ can build KubeVela control plane of higher availability, which consist of multip
 
 ## Prerequisites
 
-- Linux
+If you are using Windows/macOS, docker is needed for run VelaD
 
 ## Quickstart
 
 ### Installation
 
 ```shell
-curl -Lo velad.tar.gz https://github.com/oam-dev/velad/releases/download/v1.3.1/velad-v1.3.1-linux-amd64.tar.gz
-tar -xzvf velad.tar.gz
-cp linux-amd64/velad /usr/local/bin/velad
+curl -fsSl https://static.kubevela.net/script/install-velad.sh | bash -s 1.3.4
 ```
 
 ### Setup
