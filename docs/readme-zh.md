@@ -19,9 +19,15 @@ VelaD 是上手 KubeVela 的最快方式。
 
 ### 安装 velad
 
+- Linux/macOS
 ```shell
 ```shell
 curl -fsSl https://static.kubevela.net/script/install-velad.sh | bash -s 1.3.4
+```
+
+- Windows
+```shell
+powershell -Command "iwr -useb https://static.kubevela.net/script/install.ps1 | iex"
 ```
 
 ### 启动 KubeVela

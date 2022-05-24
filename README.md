@@ -30,8 +30,15 @@ If you are using Windows/macOS, docker is needed for run VelaD
 
 ### Installation
 
+- Linux/macOS
+```shell
 ```shell
 curl -fsSl https://static.kubevela.net/script/install-velad.sh | bash -s 1.3.4
+```
+
+- Windows
+```shell
+powershell -Command "iwr -useb https://static.kubevela.net/script/install.ps1 | iex"
 ```
 
 ### Setup
