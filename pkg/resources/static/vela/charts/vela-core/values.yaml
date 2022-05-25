@@ -84,10 +84,33 @@ webhookService:
 healthCheck:
   port: 9440
 
+## @section KubeVela controller optimization parameters
+##@param optimize.cachedGvks Optimize types of resources to be cached.
+##@param optimize.resourceTrackerListOp Optimize ResourceTracker List Op by adding index.
+##@param optimize.controllerReconcileLoopReduction Optimize ApplicationController reconcile by reducing the number of loops to reconcile application.
+##@param optimize.markWithProb Optimize ResourceTracker GC by only run mark with probability. Side effect: outdated ResourceTracker might not be able to be removed immediately.
+##@param optimize.disableComponentRevision Optimize componentRevision by disabling the creation and gc
+##@param optimize.disableApplicationRevision Optimize ApplicationRevision by disabling the creation and gc.
+##@param optimize.disableWorkflowRecorder Optimize workflow recorder by disabling the creation and gc.
+##@param optimize.enableInMemoryWorkflowContext Optimize workflow by use in-memory context.
+##@param optimize.disableResourceApplyDoubleCheck Optimize workflow by ignoring resource double check after apply.
+##@param optimize.enableResourceTrackerDeleteOnlyTrigger Optimize resourcetracker by only trigger reconcile when resourcetracker is deleted.
+optimize:
+  cachedGvks: ""
+  resourceTrackerListOp: true
+  controllerReconcileLoopReduction: false
+  markWithProb: 0.1
+  disableComponentRevision: false
+  disableApplicationRevision: false
+  disableWorkflowRecorder: false
+  enableInMemoryWorkflowContext: false
+  disableResourceApplyDoubleCheck: false
+  enableResourceTrackerDeleteOnlyTrigger: true
 
 ## @section MultiCluster parameters
 
 ## @param multicluster.enabled Whether to enable multi-cluster
+## @param multicluster.metrics.enabled Whether to enable multi-cluster metrics collect
 ## @param multicluster.clusterGateway.replicaCount ClusterGateway replica count
 ## @param multicluster.clusterGateway.port ClusterGateway port
 ## @param multicluster.clusterGateway.image.repository ClusterGateway image repository
@@ -97,8 +120,11 @@ healthCheck:
 ## @param multicluster.clusterGateway.resources.limits.memory ClusterGateway memory limit
 ## @param multicluster.clusterGateway.secureTLS.enabled Whether to enable secure TLS
 ## @param multicluster.clusterGateway.secureTLS.certPath Path to the certificate file
+## @param multicluster.clusterGateway.secureTLS.certManager.enabled Whether to enable cert-manager
 multicluster:
   enabled: true
+  metrics:
+    enabled: false
   clusterGateway:
     replicaCount: 1
     port: 9443
@@ -112,6 +138,8 @@ multicluster:
         memory: 200Mi
     secureTLS:
       enabled: true
+      certManager:
+        enabled: false
       certPath: /etc/k8s-cluster-gateway-certs
 
 
@@ -196,11 +224,13 @@ admissionWebhooks:
     enabled: true
     image:
       repository: oamdev/kube-webhook-certgen
-      tag: v2.3
+      tag: v2.4.0
       pullPolicy: IfNotPresent
     nodeSelector: {}
     affinity: {}
     tolerations: []
+  appConversion:
+    enabled: false
   certManager:
     enabled: false
     revisionHistoryLimit: 3
@@ -211,5 +241,12 @@ kubeClient:
   qps: 50
   burst: 100
 
-## @param deployByPod Use pod instead of Deployment to deploy vela-core
-deployByPod: false
+## @param authentication.enabled Enable authentication for application
+## @param authentication.withUser Application authentication will impersonate as the request User
+## @param authentication.defaultUser Application authentication will impersonate as the User if no user provided in Application
+## @param authentication.groupPattern Application authentication will impersonate as the request Group that matches the pattern
+authentication:
+  enabled: false
+  withUser: false
+  defaultUser: kubevela:vela-core
+  groupPattern: kubevela:*

@@ -1,5 +1,4 @@
 {{- if and .Values.admissionWebhooks.enabled .Values.admissionWebhooks.patch.enabled (not .Values.admissionWebhooks.certManager.enabled) }}
-{{ if not .Values.deployByPod }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -23,6 +22,35 @@ spec:
         app: {{ template "kubevela.name" . }}-admission-patch
         {{- include "kubevela.labels" . | nindent 8 }}
     spec:
-  {{ include "kubevela-admission-webhook-patch.Podspec" . | indent 6 }}
-  {{ end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: patch
+          image: {{ .Values.imageRegistry }}{{ .Values.admissionWebhooks.patch.image.repository }}:{{ .Values.admissionWebhooks.patch.image.tag }}
+          imagePullPolicy: {{ .Values.admissionWebhooks.patch.image.pullPolicy }}
+          args:
+            - patch
+            - --webhook-name={{ template "kubevela.fullname" . }}-admission
+            - --namespace={{ .Release.Namespace }}
+            - --secret-name={{ template "kubevela.fullname" . }}-admission
+            - --patch-failure-policy={{ .Values.admissionWebhooks.failurePolicy }}
+            {{- if .Values.admissionWebhooks.appConversion.enabled }}
+            - --crds={"name":"applications.core.oam.dev","conversion":{"strategy":"Webhook","webhook":{"clientConfig":{"service":{"name":"vela-core-webhook","namespace":"vela-system","path":"/convert","port":443}},"conversionReviewVersions":["v1beta1","v1alpha2"]}}}
+            {{- end }}
+      restartPolicy: OnFailure
+      serviceAccountName: {{ template "kubevela.fullname" . }}-admission
+      {{- with .Values.admissionWebhooks.patch.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.admissionWebhooks.patch.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      securityContext:
+        runAsGroup: 2000
+        runAsNonRoot: true
+        runAsUser: 2000
 {{- end }}

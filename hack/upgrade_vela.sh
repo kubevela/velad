@@ -15,7 +15,7 @@ VERSION_TO=$2
 PATCH_FILE_NAME=$VERSION_NOW-$VERSION_TO.patch
 WORKDIR=pkg/resources/static/vela
 
-git clone git@github.com:kubevela/kubevela.git
+git clone https://github.com/kubevela/kubevela.git
 
 pushd kubevela
 git diff refs/tags/"$VERSION_NOW"...refs/tags/"$VERSION_TO" charts/vela-core > "$PATCH_FILE_NAME"
