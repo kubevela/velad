@@ -15,10 +15,19 @@ else
   vela_version=v$1
 fi
 
+if [ -z "$2" ]; then
+  echo "No VelaUX version specified, exiting"
+  exit 1
+elif [[ $2 == v* ]]; then
+  velaux_version=$2
+else
+  velaux_version=v$2
+fi
+
 vela_images=("oamdev/vela-core:${vela_version}"
   "oamdev/cluster-gateway:v1.3.2"
   "oamdev/kube-webhook-certgen:v2.3"
-  "oamdev/velaux:${vela_version}"
+  "oamdev/velaux:${velaux_version}"
   "oamdev/vela-apiserver:${vela_version}")
 
 for IMG in ${vela_images[*]}; do
