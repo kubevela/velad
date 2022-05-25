@@ -30,106 +30,41 @@ If you are using Windows/macOS, docker is needed for run VelaD
 
 ### Installation
 
-- Linux/macOS
-```shell
+- **Linux/macOS**
 ```shell
 curl -fsSl https://static.kubevela.net/script/install-velad.sh | bash -s 1.3.4
 ```
 
-- Windows
+- **Windows**
+> Only the official release version is supported.
 ```shell
 powershell -Command "iwr -useb https://static.kubevela.net/script/install.ps1 | iex"
 ```
 
 ### Setup
 
-Only one command to setup KubeVela
+To set up KubeVela you only need run `velad install`
 
 ```shell
 velad install
 ```
-```shell
-Preparing cluster setup script...
-Preparing k3s binary...
-Successfully place k3s binary to /usr/local/bin/k3s
-Preparing k3s images
-Successfully prepare k3s image
-Setting up cluster...
-...
+```text
+INFO[0000] portmapping '8080:80' targets the loadbalancer: defaulting to [servers:*:proxy agents:*:proxy] 
+Preparing K3s images...
+...(omit for brevity)
 
-Successfully install KubeVela control plane! Try: vela components
+🚀  Successfully install KubeVela control plane
+💻  When using gateway trait, you can access with 127.0.0.1:8080
+🔭  See available commands with `vela help`
 ```
-There you go! You have set up a KubeVela. See available components:
 
-```shell
-vela comp
-```
-```shell
-NAME                    DEFINITION
-k8s-objects             autodetects.core.oam.dev
-my-stateful             statefulsets.apps
-raw                     autodetects.core.oam.dev
-ref-objects             autodetects.core.oam.dev
-snstateful              statefulsets.apps
-task                    jobs.batch
-webservice              deployments.apps
-worker                  deployments.apps
-```
+There you go! You have set up KubeVela. Behind the command, VelaD starts a K3d container(K3s when Linux), installs vela-core
+Helm chart and setup vela CLI for you.
+
+After install, you can follow this [example](./docs/01.simple.md) to deliver your first application.
 
 ### uninstall
 
 ```shell
 velad uninstall
 ```
-
-## More Options
-
-### Setup with database
-
-If you run `velad install`, all metadata will be lost when `velad uninstall`. You may need to keep the metadata for migration
-This section describes how to setup a KubeVela control plane with an external database.
-
-1. Prepare a database, MySQL/MariaDB, PostgreSQL, ETCD are both OK. Choose one as you like.
-2. Run velad with database connection string.
-
-> **Make sure you keep the token. It is required when restart KubeVela using this database**
-```shell
-velad install --database-endpoint="mysql://USER:PASSWORD@tcp(HOST:3306)/velad" --token="TOKEN"
-```
-
-You can find more database endpoint format in this [doc](docs/db-connect-format.md)
-
-3. Now you have a KubeVela control plane which keeps all the data in database. 
- 
-If this machine is shut down for some reason, or you run `velad uninstall`, you can restart it with `--start` flag and the same token.
-
-```shell
-velad install --database-endpoint="mysql://USER:PASSWORD@tcp(HOST:3306)/velad" --token="TOKEN" --start
-```
-
-### Access from remote
-
-By default, you can only access this control plane on this node. Typically, you run `export KUBECONFIG=$(velad kubeconfig --internal)`
-to access the control plane.
-
-You can also make it accessible outside the machine.
-1. add `--bind-ip=NODE_IP` when `velad install`, which helps to generate the kubeconfig that can be used outside. `NODE_IP`
-is IP of machine where run the `velad`。
-2. `velad kubeconfig` (note without `--internal`) will print the kubeconfig position.
-3. copy this file to other machine, setup `KUBECONFIG`, and you can access KubeVela control plane remotely.
-
-
-## Build
-
-You could build velad yourself. This requires:
-
-- docker
-- go >= 1.17
-
-```shell
-git clone https://github.com/oam-dev/velad.git
-cd velad
-make
-```
-
-See more options [here](docs/build-from-local.md)

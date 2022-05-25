@@ -132,7 +132,7 @@ installFile() {
     runAsRoot cp "$tmp_root_velad" "$VELAD_INSTALL_DIR"
 
     if [ $? -eq 0 ] && [ -f "$VELAD_CLI_FILE" ]; then
-        echo "$VELAD_CLI_FILENAME installed into $VELAD_INSTALL_DIR successfully."
+        echo "VelaD installed into $VELAD_INSTALL_DIR/$VELAD_CLI_FILENAME successfully."
         $VELAD_CLI_FILE version
     else
         echo "Failed to install $VELAD_CLI_FILENAME"
@@ -179,8 +179,6 @@ elif [[ $1 == v* ]]; then
 else
     ret_val=v$1
 fi
-
-echo "Installing $ret_val VelaD..."
 
 downloadFile $ret_val
 installFile
