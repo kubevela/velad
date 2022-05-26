@@ -1,6 +1,6 @@
 # VelaD
 
-Lightweight KubeVela that runs as Daemon in single node with k3s
+Lightweight Deploy tool, helps setup [KubeVela](https://github.com/kubevela/kubevela) quickly。
 
 English | [简体中文](docs/readme-zh.md)
 
@@ -19,8 +19,9 @@ VelaD is the fastest way to get started with KubeVela.
 
 ## Features
 
-1. Set up KubeVela air-gapped
-2. Build KubeVela control plane with higher availability (Optional)
+1. Set up KubeVela air-gapped.
+2. Build KubeVela control plane with higher availability with more nodes and database(Optional).
+3. Experience KubeVela multi-cluster features in one computer.
 
 ## Prerequisites
 
@@ -32,7 +33,7 @@ If you are using Windows/macOS, docker is needed for run VelaD
 
 - **Linux/macOS**
 ```shell
-curl -fsSl https://static.kubevela.net/script/install-velad.sh | bash -s 1.3.4
+curl -fsSl https://static.kubevela.net/script/install-velad.sh | bash -s 1.3.5
 ```
 
 - **Windows**
