@@ -111,7 +111,7 @@ jobs:
         run: ./ossutil --config-file .ossutilconfig config -i ${ACCESS_KEY} -k ${ACCESS_KEY_SECRET} -e ${ENDPOINT}
       - name: Upload to OSS
         run: |
-          ./ossutil --config-file .ossutilconfig sync \
+          ./ossutil --config-file .ossutilconfig --force sync \
           ./_bin/velad oss://kubevela-docs/binary/velad/${{ env.VELAD_VERSION }}
       - name: sync the velad latest version file
         run: |
