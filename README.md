@@ -38,7 +38,7 @@ curl -fsSl https://static.kubevela.net/script/install-velad.sh | bash -s 1.3.4
 - **Windows**
 > Only the official release version is supported.
 ```shell
-powershell -Command "iwr -useb https://static.kubevela.net/script/install.ps1 | iex"
+powershell -Command "iwr -useb https://static.kubevela.net/script/install-velad.ps1 | iex"
 ```
 
 ### Setup
@@ -68,3 +68,7 @@ After install, you can follow this [example](./docs/01.simple.md) to deliver you
 ```shell
 velad uninstall
 ```
+
+### More example
+
+Please check [docs](./docs/) for more VelaD example
