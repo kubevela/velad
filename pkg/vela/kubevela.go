@@ -115,7 +115,7 @@ func PrepareVelaUX() error {
 		return err
 	}
 	// extract velaux-vx.y.z.tgz to local
-	filename := fmt.Sprintf("velaux-%s.tgz", version.VelaVersion)
+	filename := fmt.Sprintf("velaux-%s.tgz", version.VelaUXVersion)
 	tar, err := resources.VelaAddons.Open(path.Join("static/vela/addons", filename))
 	if err != nil {
 		return err

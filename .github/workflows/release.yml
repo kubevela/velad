@@ -21,6 +21,7 @@ jobs:
         TARGETS: [ linux/amd64, darwin/amd64, windows/amd64 ]
     env:
       VELA_VERSION_KEY: github.com/oam-dev/velad/version.VelaVersion
+      VELAUX_VERSION_KEY: github.com/oam-dev/velad/version.VelaUXVersion
       VELAD_VERSION_KEY: github.com/oam-dev/velad/version.VelaDVersion
       VELA_GITVERSION_KEY: github.com/oam-dev/velad/version.VelaGitRevision
       GO_BUILD_ENV: GO111MODULE=on CGO_ENABLED=0
@@ -54,7 +55,9 @@ jobs:
       - name: Get ldflags
         id: get_ldflags
         run: |
-          LDFLAGS="-s -w -X ${{ env.VELA_VERSION_KEY }}=${{ env.VELAD_VERSION }} -X ${{ env.VELAD_VERSION_KEY }}=${{ env.VELAD_VERSION }} -X ${{ env.VELA_GITVERSION_KEY }}=git-${{ env.VELA_SHA_SHORT }}"
+          velaux_version_clause=($(cat Makefile | grep "VELAUX_VERSION ?="))
+          VELAUX_VERSION=${velaux_version_clause[3]}
+          LDFLAGS="-s -w -X ${{ env.VELA_VERSION_KEY }}=${{ env.VELAD_VERSION }} -X ${{ env.VELAUX_VERSION_KEY }}=$VELAUX_VERSION -X ${{ env.VELAD_VERSION_KEY }}=${{ env.VELAD_VERSION }} -X ${{ env.VELA_GITVERSION_KEY }}=git-${{ env.VELA_SHA_SHORT }}"
           echo "LDFLAGS=${LDFLAGS}" >> $GITHUB_ENV
       - name: Build
         run: |

@@ -4,6 +4,9 @@ package version
 // Each version of velad is bind with specific version of vela-core
 var VelaVersion = "UNKNOWN"
 
+// VelaUXVersion is version of VelaUX
+var VelaUXVersion = "UNKNOWN"
+
 // VelaDVersion is version of VelaD
 var VelaDVersion = "UNKNOWN"
 
