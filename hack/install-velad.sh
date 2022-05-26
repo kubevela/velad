@@ -133,6 +133,7 @@ installFile() {
 
     if [ $? -eq 0 ] && [ -f "$VELAD_CLI_FILE" ]; then
         echo "VelaD installed into $VELAD_INSTALL_DIR/$VELAD_CLI_FILENAME successfully."
+        echo ""
         $VELAD_CLI_FILE version
     else
         echo "Failed to install $VELAD_CLI_FILENAME"
@@ -144,7 +145,7 @@ fail_trap() {
     result=$?
     if [ "$result" != "0" ]; then
         echo "Failed to install VelaD"
-        echo "For support, go to https://kubevela.io"
+        echo "Go to https://kubevela.io for more support."
     fi
     cleanup
     exit $result
@@ -157,7 +158,8 @@ cleanup() {
 }
 
 installCompleted() {
-    echo -e "\nTo get started with KubeVela, please visit https://kubevela.io"
+    echo -e "\nFor more information on how to started, please visit:"
+    echo -e "  https://kubevela.io"
 }
 
 # -----------------------------------------------------------------------------
