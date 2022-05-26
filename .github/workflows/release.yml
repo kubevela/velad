@@ -55,8 +55,8 @@ jobs:
       - name: Get ldflags
         id: get_ldflags
         run: |
-          velaux_version_clause=($(cat Makefile | grep "VELAUX_VERSION ?="))
-          VELAUX_VERSION=${velaux_version_clause[3]}
+          VELAUX_VERSION=$(cat Makefile | grep "VELAUX_VERSION ?="|awk '{split($0,a," "); print a[3]}')
+          echo VELAUX_VERSION=$VELAUX_VERSION
           LDFLAGS="-s -w -X ${{ env.VELA_VERSION_KEY }}=${{ env.VELAD_VERSION }} -X ${{ env.VELAUX_VERSION_KEY }}=$VELAUX_VERSION -X ${{ env.VELAD_VERSION_KEY }}=${{ env.VELAD_VERSION }} -X ${{ env.VELA_GITVERSION_KEY }}=git-${{ env.VELA_SHA_SHORT }}"
           echo "LDFLAGS=${LDFLAGS}" >> $GITHUB_ENV
       - name: Build
