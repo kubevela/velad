@@ -105,7 +105,8 @@ func fillServiceStatus(status *apis.ClusterStatus) {
 	out, err := cmd.CombinedOutput()
 	status.K3s.K3sServiceStatus = string(out)
 	if err != nil {
-		var extErr exec.ExitError
+		extErr := new(exec.ExitError)
+		err.Error()
 		if ok := errors.As(err, &extErr); !ok {
 			status.K3s.Reason = fmt.Sprintf("fail to run systemctl: %v", extErr.Error())
 		}
