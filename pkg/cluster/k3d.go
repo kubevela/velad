@@ -22,15 +22,15 @@ import (
 
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
+	k3dClient "github.com/k3d-io/k3d/v5/pkg/client"
+	config "github.com/k3d-io/k3d/v5/pkg/config/v1alpha4"
+	"github.com/k3d-io/k3d/v5/pkg/runtimes"
+	k3d "github.com/k3d-io/k3d/v5/pkg/types"
 	"github.com/oam-dev/kubevela/pkg/utils/system"
 	"github.com/oam-dev/velad/pkg/apis"
 	"github.com/oam-dev/velad/pkg/resources"
 	"github.com/oam-dev/velad/pkg/utils"
 	"github.com/pkg/errors"
-	k3dClient "github.com/rancher/k3d/v5/pkg/client"
-	config "github.com/rancher/k3d/v5/pkg/config/v1alpha3"
-	"github.com/rancher/k3d/v5/pkg/runtimes"
-	k3d "github.com/rancher/k3d/v5/pkg/types"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
