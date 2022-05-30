@@ -114,6 +114,7 @@ jobs:
           ./ossutil --config-file .ossutilconfig --force sync \
           ./_bin/velad oss://kubevela-docs/binary/velad/${{ env.VELAD_VERSION }}
       - name: sync the velad latest version file
+        if: ${{ !contains(env.VELAD_VERSION,'alpha') && !contains(env.VELAD_VERSION,'beta') }}
         run: |
           echo ${{ env.VELAD_VERSION }} > ./velad_latest_version
           ./ossutil --config-file .ossutilconfig cp -u ./velad_latest_version oss://kubevela-docs/binary/velad/latest_version
