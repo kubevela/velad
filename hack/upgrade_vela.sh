@@ -29,3 +29,7 @@ echo "Patching done"
 
 rm "$PATCH_FILE_NAME"
 rm -rf kubevela
+
+echo "Upgrading chart version..."
+
+./hack/upgrade_chart_version $VERSION_TO
