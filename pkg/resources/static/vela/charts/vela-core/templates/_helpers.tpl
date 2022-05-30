@@ -195,9 +195,10 @@ containers:
     - "apiserver"
     - "--secure-port={{ .Values.multicluster.clusterGateway.port }}"
     - "--secret-namespace={{ .Release.Namespace }}"
-    - "--feature-gates=APIPriorityAndFairness=false"
+    - "--feature-gates=APIPriorityAndFairness=false,ClientIdentityPenetration={{ .Values.authentication.enabled }}"
     {{ if .Values.multicluster.clusterGateway.secureTLS.enabled }}
-    - "--cert-dir={{ .Values.multicluster.clusterGateway.secureTLS.certPath }}"
+    - "--tls-cert-file={{ .Values.multicluster.clusterGateway.secureTLS.certPath }}/tls.crt"
+    - "--tls-private-key-file={{ .Values.multicluster.clusterGateway.secureTLS.certPath }}/tls.key"
     {{ end }}
   image: {{ .Values.imageRegistry }}{{ .Values.multicluster.clusterGateway.image.repository }}:{{ .Values.multicluster.clusterGateway.image.tag }}
   imagePullPolicy: {{ .Values.multicluster.clusterGateway.image.pullPolicy }}
@@ -300,8 +301,8 @@ containers:
       - --host={{ .Release.Name }}-cluster-gateway-service,{{ .Release.Name }}-cluster-gateway-service.{{ .Release.Namespace }}.svc
       - --namespace={{ .Release.Namespace }}
       - --secret-name={{ template "kubevela.fullname" . }}-cluster-gateway-tls
-      - --key-name=apiserver.key
-      - --cert-name=apiserver.crt
+      - --cert-name=tls.crt
+      - --key-name=tls.key
 restartPolicy: OnFailure
 serviceAccountName: {{ template "kubevela.fullname" . }}-cluster-gateway-admission
 securityContext:

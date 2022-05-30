@@ -112,9 +112,9 @@ var (
 	// K3dImageK3s is k3s image tag
 	K3dImageK3s = "rancher/k3s:v1.21.10-k3s1"
 	// K3dImageTools is k3d tools image tag
-	K3dImageTools = "rancher/k3d-tools:5.2.2"
+	K3dImageTools = "ghcr.io/k3d-io/k3d-tools:5.4.1"
 	// K3dImageProxy is k3d proxy image tag
-	K3dImageProxy = "rancher/k3d-proxy:5.2.2"
+	K3dImageProxy = "ghcr.io/k3d-io/k3d-proxy:5.4.1"
 
 	// KubeVelaHelmRelease is helm release name for vela
 	KubeVelaHelmRelease = "kubevela"

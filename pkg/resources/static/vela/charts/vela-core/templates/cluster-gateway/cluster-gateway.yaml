@@ -1,4 +1,5 @@
 {{ if .Values.multicluster.enabled }}
+{{ if not .Values.deployByPod }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -16,62 +17,13 @@ spec:
       labels:
       {{- include "kubevela-cluster-gateway.selectorLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-      {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "kubevela.serviceAccountName" . }}
-      securityContext:
-      {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      containers:
-        - name: {{ include "kubevela.fullname" . }}-cluster-gateway
-          securityContext:
-          {{- toYaml .Values.securityContext | nindent 12 }}
-          args:
-            - "apiserver"
-            - "--secure-port={{ .Values.multicluster.clusterGateway.port }}"
-            - "--secret-namespace={{ .Release.Namespace }}"
-            - "--feature-gates=APIPriorityAndFairness=false,ClientIdentityPenetration={{ .Values.authentication.enabled }}"
-            {{- if .Values.multicluster.clusterGateway.secureTLS.enabled }}
-            - "--tls-cert-file={{ .Values.multicluster.clusterGateway.secureTLS.certPath }}/tls.crt"
-            - "--tls-private-key-file={{ .Values.multicluster.clusterGateway.secureTLS.certPath }}/tls.key"
-            {{- end }}
-          image: {{ .Values.imageRegistry }}{{ .Values.multicluster.clusterGateway.image.repository }}:{{ .Values.multicluster.clusterGateway.image.tag }}
-          imagePullPolicy: {{ .Values.multicluster.clusterGateway.image.pullPolicy }}
-          resources:
-          {{- toYaml .Values.multicluster.clusterGateway.resources | nindent 12 }}
-          ports:
-            - containerPort: {{ .Values.multicluster.clusterGateway.port }}
-          {{ if .Values.multicluster.clusterGateway.secureTLS.enabled }}
-          volumeMounts:
-            - mountPath: {{ .Values.multicluster.clusterGateway.secureTLS.certPath }}
-              name: tls-cert-vol
-              readOnly: true
-          {{- end }}
-      {{ if .Values.multicluster.clusterGateway.secureTLS.enabled }}
-      volumes:
-        - name: tls-cert-vol
-          secret:
-            defaultMode: 420
-            secretName: {{ template "kubevela.fullname" . }}-cluster-gateway-tls
-      {{ end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-      {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-      {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-      {{- toYaml . | nindent 8 }}
-      {{- end }}
+  {{- include "kubevela-cluster-gateway.podSpec" . | nindent 6}}
   strategy:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 1
+{{ end }}
 ---
 apiVersion: v1
 kind: Service

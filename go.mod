@@ -19,8 +19,6 @@ require (
 	sigs.k8s.io/controller-runtime v0.11.2
 )
 
-replace github.com/rancher/k3d/v5 => github.com/k3d-io/k3d/v5 v5.4.0
-
 require (
 	cloud.google.com/go/compute v1.6.1 // indirect
 	cuelang.org/go v0.2.2 // indirect
