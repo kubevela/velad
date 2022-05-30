@@ -45,7 +45,9 @@ func tokenCmd(ctx context.Context, args apis.TokenArgs) error {
 }
 
 func installCmd(c common.Args, ioStreams cmdutil.IOStreams, args apis.InstallArgs) error {
+	ctx := &apis.Context{}
 	var err error
+
 	err = args.Validate()
 	if err != nil {
 		return err
@@ -75,7 +77,7 @@ func installCmd(c common.Args, ioStreams cmdutil.IOStreams, args apis.InstallArg
 	}
 
 	// Step.3 Install Vela CLI
-	err = vela.InstallVelaCLI()
+	err = vela.InstallVelaCLI(ctx)
 	if err != nil {
 		// not return because this is acceptable
 		errf("fail to install vela CLI: %v\n", err)
@@ -114,7 +116,7 @@ func installCmd(c common.Args, ioStreams cmdutil.IOStreams, args apis.InstallArg
 		}
 	}
 
-	utils.PrintGuide(args)
+	utils.PrintGuide(ctx, args)
 	return nil
 }
 
