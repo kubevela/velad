@@ -81,11 +81,12 @@ func LoadVelaImages() error {
 }
 
 // InstallVelaCLI install vela CLI to local
-func InstallVelaCLI() error {
+func InstallVelaCLI(ctx *apis.Context) error {
 	info("Checking and installing vela CLI...")
 	_, err := exec.LookPath("vela")
 	if err == nil {
 		info("vela CLI is already installed, skip")
+		ctx.SkipInstallVelaCLI = true
 		return nil
 	}
 

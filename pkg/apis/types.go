@@ -91,6 +91,11 @@ type VelaStatus struct {
 	Reason                string
 }
 
+// Context keep some context for install progress
+type Context struct {
+	SkipInstallVelaCLI bool
+}
+
 var (
 	// K3sTokenPath is the path to k3s token
 	K3sTokenPath = "/var/lib/rancher/k3s/server/token"

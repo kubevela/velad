@@ -223,7 +223,7 @@ func GetKubeconfigDir() string {
 }
 
 // PrintGuide will print guide for user.
-func PrintGuide(args apis.InstallArgs) {
+func PrintGuide(ctx *apis.Context, args apis.InstallArgs) {
 	WarnSaveToken(args.Token, args.Name)
 	if !args.ClusterOnly {
 		emoji.Println(":rocket: Successfully install KubeVela control plane")
@@ -237,13 +237,15 @@ func PrintGuide(args apis.InstallArgs) {
 			emoji.Printf("    vela cluster join $(velad kubeconfig --name %s --internal)\n", args.Name)
 		}
 		printHTTPGuide(args.Name)
+	}
+
+	if ctx.SkipInstallVelaCLI {
 		emoji.Println(":key: To access the cluster, set KUBECONFIG:")
 		var kubeconfigArg = "--host"
 		if args.BindIP != "" {
 			kubeconfigArg = "--external"
 		}
 		emoji.Printf("    export KUBECONFIG=$(velad kubeconfig --name %s %s)\n", args.Name, kubeconfigArg)
-
 	}
 }
 
