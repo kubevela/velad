@@ -2,9 +2,8 @@ include makefiles/dependency.mk
 
 K3S_VERSION ?= v1.21.10+k3s1
 STATIC_DIR := pkg/resources/static
-<<<<<<< HEAD
-VELA_VERSION ?= v1.3.5
-VELAUX_VERSION ?= v1.3.4
+VELA_VERSION ?= v1.3.6
+VELAUX_VERSION ?= v1.3.6
 GOOS ?= linux
 GOARCH ?= amd64
 
