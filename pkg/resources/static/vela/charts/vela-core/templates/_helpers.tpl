@@ -217,7 +217,7 @@ volumes:
 - name: tls-cert-vol
   secret:
     defaultMode: 420
-    secretName: {{ template "kubevela.fullname" . }}-cluster-gateway-tls
+    secretName: {{ template "kubevela.fullname" . }}-cluster-gateway-tls-v2
 {{ end }}
 {{- with .Values.nodeSelector }}
 nodeSelector:
@@ -261,7 +261,7 @@ containers:
     - /patch
   args:
     - --secret-namespace={{ .Release.Namespace }}
-    - --secret-name={{ template "kubevela.fullname" . }}-cluster-gateway-tls
+    - --secret-name={{ template "kubevela.fullname" . }}-cluster-gateway-tls-v2
 restartPolicy: OnFailure
 serviceAccountName: {{ include "kubevela.serviceAccountName" . }}
 securityContext:
@@ -300,7 +300,7 @@ containers:
       - create
       - --host={{ .Release.Name }}-cluster-gateway-service,{{ .Release.Name }}-cluster-gateway-service.{{ .Release.Namespace }}.svc
       - --namespace={{ .Release.Namespace }}
-      - --secret-name={{ template "kubevela.fullname" . }}-cluster-gateway-tls
+      - --secret-name={{ template "kubevela.fullname" . }}-cluster-gateway-tls-v2
       - --cert-name=tls.crt
       - --key-name=tls.key
 restartPolicy: OnFailure

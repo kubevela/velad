@@ -23,7 +23,7 @@ VelaD 是上手 KubeVela 的最快方式。
 - Linux/macOS
 ```shell
 ```shell
-curl -fsSl https://static.kubevela.net/script/install-velad.sh | bash -s 1.3.5
+curl -fsSl https://static.kubevela.net/script/install-velad.sh | bash -s 1.4.0
 ```
 
 - Windows
