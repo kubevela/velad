@@ -512,7 +512,7 @@ func prepareLoadbalancer(cluster k3d.Cluster, opts k3d.ClusterCreateOpts) *k3d.L
 
 func getPortWithFilters() (config.PortWithNodeFilters, error) {
 	var port config.PortWithNodeFilters
-	hostPort, err := findAvailablePort(8080)
+	hostPort, err := findAvailablePort(8090)
 	if err != nil {
 		return port, err
 	}
