@@ -14,7 +14,7 @@ on:
   workflow_dispatch: { }
 
 jobs:
-  build-e2e-tests:
+  build-artifact:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -40,6 +40,7 @@ jobs:
             bin/velad-windows-amd64
   test-linux:
     runs-on: ubuntu-20.04
+    needs: [ build-artifact ]
     steps:
       - uses: actions/download-artifact@v3
         with:
@@ -48,6 +49,7 @@ jobs:
       - run: ./velad install
   test-darwin:
     runs-on: macos-12
+    needs: [ build-artifact ]
     steps:
       - uses: actions/download-artifact@v3
         with:
@@ -56,6 +58,7 @@ jobs:
       - run: ./velad install
   test-windows:
     runs-on: macos-12
+    needs: [ build-artifact ]
     steps:
       - uses: actions/download-artifact@v3
         with:
