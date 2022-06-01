@@ -61,19 +61,23 @@ func installCmd(c common.Args, ioStreams cmdutil.IOStreams, args apis.InstallArg
 	}()
 
 	// Step.1 Set up K3s as control plane cluster
-	err = h.Install(args)
-	if err != nil {
-		return errors.Wrap(err, "Fail to set up cluster")
-	}
+	if !args.SkipCluster {
+		err = h.Install(args)
+		if err != nil {
+			return errors.Wrap(err, "Fail to set up cluster")
+		}
 
-	// Step.2 Deal with KUBECONFIG
-	err = h.GenKubeconfig(args.BindIP)
-	if err != nil {
-		return errors.Wrap(err, "fail to generate kubeconfig")
-	}
-	err = h.SetKubeconfig()
-	if err != nil {
-		return errors.Wrap(err, "fail to set kubeconfig")
+		// Step.2 Deal with KUBECONFIG
+		err = h.GenKubeconfig(args.BindIP)
+		if err != nil {
+			return errors.Wrap(err, "fail to generate kubeconfig")
+		}
+		err = h.SetKubeconfig()
+		if err != nil {
+			return errors.Wrap(err, "fail to set kubeconfig")
+		}
+	} else {
+		//
 	}
 
 	// Step.3 Install Vela CLI

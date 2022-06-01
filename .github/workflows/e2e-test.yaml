@@ -34,17 +34,14 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
-          path: |
-            bin/velad-linux-amd64
-            bin/velad-darwin-amd64
-            bin/velad-windows-amd64
+          path: bin/
   test-linux:
     runs-on: ubuntu-20.04
     needs: [ build-artifact ]
     steps:
       - uses: actions/download-artifact@v3
         with:
-          path: bin/velad-linux-amd64
+          name: bin/velad-linux-amd64
       - name: Display structure of downloaded files
         run: ls -R
         working-directory: bin
@@ -56,7 +53,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          path: bin/velad-darwin-amd64
+          name: bin/velad-darwin-amd64
       - name: Display structure of downloaded files
         run: ls -R
         working-directory: bin
@@ -68,7 +65,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          path: bin/velad-windows-amd64
+          name: bin/velad-windows-amd64
       - name: Display structure of downloaded files
         run: ls -R
         working-directory: bin
