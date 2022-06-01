@@ -1,0 +1,65 @@
+name: E2E Test
+
+on:
+  push:
+    tags:
+      - v*
+    branches:
+      - main
+      - release-*
+  pull_request:
+    branches:
+      - main
+      - release-*
+  workflow_dispatch: { }
+
+jobs:
+  build-e2e-tests:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+      - name: Build linux
+        run: |
+          GOOS=linux GOARCH=amd64 make linux-amd64
+      - name: Build darwin
+        run: |
+          GOOS=darwin GOARCH=amd64 make darwin-amd64
+      - name: Build windows
+        run: |
+          GOOS=windows GOARCH=amd64 make windows-amd64
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          path: |
+            bin/velad-linux-amd64
+            bin/velad-darwin-amd64
+            bin/velad-windows-amd64
+  test-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          path: bin/velad-linux-amd64
+      - run: chmod u+x bin/velad-linux-amd64 && cp bin/velad-linux-amd64 velad
+      - run: ./velad install
+  test-darwin:
+    runs-on: macos-12
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          path: bin/velad-darwin-amd64
+      - run: chmod u+x bin/velad-darwin-amd64 && cp bin/velad-darwin-amd64 velad
+      - run: ./velad install
+  test-windows:
+    runs-on: macos-12
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          path: bin/velad-windows-amd64
+      - run: chmod u+x bin/velad-windows-amd64 && cp bin/velad-windows-amd64 velad.exe
+      - run: .\velad install
+
