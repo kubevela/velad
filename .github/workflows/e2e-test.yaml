@@ -57,7 +57,7 @@ jobs:
       - run: chmod u+x bin/velad-darwin-amd64 && cp bin/velad-darwin-amd64 velad
       - run: ./velad install
   test-windows:
-    runs-on: macos-12
+    runs-on: windows-2022
     needs: [ build-artifact ]
     steps:
       - uses: actions/download-artifact@v3
