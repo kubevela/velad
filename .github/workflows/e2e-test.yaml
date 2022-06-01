@@ -45,6 +45,9 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           path: bin/velad-linux-amd64
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: bin
       - run: chmod u+x bin/velad-linux-amd64 && mv bin/velad-linux-amd64 velad
       - run: ./velad install
   test-darwin:
@@ -54,6 +57,9 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           path: bin/velad-darwin-amd64
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: bin
       - run: chmod u+x bin/velad-darwin-amd64 && mv bin/velad-darwin-amd64 velad
       - run: ./velad install
   test-windows:
@@ -63,6 +69,9 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           path: bin/velad-windows-amd64
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: bin
       - run: chmod u+x bin/velad-windows-amd64 && mv bin/velad-windows-amd64 velad.exe
       - run: .\velad install
 
