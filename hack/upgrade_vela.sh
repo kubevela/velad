@@ -15,6 +15,10 @@ VERSION_TO=$2
 PATCH_FILE_NAME=$VERSION_NOW-$VERSION_TO.patch
 WORKDIR=pkg/resources/static/vela
 
+echo "Upgrading chart version..."
+
+./hack/upgrade_chart_version $VERSION_TO
+
 git clone https://github.com/kubevela/kubevela.git
 
 pushd kubevela
@@ -29,7 +33,3 @@ echo "Patching done"
 
 rm "$PATCH_FILE_NAME"
 rm -rf kubevela
-
-echo "Upgrading chart version..."
-
-./hack/upgrade_chart_version $VERSION_TO
