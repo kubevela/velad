@@ -10,14 +10,14 @@ GOARCH ?= amd64
 .DEFAULT_GOAL := linux-amd64
 linux-amd64: download_vela_images_addons download_k3s pack_vela_chart
 	go build -o bin/velad-${GOOS}-${GOARCH} \
-	-ldflags="-X github.com/oam-dev/velad/version.VelaUXVersion=$VELAUX_VERSION -X github.com/oam-dev/velad/version.VelaVersion=$VELA_VERSION" \
+	-ldflags="-X github.com/oam-dev/velad/version.VelaUXVersion=${VELAUX_VERSION} -X github.com/oam-dev/velad/version.VelaVersion=${VELA_VERSION}" \
 	github.com/oam-dev/velad/cmd/velad
 
 
 darwin-amd64 windows-amd64: download_vela_images_addons download_k3d pack_vela_chart download_k3s_images
 	GOOS=${GOOS} GOARCH=${GOARCH} \
 	go build -o bin/velad-${GOOS}-${GOARCH} \
-	-ldflags="-X github.com/oam-dev/velad/version.VelaUXVersion=$VELAUX_VERSION -X github.com/oam-dev/velad/version.VelaVersion=$VELA_VERSION" \
+	-ldflags="-X github.com/oam-dev/velad/version.VelaUXVersion=${VELAUX_VERSION} -X github.com/oam-dev/velad/version.VelaVersion=${VELA_VERSION}" \
 	github.com/oam-dev/velad/cmd/velad
 
 download_vela_images_addons:
