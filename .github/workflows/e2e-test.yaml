@@ -24,13 +24,6 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: 1.17
-      - name: Get ldflags
-        id: get_ldflags
-        run: |
-          VELAUX_VERSION=$(cat Makefile | grep "VELAUX_VERSION ?="|awk '{split($0,a," "); print a[3]}')
-          echo VELAUX_VERSION=$VELAUX_VERSION
-          LDFLAGS="-X ${{ env.VELAUX_VERSION_KEY }}=$VELAUX_VERSION"
-          echo "LDFLAGS=${LDFLAGS}" >> $GITHUB_ENV
       - name: Build linux
         run: |
           GOOS=linux GOARCH=amd64 make linux-amd64
