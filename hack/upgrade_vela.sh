@@ -17,7 +17,7 @@ WORKDIR=pkg/resources/static/vela
 
 echo "Upgrading chart version..."
 
-./hack/upgrade_chart_version $VERSION_TO
+./hack/upgrade_chart_version.sh $VERSION_TO
 
 git clone https://github.com/kubevela/kubevela.git
 
