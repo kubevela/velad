@@ -273,7 +273,11 @@ func SetDefaultKubeConfigEnv() {
 	kubeconfig := os.Getenv(RecommendedConfigPathEnvVar)
 	if kubeconfig == "" {
 		kubeconfig = GetDefaultVelaDKubeconfigPath()
-		_ = os.Setenv(RecommendedConfigPathEnvVar, kubeconfig)
+		// check default kubeconfig existence
+		_, err := os.Stat(kubeconfig)
+		if err == nil {
+			_ = os.Setenv(RecommendedConfigPathEnvVar, kubeconfig)
+		}
 	}
 }
 
