@@ -18,7 +18,7 @@ jobs:
     name: build
     strategy:
       matrix:
-        TARGETS: [ linux/amd64, darwin/amd64, windows/amd64 ]
+        TARGETS: [ linux/amd64, darwin/amd64, windows/amd64, linux/arm64 ]
     env:
       VELA_VERSION_KEY: github.com/oam-dev/velad/version.VelaVersion
       VELAUX_VERSION_KEY: github.com/oam-dev/velad/version.VelaUXVersion
