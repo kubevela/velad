@@ -33,7 +33,7 @@ If you are using Windows/macOS, docker is needed for run VelaD
 
 - **Linux/macOS**
 ```shell
-curl -fsSl https://static.kubevela.net/script/install-velad.sh
+curl -fsSl https://static.kubevela.net/script/install-velad.sh | sh
 ```
 
 - **Windows**
