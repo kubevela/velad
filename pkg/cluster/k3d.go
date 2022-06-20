@@ -121,12 +121,12 @@ func (d *K3dHandler) GenKubeconfig(bindIP string) error {
 		return errors.Wrap(err, "failed to gen kubeconfig")
 	}
 
-	// 2. kubeconfig for access from other VelaD cluster
-	// Basically we replace the IP with IP inside the docker network
 	cfgContent, err := os.ReadFile(cfg)
 	if err != nil {
 		return errors.Wrap(err, "read kubeconfig")
 	}
+	// 2. kubeconfig for access from other VelaD cluster
+	// Basically we replace the IP with IP inside the docker network
 	cfgIn := configPathInternal(cluster)
 	networks, err := dockerCli.NetworkInspect(d.ctx, apis.VelaDDockerNetwork, types.NetworkInspectOptions{})
 	if err != nil {
@@ -141,27 +141,34 @@ func (d *K3dHandler) GenKubeconfig(bindIP string) error {
 		}
 	}
 	kubeConfig := string(cfgContent)
-	re := regexp.MustCompile(`0.0.0.0:\d{4}`)
+	var re *regexp.Regexp
+	var hostToReplace string
+	if strings.Contains(kubeConfig, "0.0.0.0") {
+		hostToReplace = "0.0.0.0"
+	} else if strings.Contains(kubeConfig, "host.docker.internal") {
+		hostToReplace = "host.docker.internal"
+	} else {
+		return errors.Wrap(err, "unrecognized kubeconfig format")
+	}
+	re = regexp.MustCompile(hostToReplace + `:\d{4}`)
 	cfgInContent := re.ReplaceAllString(kubeConfig, fmt.Sprintf("%s:6443", containerIP))
 	err = ioutil.WriteFile(cfgIn, []byte(cfgInContent), 0600)
 	if err != nil {
-		return err
+		errf("Fail to write internal kubeconfig")
+	} else {
+		info("Successfully generate internal kubeconfig at", cfgIn)
 	}
 
 	// 3. kubeconfig for access from other machine
 	if bindIP != "" {
 		cfgOut := configPathExternal(cluster)
-		info("Generating kubeconfig for remote access into ", cfgOut)
-		originConf, err := os.ReadFile(cfg)
+		info("Generating external kubeconfig for remote access into ", cfgOut)
+		cfgOutContent := strings.Replace(string(cfgContent), hostToReplace, bindIP, 1)
+		err = os.WriteFile(cfgOut, []byte(cfgOutContent), 0600)
 		if err != nil {
 			return err
 		}
-		newConf := strings.Replace(string(originConf), "0.0.0.0", bindIP, 1)
-		err = os.WriteFile(cfgOut, []byte(newConf), 0600)
-		if err != nil {
-			return err
-		}
-		info("Successfully generate kubeconfig at ", cfgOut)
+		info("Successfully generate external kubeconfig at", cfgOut)
 	}
 	return nil
 }
