@@ -108,9 +108,9 @@ downloadFile() {
 
     echo "Downloading $DOWNLOAD_URL ..."
     if [ "$VELAD_HTTP_REQUEST_CLI" == "curl" ]; then
-        curl -SsL "$DOWNLOAD_URL" -o "$ARTIFACT_TMP_FILE"
+        curl -SL "$DOWNLOAD_URL" -o "$ARTIFACT_TMP_FILE"
     else
-        wget -q -O "$ARTIFACT_TMP_FILE" "$DOWNLOAD_URL"
+        wget -O "$ARTIFACT_TMP_FILE" "$DOWNLOAD_URL"
     fi
 
     if [ ! -f "$ARTIFACT_TMP_FILE" ]; then
