@@ -143,11 +143,12 @@ func (d *K3dHandler) GenKubeconfig(bindIP string) error {
 	kubeConfig := string(cfgContent)
 	var re *regexp.Regexp
 	var hostToReplace string
-	if strings.Contains(kubeConfig, "0.0.0.0") {
+	switch {
+	case strings.Contains(kubeConfig, "0.0.0.0"):
 		hostToReplace = "0.0.0.0"
-	} else if strings.Contains(kubeConfig, "host.docker.internal") {
+	case strings.Contains(kubeConfig, "host.docker.internal"):
 		hostToReplace = "host.docker.internal"
-	} else {
+	default:
 		return errors.Wrap(err, "unrecognized kubeconfig format")
 	}
 	re = regexp.MustCompile(hostToReplace + `:\d{4}`)
