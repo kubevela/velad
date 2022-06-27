@@ -8,7 +8,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/k3d-io/k3d/v5 v5.4.1
 	github.com/kyokomi/emoji/v2 v2.2.9
-	github.com/oam-dev/kubevela v1.4.3
+	github.com/oam-dev/kubevela v1.5.0-alpha.1
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.4.0
 	github.com/stretchr/testify v1.7.1
@@ -82,7 +82,7 @@ require (
 	github.com/docker/go-metrics v0.0.1 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/emicklei/go-restful v2.9.5+incompatible // indirect
-	github.com/emicklei/go-restful/v3 v3.0.0-rc2 // indirect
+	github.com/emicklei/go-restful/v3 v3.8.0 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/evanphx/json-patch v4.12.0+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.1.0 // indirect
@@ -187,8 +187,9 @@ require (
 	github.com/onsi/gomega v1.19.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.3-0.20220114050600-8b9d41f48198 // indirect
-	github.com/opencontainers/runc v1.1.1 // indirect
+	github.com/opencontainers/runc v1.1.3 // indirect
 	github.com/openkruise/kruise-api v1.1.0 // indirect
+	github.com/openkruise/rollouts v0.1.1-0.20220622054609-149e5a48da5e // indirect
 	github.com/openshift/library-go v0.0.0-20220112153822-ac82336bd076 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
