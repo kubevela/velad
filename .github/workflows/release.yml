@@ -116,6 +116,11 @@ jobs:
       - name: sync the velad latest version file
         if: ${{ !contains(env.VELAD_VERSION,'alpha') && !contains(env.VELAD_VERSION,'beta') }}
         run: |
+          LATEST_VERSION=$(curl -fsSl https://static.kubevela.net/binary/velad/latest_version)
+          verlte() {
+            [  "$1" = "`echo -e "$1\n$2" | sort -V | head -n1`" ]
+          }
+          verlte ${{ env.VELAD_VERSION }} $LATEST_VERSION && echo "${{ env.VELAD_VERSION }} <= $LATEST_VERSION, skip update" && exit 0
           echo ${{ env.VELAD_VERSION }} > ./velad_latest_version
           ./ossutil --config-file .ossutilconfig cp -u ./velad_latest_version oss://kubevela-docs/binary/velad/latest_version
 
