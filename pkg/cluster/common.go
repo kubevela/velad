@@ -12,7 +12,7 @@ func GetK3sServerArgs(args apis.InstallArgs) []string {
 		serverArgs = append(serverArgs, "--datastore-endpoint="+args.DBEndpoint)
 	}
 	if args.BindIP != "" {
-		serverArgs = append(serverArgs, "--tls-san="+args.BindIP)
+		serverArgs = append(serverArgs, "--tls-san="+args.BindIP, "--node-external-ip="+args.BindIP)
 	}
 	if args.Token != "" {
 		serverArgs = append(serverArgs, "--token="+args.Token)
