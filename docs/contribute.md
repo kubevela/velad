@@ -32,6 +32,7 @@ GOOS=darwin GOARCH=amd64 make darwin-amd64
 When use IDE to debug VelaD, you need to do several things
 
 1. Download resources needed
+
 If you want build linux version, run 
 ```shell
 VELAUX_VERSION=v1.x.y VELA_VERSION=v1.z.w make download_vela_images_addons 
@@ -48,7 +49,7 @@ make pack_vela_chart
 make download_k3s_images
 ```
 
-`VELAUX_VERSION=v1.x.y VELA_VERSION=v1.z.w` is optional environment variables if you want to change the default version makefile.
+`VELAUX_VERSION=v1.x.y VELA_VERSION=v1.z.w` is optional environment variables if you want to change the default version in makefile.
 
 2. Build VelaD
 
@@ -56,12 +57,12 @@ If you are using macOS with intel chip, the complete build command is like:
 
 ```shell
 GOOS=darwin GOARCH=amd64 \
-go build -ldflags="-X github.com/oam-dev/velad/version.VelaUXVersion=v1.x.y"  \
+go build -ldflags="-X github.com/oam-dev/velad/version.VelaVersion=v1.x.y -X github.com/oam-dev/velad/version.VelaUXVersion=v1.x.y"  \
 -o bin/velad \
 cmd/velad/main.go
 ```
 
-> Ldflags can help to inject VelaUX version.
+> Ldflags can help to inject vela-core and VelaUX version. (Can be different)
 > If you are using IDE to debug, remember to add `-ldflags="-X github.com...` part to build option.
 
 
@@ -72,5 +73,4 @@ Before you submit a PR, run this command to ensure it is ready:
 ```shell
 make reviewable
 ```
-
 For other PR things you can check the document [here](https://kubevela.net/docs/contributor/code-contribute#create-a-pull-request).

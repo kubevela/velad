@@ -281,6 +281,13 @@ func SetDefaultKubeConfigEnv() {
 	}
 }
 
+func RemoveNetworkProxyEnv() {
+	proxyEnvs := []string{"http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY"}
+	for _, env := range proxyEnvs {
+		_ = os.Setenv(env, "")
+	}
+}
+
 // GetCLIInstallPath get vela CLI install path
 func GetCLIInstallPath() string {
 	// get vela CLI link position depends on the OS
