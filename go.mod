@@ -8,7 +8,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/k3d-io/k3d/v5 v5.4.1
 	github.com/kyokomi/emoji/v2 v2.2.9
-	github.com/oam-dev/kubevela v1.5.0-alpha.1
+	github.com/oam-dev/kubevela v1.5.0-alpha.2
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.4.0
 	github.com/stretchr/testify v1.7.1
@@ -62,6 +62,8 @@ require (
 	github.com/briandowns/spinner v1.11.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/chai2010/gettext-go v0.0.0-20160711120539-c6fed771bfd5 // indirect
+	github.com/chartmuseum/helm-push v0.10.2 // indirect
+	github.com/cloudtty/cloudtty v0.2.0 // indirect
 	github.com/cockroachdb/apd/v2 v2.0.1 // indirect
 	github.com/containerd/cgroups v1.0.3 // indirect
 	github.com/containerd/containerd v1.6.2 // indirect
@@ -270,15 +272,16 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 	inet.af/netaddr v0.0.0-20211027220019-c74959edd3b6 // indirect
-	istio.io/api v0.0.0-20210128181506-0c4b8e54850f // indirect
-	istio.io/client-go v0.0.0-20210128182905-ee2edd059e02 // indirect
-	istio.io/gogo-genproto v0.0.0-20190930162913-45029607206a // indirect
+	istio.io/api v0.0.0-20220512212136-561ffec82582 // indirect
+	istio.io/client-go v1.13.4 // indirect
+	istio.io/gogo-genproto v0.0.0-20211208193508-5ab4acc9eb1e // indirect
 	k8s.io/api v0.23.6 // indirect
 	k8s.io/apiextensions-apiserver v0.23.6 // indirect
 	k8s.io/apimachinery v0.23.6 // indirect
 	k8s.io/apiserver v0.23.6 // indirect
 	k8s.io/cli-runtime v0.23.6 // indirect
 	k8s.io/component-base v0.23.6 // indirect
+	k8s.io/helm v2.17.0+incompatible // indirect
 	k8s.io/klog v1.0.0 // indirect
 	k8s.io/kube-aggregator v0.23.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20211115234752-e816edb12b65 // indirect
