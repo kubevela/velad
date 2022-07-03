@@ -39,6 +39,7 @@ func (a App) Run() {
 		cmd = NewVeladCommand()
 	}
 
+	utils.RemoveNetworkProxyEnv()
 	if err := cmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
