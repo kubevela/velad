@@ -75,12 +75,13 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 	cmd.Flags().StringVar(&iArgs.Token, "token", "", "Token for identify the cluster. Can be used to restart the control plane or register other node. If not set, random token will be generated")
 	cmd.Flags().StringVar(&iArgs.Controllers, "controllers", "*", "A list of controllers to enable, check \"--controllers\" argument for more spec in https://kubernetes.io/docs/reference/command-line-tools-reference/kube-controller-manager/")
 	cmd.Flags().StringVar(&iArgs.Name, "name", apis.DefaultVelaDClusterName, "The name of the cluster. only works when NOT in linux environment")
+	cmd.Flags().BoolVar(&iArgs.DryRun, "dry-run", false, "Dry run the install process")
 
 	// inherit args from `vela install`
-	cmd.Flags().StringArrayVarP(&iArgs.InstallArgs.Values, "set", "", []string{}, "set values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)")
-	cmd.Flags().StringVarP(&iArgs.InstallArgs.Namespace, "namespace", "n", "vela-system", "namespace scope for installing KubeVela Core")
-	cmd.Flags().BoolVarP(&iArgs.InstallArgs.Detail, "detail", "d", true, "show detail log of installation")
-	cmd.Flags().BoolVarP(&iArgs.InstallArgs.ReuseValues, "reuse", "r", true, "will re-use the user's last supplied values.")
+	cmd.Flags().StringArrayVarP(&iArgs.InstallArgs.Values, "set", "", []string{}, "Set values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)")
+	cmd.Flags().StringVarP(&iArgs.InstallArgs.Namespace, "namespace", "n", "vela-system", "Namespace scope for installing KubeVela Core")
+	cmd.Flags().BoolVarP(&iArgs.InstallArgs.Detail, "detail", "d", true, "Show detail log of installation")
+	cmd.Flags().BoolVarP(&iArgs.InstallArgs.ReuseValues, "reuse", "r", true, "Will re-use the user's last supplied values.")
 
 	return cmd
 }

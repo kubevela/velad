@@ -328,7 +328,7 @@ func printHTTPGuide(clusterName string) {
 		}
 	}
 	if len(ports) == 0 {
-		Errf("Failed to find cluster serverlb container")
+		Errf("[No cluster load-balancer container found]\n")
 	}
 	for _, p := range ports {
 		if p.PrivatePort == 80 {

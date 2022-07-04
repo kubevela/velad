@@ -1,6 +1,10 @@
 package apis
 
-import "github.com/oam-dev/kubevela/references/cli"
+import (
+	"github.com/oam-dev/kubevela/pkg/utils/common"
+	cmdutil "github.com/oam-dev/kubevela/pkg/utils/util"
+	"github.com/oam-dev/kubevela/references/cli"
+)
 
 // InstallArgs defines arguments for velad install command
 type InstallArgs struct {
@@ -12,6 +16,7 @@ type InstallArgs struct {
 	// InstallArgs is parameters passed to vela install command
 	InstallArgs cli.InstallArgs
 	Name        string
+	DryRun      bool
 }
 
 // UninstallArgs defines arguments for velad uninstall command
@@ -94,6 +99,10 @@ type VelaStatus struct {
 // Context keep some context for install progress
 type Context struct {
 	SkipInstallVelaCLI bool
+	DryRun             bool
+	IOStreams          cmdutil.IOStreams
+	CommonArgs         common.Args
+	VelaChartPath      string
 }
 
 var (

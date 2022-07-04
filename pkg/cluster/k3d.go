@@ -41,8 +41,13 @@ var (
 	}
 	dockerCli client.APIClient
 	info      = utils.Info
+	infof     = utils.Infof
 	errf      = utils.Errf
 )
+
+type k3dSetupOptions struct {
+	dryRun bool
+}
 
 const (
 	// K3dImageTag is image tag of k3d
@@ -70,7 +75,10 @@ func (d *K3dHandler) Install(args apis.InstallArgs) error {
 	if err != nil {
 		return err
 	}
-	err = setupK3d(d.ctx, d.cfg)
+	o := k3dSetupOptions{
+		dryRun: args.DryRun,
+	}
+	err = o.setupK3d(d.ctx, d.cfg)
 	if err != nil {
 		return errors.Wrap(err, "failed to setup k3d")
 	}
@@ -111,63 +119,72 @@ func (d *K3dHandler) Uninstall(name string) error {
 // 1. kubeconfig for access from host
 // 2. kubeconfig for access from other VelaD cluster
 // 3. kubeconfig for access from other machine (if bindIP provided)
-func (d *K3dHandler) GenKubeconfig(bindIP string) error {
+func (d *K3dHandler) GenKubeconfig(ctx apis.Context, bindIP string) error {
 	var err error
 	var cluster = d.cfg.Cluster.Name
 	// 1. kubeconfig for access from host
 	cfg := configPath(cluster)
-	if _, err := k3dClient.KubeconfigGetWrite(context.Background(), runtimes.SelectedRuntime, &d.cfg.Cluster, cfg,
-		&k3dClient.WriteKubeConfigOptions{UpdateExisting: true, OverwriteExisting: false, UpdateCurrentContext: true}); err != nil {
-		return errors.Wrap(err, "failed to gen kubeconfig")
+	info("Generating host kubeconfig into", cfg)
+	if !ctx.DryRun {
+		if _, err := k3dClient.KubeconfigGetWrite(context.Background(), runtimes.SelectedRuntime, &d.cfg.Cluster, cfg,
+			&k3dClient.WriteKubeConfigOptions{UpdateExisting: true, OverwriteExisting: false, UpdateCurrentContext: true}); err != nil {
+			return errors.Wrap(err, "failed to gen kubeconfig")
+		}
 	}
 
 	cfgContent, err := os.ReadFile(cfg)
 	if err != nil {
 		return errors.Wrap(err, "read kubeconfig")
 	}
+
 	// 2. kubeconfig for access from other VelaD cluster
 	// Basically we replace the IP with IP inside the docker network
-	cfgIn := configPathInternal(cluster)
-	networks, err := dockerCli.NetworkInspect(d.ctx, apis.VelaDDockerNetwork, types.NetworkInspectOptions{})
-	if err != nil {
-		klog.ErrorS(err, "inspect docker network")
-		return err
-	}
-	var containerIP string
-	cs := networks.Containers
-	for _, c := range cs {
-		if c.Name == fmt.Sprintf("k3d-%s-server-0", d.cfg.Cluster.Name) {
-			containerIP = strings.TrimSuffix(c.IPv4Address, "/16")
-		}
-	}
-	kubeConfig := string(cfgContent)
-	var re *regexp.Regexp
 	var hostToReplace string
-	switch {
-	case strings.Contains(kubeConfig, "0.0.0.0"):
-		hostToReplace = "0.0.0.0"
-	case strings.Contains(kubeConfig, "host.docker.internal"):
-		hostToReplace = "host.docker.internal"
-	default:
-		return errors.Wrap(err, "unrecognized kubeconfig format")
-	}
-	re = regexp.MustCompile(hostToReplace + `:\d{4}`)
-	cfgInContent := re.ReplaceAllString(kubeConfig, fmt.Sprintf("%s:6443", containerIP))
-	err = ioutil.WriteFile(cfgIn, []byte(cfgInContent), 0600)
-	if err != nil {
-		errf("Fail to write internal kubeconfig")
-	} else {
-		info("Successfully generate internal kubeconfig at", cfgIn)
+	cfgIn := configPathInternal(cluster)
+	info("Generating internal kubeconfig into", cfgIn)
+	if !ctx.DryRun {
+		networks, err := dockerCli.NetworkInspect(d.ctx, apis.VelaDDockerNetwork, types.NetworkInspectOptions{})
+		if err != nil {
+			klog.ErrorS(err, "inspect docker network")
+			return err
+		}
+		var containerIP string
+		cs := networks.Containers
+		for _, c := range cs {
+			if c.Name == fmt.Sprintf("k3d-%s-server-0", d.cfg.Cluster.Name) {
+				containerIP = strings.TrimSuffix(c.IPv4Address, "/16")
+			}
+		}
+		kubeConfig := string(cfgContent)
+		var re *regexp.Regexp
+		switch {
+		case strings.Contains(kubeConfig, "0.0.0.0"):
+			hostToReplace = "0.0.0.0"
+		case strings.Contains(kubeConfig, "host.docker.internal"):
+			hostToReplace = "host.docker.internal"
+		default:
+			return errors.Wrap(err, "unrecognized kubeconfig format")
+		}
+		re = regexp.MustCompile(hostToReplace + `:\d{4}`)
+		cfgInContent := re.ReplaceAllString(kubeConfig, fmt.Sprintf("%s:6443", containerIP))
+		err = ioutil.WriteFile(cfgIn, []byte(cfgInContent), 0600)
+		if err != nil {
+			errf("Fail to write internal kubeconfig")
+		} else {
+			info("Successfully generate internal kubeconfig at", cfgIn)
+		}
 	}
 
 	// 3. kubeconfig for access from other machine
 	if bindIP != "" {
 		cfgOut := configPathExternal(cluster)
 		info("Generating external kubeconfig for remote access into ", cfgOut)
-		cfgOutContent := strings.Replace(string(cfgContent), hostToReplace, bindIP, 1)
-		err = os.WriteFile(cfgOut, []byte(cfgOutContent), 0600)
-		if err != nil {
-			return err
+		if !ctx.DryRun {
+			cfgOutContent := strings.Replace(string(cfgContent), hostToReplace, bindIP, 1)
+			err = os.WriteFile(cfgOut, []byte(cfgOutContent), 0600)
+			if err != nil {
+				return err
+			}
 		}
 		info("Successfully generate external kubeconfig at", cfgOut)
 	}
@@ -266,23 +283,23 @@ func fillK3dCluster(ctx context.Context, cluster *k3d.Cluster, status *apis.Clus
 	}
 }
 
-func setupK3d(ctx context.Context, clusterConfig config.ClusterConfig) error {
+func (o k3dSetupOptions) setupK3d(ctx context.Context, clusterConfig config.ClusterConfig) error {
 	info("Preparing K3s images...")
-	err := PrepareK3sImages()
+	err := o.prepareK3sImages()
 	if err != nil {
 		return errors.Wrap(err, "failed to prepare k3d images")
 	}
 	info("Successfully prepare k3d images")
 
 	info("Loading k3d images...")
-	err = LoadK3dImages()
+	err = o.loadK3dImages()
 	if err != nil {
 		return errors.Wrap(err, "failed to extract k3d images")
 	}
 	info("Successfully load k3d images")
 
 	info("Creating k3d cluster...")
-	if err = runClusterIfNotExist(ctx, clusterConfig); err != nil {
+	if err = o.runClusterIfNotExist(ctx, clusterConfig); err != nil {
 		return err
 	}
 	info("Successfully create k3d cluster")
@@ -397,37 +414,44 @@ func getKubeconfigOptions() config.SimpleConfigOptionsKubeconfig {
 	return opts
 }
 
-func runClusterIfNotExist(ctx context.Context, cluster config.ClusterConfig) error {
-	if _, err := k3dClient.ClusterGet(ctx, runtimes.SelectedRuntime, &cluster.Cluster); err == nil {
-		info("Detect an existing cluster: ", cluster.Cluster.Name)
-		return nil
+func (o k3dSetupOptions) runClusterIfNotExist(ctx context.Context, cluster config.ClusterConfig) error {
+	var err error
+	info("Launching k3d cluster:", cluster.Cluster.Name)
+	if !o.dryRun {
+		if _, err = k3dClient.ClusterGet(ctx, runtimes.SelectedRuntime, &cluster.Cluster); err == nil {
+			info("Detect an existing cluster: ", cluster.Cluster.Name)
+			return nil
+		}
+		err = k3dClient.ClusterRun(ctx, runtimes.SelectedRuntime, &cluster)
 	}
-	err := k3dClient.ClusterRun(ctx, runtimes.SelectedRuntime, &cluster)
 	return errors.Wrapf(err, "fail to create cluster: %s", cluster.Cluster.Name)
 }
 
-// PrepareK3sImages extracts k3s images to ~/.vela/velad/k3s/images.tg
-func PrepareK3sImages() error {
+// prepareK3sImages extracts k3s images to ~/.vela/velad/k3s/images.tg
+func (o k3dSetupOptions) prepareK3sImages() error {
 	embedK3sImage, err := resources.K3sImage.Open("static/k3s/images/k3s-airgap-images-amd64.tar.gz")
 	if err != nil {
 		return err
 	}
 	defer utils.CloseQuietly(embedK3sImage)
 
-	// save k3s image.tgz to ~/.vela/velad/k3s/images.tgz
 	k3sImagesDir, err := getK3sImageDir()
 	if err != nil {
 		return err
 	}
 	k3sImagesPath := filepath.Join(k3sImagesDir, "k3s-airgap-images-amd64.tgz")
-	// #nosec
-	k3sImagesFile, err := os.OpenFile(k3sImagesPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0600)
-	if err != nil {
-		return err
-	}
-	defer utils.CloseQuietly(k3sImagesFile)
-	if _, err := io.Copy(k3sImagesFile, embedK3sImage); err != nil {
-		return err
+	info("Saving k3s image airgap install tarball to", k3sImagesPath)
+
+	if !o.dryRun {
+		// #nosec
+		k3sImagesFile, err := os.OpenFile(k3sImagesPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0600)
+		if err != nil {
+			return err
+		}
+		defer utils.CloseQuietly(k3sImagesFile)
+		if _, err := io.Copy(k3sImagesFile, embedK3sImage); err != nil {
+			return err
+		}
 	}
 
 	/* #nosec */
@@ -447,8 +471,8 @@ func getK3sImageDir() (string, error) {
 	return k3sImagesDir, nil
 }
 
-// LoadK3dImages loads local k3d images to docker
-func LoadK3dImages() error {
+// loadK3dImages loads local k3d images to docker
+func (o k3dSetupOptions) loadK3dImages() error {
 	dir, err := resources.K3dImage.ReadDir("static/k3d/images")
 	if err != nil {
 		return err
@@ -459,24 +483,38 @@ func LoadK3dImages() error {
 			return err
 		}
 		name := strings.Split(entry.Name(), ".")[0]
-		imageTgz, err := utils.SaveToTemp(file, "k3d-image-"+name+"-*.tar.gz")
-		if err != nil {
-			return err
+		var (
+			format   = "k3d-image-" + name + "-*.tar.gz"
+			imageTgz string
+			imageTar string
+		)
+		if o.dryRun {
+			info("Saving and temporary image file:", format)
+		} else {
+			imageTgz, err = utils.SaveToTemp(file, format)
+			if err != nil {
+				return err
+			}
+			// #nosec
+			unzipCmd := exec.Command("gzip", "-d", imageTgz)
+			output, err := unzipCmd.CombinedOutput()
+			utils.InfoBytes(output)
+			if err != nil {
+				return err
+			}
+			imageTar = strings.TrimSuffix(imageTgz, ".gz")
 		}
-		// #nosec
-		unzipCmd := exec.Command("gzip", "-d", imageTgz)
-		output, err := unzipCmd.CombinedOutput()
-		utils.InfoBytes(output)
-		if err != nil {
-			return err
-		}
-		imageTar := strings.TrimSuffix(imageTgz, ".gz")
-		// #nosec
-		importCmd := exec.Command("docker", "image", "load", "-i", imageTar)
-		output, err = importCmd.CombinedOutput()
-		utils.InfoBytes(output)
-		if err != nil {
-			return err
+
+		if o.dryRun {
+			infof("Importing image to docker using temporary file: %s\n", format)
+		} else {
+			// #nosec
+			importCmd := exec.Command("docker", "image", "load", "-i", imageTar)
+			output, err := importCmd.CombinedOutput()
+			utils.InfoBytes(output)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
