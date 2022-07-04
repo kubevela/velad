@@ -6,7 +6,7 @@ import "github.com/oam-dev/velad/pkg/apis"
 type Handler interface {
 	Install(args apis.InstallArgs) error
 	Uninstall(name string) error
-	GenKubeconfig(bindIP string) error
+	GenKubeconfig(ctx apis.Context, bindIP string) error
 	SetKubeconfig() error
 	LoadImage(image string) error
 	GetStatus() apis.ClusterStatus

@@ -29,6 +29,10 @@ type K3sHandler struct{}
 
 var _ Handler = &K3sHandler{}
 
+type k3sSetupOptions struct {
+	DryRun bool
+}
+
 // Install install k3s cluster
 func (l K3sHandler) Install(args apis.InstallArgs) error {
 	err := SetupK3s(args)
@@ -148,67 +152,86 @@ func fillVelaStatus(status *apis.ClusterStatus) {
 	}
 }
 
-// PrepareK3sImages Write embed images
-func PrepareK3sImages() error {
+// prepareK3sImages Write embed images
+func (o k3sSetupOptions) prepareK3sImages() error {
 	embedK3sImage, err := resources.K3sImage.Open("static/k3s/images/k3s-airgap-images-amd64.tar.gz")
 	if err != nil {
 		return err
 	}
 	defer utils.CloseQuietly(embedK3sImage)
-	err = os.MkdirAll(resources.K3sImageDir, 0600)
-	if err != nil {
-		return err
+	infof("Making directory %s\n", resources.K3sDirectory)
+	if !o.DryRun {
+		err = os.MkdirAll(resources.K3sImageDir, 0600)
+		if err != nil {
+			return err
+		}
 	}
-	/* #nosec */
-	bin, err := os.OpenFile(resources.K3sImageLocation, os.O_CREATE|os.O_WRONLY, 0700)
-	if err != nil {
-		return err
+
+	infof("Saving K3s air-gap install images to %s\n", resources.K3sImageLocation)
+	if !o.DryRun {
+		/* #nosec */
+		bin, err := os.OpenFile(resources.K3sImageLocation, os.O_CREATE|os.O_WRONLY, 0700)
+		if err != nil {
+			return err
+		}
+		defer utils.CloseQuietly(bin)
+		_, err = io.Copy(bin, embedK3sImage)
+		if err != nil {
+			return err
+		}
+		// #nosec
+		unGzipCmd := exec.Command("gzip", "-f", "-d", resources.K3sImageLocation)
+		output, err := unGzipCmd.CombinedOutput()
+		fmt.Print(string(output))
+		if err != nil {
+			return err
+		}
 	}
-	defer utils.CloseQuietly(bin)
-	_, err = io.Copy(bin, embedK3sImage)
-	if err != nil {
-		return err
-	}
-	// #nosec
-	unGzipCmd := exec.Command("gzip", "-f", "-d", resources.K3sImageLocation)
-	output, err := unGzipCmd.CombinedOutput()
-	fmt.Print(string(output))
-	if err != nil {
-		return err
-	}
+
 	info("Successfully prepare k3s image")
 	return nil
 }
 
-// PrepareK3sScript Write k3s install script to local
-func PrepareK3sScript() (string, error) {
+// prepareK3sScript Write k3s install script to local
+func (o k3sSetupOptions) prepareK3sScript() (string, error) {
+	var (
+		scriptName string
+		err        error
+	)
 	embedScript, err := resources.K3sDirectory.Open("static/k3s/other/setup.sh")
 	if err != nil {
 		return "", err
 	}
-	scriptName, err := utils.SaveToTemp(embedScript, "k3s-setup-*.sh")
-	if err != nil {
-		return "", err
+	format := "k3s-setup-*.sh"
+	infof("Saving temporary file: %s\n", format)
+	if !o.DryRun {
+		scriptName, err = utils.SaveToTemp(embedScript, format)
+		if err != nil {
+			return "", err
+		}
 	}
 	return scriptName, nil
 }
 
-// PrepareK3sBin prepare k3s bin
-func PrepareK3sBin() error {
+// prepareK3sBin prepare k3s bin
+func (o k3sSetupOptions) prepareK3sBin() error {
 	embedK3sBinary, err := resources.K3sDirectory.Open("static/k3s/other/k3s")
 	if err != nil {
 		return err
 	}
 	defer utils.CloseQuietly(embedK3sBinary)
-	/* #nosec */
-	bin, err := os.OpenFile(resources.K3sBinaryLocation, os.O_CREATE|os.O_WRONLY, 0700)
-	if err != nil {
-		return err
-	}
-	defer utils.CloseQuietly(bin)
-	_, err = io.Copy(bin, embedK3sBinary)
-	if err != nil {
-		return err
+	infof("Saving k3s binary to %s\n", resources.K3sBinaryLocation)
+	if !o.DryRun {
+		/* #nosec */
+		bin, err := os.OpenFile(resources.K3sBinaryLocation, os.O_CREATE|os.O_WRONLY, 0700)
+		if err != nil {
+			return err
+		}
+		defer utils.CloseQuietly(bin)
+		_, err = io.Copy(bin, embedK3sBinary)
+		if err != nil {
+			return err
+		}
 	}
 	info("Successfully place k3s binary to " + resources.K3sBinaryLocation)
 	return nil
@@ -216,50 +239,60 @@ func PrepareK3sBin() error {
 
 // SetupK3s will set up K3s as control plane.
 func SetupK3s(cArgs apis.InstallArgs) error {
+	o := k3sSetupOptions{DryRun: cArgs.DryRun}
 	info("Preparing cluster setup script...")
-	script, err := PrepareK3sScript()
+	script, err := o.prepareK3sScript()
 	if err != nil {
 		return errors.Wrap(err, "fail to prepare k3s setup script")
 	}
 
 	info("Preparing k3s binary...")
-	err = PrepareK3sBin()
+	err = o.prepareK3sBin()
 	if err != nil {
 		return errors.Wrap(err, "Fail to prepare k3s binary")
 	}
 
 	info("Preparing k3s images")
-	err = PrepareK3sImages()
+	err = o.prepareK3sImages()
 	if err != nil {
 		return errors.Wrap(err, "Fail to prepare k3s images")
 	}
 
-	info("Setting up cluster...")
+	info("Setting up cluster")
 	args := []string{script}
 	other := GetK3sServerArgs(cArgs)
 	args = append(args, other...)
-	/* #nosec */
-	cmd := exec.Command("/bin/bash", args...)
+	var output []byte
+	if !o.DryRun {
+		/* #nosec */
+		cmd := exec.Command("/bin/bash", args...)
 
-	cmd.Env = os.Environ()
-	cmd.Env = append(cmd.Env, "INSTALL_K3S_SKIP_DOWNLOAD=true")
-	output, err := cmd.CombinedOutput()
-	fmt.Print(string(output))
+		cmd.Env = os.Environ()
+		cmd.Env = append(cmd.Env, "INSTALL_K3S_SKIP_DOWNLOAD=true")
+		output, err = cmd.CombinedOutput()
+		fmt.Print(string(output))
+	}
 	return errors.Wrap(err, "K3s install script failed")
 }
 
 // GenKubeconfig generate kubeconfig for accessing from other machine
-func (l K3sHandler) GenKubeconfig(bindIP string) error {
+func (l K3sHandler) GenKubeconfig(ctx apis.Context, bindIP string) error {
 	if bindIP == "" {
 		return nil
 	}
+	var (
+		err        error
+		originConf []byte
+	)
 	info("Generating kubeconfig for remote access into ", apis.K3sExternalKubeConfigLocation)
-	originConf, err := os.ReadFile(apis.K3sKubeConfigLocation)
-	if err != nil {
-		return err
+	if !ctx.DryRun {
+		originConf, err = os.ReadFile(apis.K3sKubeConfigLocation)
+		if err != nil {
+			return err
+		}
+		newConf := strings.Replace(string(originConf), "127.0.0.1", bindIP, 1)
+		err = os.WriteFile(apis.K3sExternalKubeConfigLocation, []byte(newConf), 0600)
 	}
-	newConf := strings.Replace(string(originConf), "127.0.0.1", bindIP, 1)
-	err = os.WriteFile(apis.K3sExternalKubeConfigLocation, []byte(newConf), 0600)
 	info("Successfully generate kubeconfig at ", apis.K3sExternalKubeConfigLocation)
 	return err
 }
