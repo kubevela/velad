@@ -239,14 +239,12 @@ func PrintGuide(ctx *apis.Context, args apis.InstallArgs) {
 		printHTTPGuide(args.Name)
 	}
 
-	if ctx.SkipInstallVelaCLI {
-		emoji.Println(":key: To access the cluster, set KUBECONFIG:")
-		var kubeconfigArg = "--host"
-		if args.BindIP != "" {
-			kubeconfigArg = "--external"
-		}
-		emoji.Printf("    export KUBECONFIG=$(velad kubeconfig --name %s %s)\n", args.Name, kubeconfigArg)
+	emoji.Println(":key: To access the cluster, set KUBECONFIG:")
+	var kubeconfigArg = "--host"
+	if args.BindIP != "" {
+		kubeconfigArg = "--external"
 	}
+	emoji.Printf("    export KUBECONFIG=$(velad kubeconfig --name %s %s)\n", args.Name, kubeconfigArg)
 }
 
 func printWindowsPathGuide() {

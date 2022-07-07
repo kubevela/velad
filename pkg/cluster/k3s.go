@@ -159,7 +159,7 @@ func (o k3sSetupOptions) prepareK3sImages() error {
 		return err
 	}
 	defer utils.CloseQuietly(embedK3sImage)
-	infof("Making directory %s\n", resources.K3sDirectory)
+	infof("Making directory %s\n", resources.K3sImageDir)
 	if !o.DryRun {
 		err = os.MkdirAll(resources.K3sImageDir, 0600)
 		if err != nil {
