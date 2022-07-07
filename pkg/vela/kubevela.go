@@ -113,7 +113,6 @@ func InstallVelaCLI(ctx *apis.Context) error {
 	_, err := exec.LookPath("vela")
 	if err == nil {
 		info("vela CLI is already installed, skip")
-		ctx.SkipInstallVelaCLI = true
 		return nil
 	}
 

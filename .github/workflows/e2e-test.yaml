@@ -57,6 +57,7 @@ jobs:
           name: velad-linux-amd64
       - run: chmod u+x velad-linux-amd64 && mv velad-linux-amd64 velad
       - run: sudo ./velad install
+      - run: sudo vela def list
   test-darwin:
     runs-on: macos-12
     needs: [ build-artifact ]
@@ -68,6 +69,7 @@ jobs:
         uses: docker-practice/actions-setup-docker@master
       - run: chmod u+x velad-darwin-amd64 && mv velad-darwin-amd64 velad
       - run: ./velad install
+      - run: vela def list
 #  test-windows:
 #    runs-on: windows-2022
 #    needs: [ build-artifact ]

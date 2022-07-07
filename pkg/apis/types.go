@@ -98,11 +98,10 @@ type VelaStatus struct {
 
 // Context keep some context for install progress
 type Context struct {
-	SkipInstallVelaCLI bool
-	DryRun             bool
-	IOStreams          cmdutil.IOStreams
-	CommonArgs         common.Args
-	VelaChartPath      string
+	DryRun        bool
+	IOStreams     cmdutil.IOStreams
+	CommonArgs    common.Args
+	VelaChartPath string
 }
 
 var (
