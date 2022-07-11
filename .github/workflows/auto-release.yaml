@@ -1,0 +1,31 @@
+name: Auto Release
+
+on:
+  push:
+    branches:
+      - main
+
+
+jobs:
+  auto-release:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Download auto
+        run: |
+          wget -O- https://github.com/intuit/auto/releases/download/v10.37.1/auto-linux.gz | gunzip > ~/auto
+          chmod a+x ~/auto
+      - name: Check whether a release is due
+        id: auto-version
+        run: |
+          version="$(~/auto version)"
+          echo "::set-output name=version::$version"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: auto release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ~/auto shipit -v

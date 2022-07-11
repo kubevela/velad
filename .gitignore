@@ -33,3 +33,5 @@ pkg/resources/static/k3d/
 pkg/resources/static/vela/images
 pkg/resources/static/vela/charts/vela-core.tgz
 pkg/resources/static/vela/addons
+
+.env
