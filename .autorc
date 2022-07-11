@@ -1,0 +1,13 @@
+{
+  "plugins": [
+    "git-tag",
+    "all-contributors",
+    "first-time-contributor",
+    "released"
+  ],
+  "owner": "kubevela",
+  "repo": "velad",
+  "name": "chivalryq",
+  "email": "qiaozhongpei.qzp@alibaba-inc.com",
+  "onlyPublishWithReleaseLabel": true
+}
