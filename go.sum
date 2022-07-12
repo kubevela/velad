@@ -1576,8 +1576,6 @@ github.com/oam-dev/cluster-gateway v1.4.0 h1:ZZcNRYsUDRWM5JnNX28/zdSPRKERGstcAY+
 github.com/oam-dev/cluster-gateway v1.4.0/go.mod h1:qnCczkXtTY7h0SqxjZqAAyKQPwrJjLIFy+IdeoaYKCU=
 github.com/oam-dev/cluster-register v1.0.4-0.20220325092210-cee4a3d3fb7d h1:ZZsBkksYDzwJEjqx9/XBD+VwlhHz8flkZvMJYzO4ASA=
 github.com/oam-dev/cluster-register v1.0.4-0.20220325092210-cee4a3d3fb7d/go.mod h1:nKEUMfuEB8pHKsaSah9IA+UQzezrPYebBdRozyNtlZc=
-github.com/oam-dev/kubevela v1.4.5 h1:z3ialEB0kroOzU/l0wQpq935h2Yw3ZMl/ipbeujqQyM=
-github.com/oam-dev/kubevela v1.4.5/go.mod h1:is+qvJUeuJM3UbfdL7gtQbG3VwVhljhfc2o+74T8ffo=
 github.com/oam-dev/kubevela v1.4.6 h1:5FZAHA4XDuc8z2Xl+dZP6Hftbr3hhF4VdQ2iFc0OyUI=
 github.com/oam-dev/kubevela v1.4.6/go.mod h1:is+qvJUeuJM3UbfdL7gtQbG3VwVhljhfc2o+74T8ffo=
 github.com/oam-dev/stern v1.13.2 h1:jlGgtJbKmIVhzkH44ft5plkgs8XEfvxbFrQdX60CQR4=
