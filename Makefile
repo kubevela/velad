@@ -4,37 +4,39 @@ K3S_VERSION ?= v1.21.10+k3s1
 STATIC_DIR := pkg/resources/static
 VELA_VERSION ?= v1.4.7
 VELAUX_VERSION ?= v1.4.7
-GOOS ?= linux
-GOARCH ?= amd64
+LDFLAGS= "-X github.com/oam-dev/velad/version.VelaUXVersion=${VELAUX_VERSION} -X github.com/oam-dev/velad/version.VelaVersion=${VELA_VERSION}"
+OS ?= linux
+ARCH ?= amd64
 
 .DEFAULT_GOAL := linux-amd64
-linux-amd64: download_vela_images_addons download_k3s pack_vela_chart
-	go build -o bin/velad-${GOOS}-${GOARCH} \
-	-ldflags="-X github.com/oam-dev/velad/version.VelaUXVersion=${VELAUX_VERSION} -X github.com/oam-dev/velad/version.VelaVersion=${VELA_VERSION}" \
+linux-amd64 linux-arm64: download_vela_images_addons pack_vela_chart download_k3s_bin_script download_k3s_images
+	GOOS=${OS} GOARCH=${ARCH} \
+	go build -o bin/velad-${OS}-${ARCH} \
+	-ldflags=${LDFLAGS} \
 	github.com/oam-dev/velad/cmd/velad
 
 
 darwin-amd64 windows-amd64: download_vela_images_addons download_k3d pack_vela_chart download_k3s_images
-	GOOS=${GOOS} GOARCH=${GOARCH} \
-	go build -o bin/velad-${GOOS}-${GOARCH} \
-	-ldflags="-X github.com/oam-dev/velad/version.VelaUXVersion=${VELAUX_VERSION} -X github.com/oam-dev/velad/version.VelaVersion=${VELA_VERSION}" \
+	GOOS=${OS} GOARCH=${ARCH} \
+	go build -o bin/velad-${OS}-${ARCH} \
+	-ldflags=${LDFLAGS} \
 	github.com/oam-dev/velad/cmd/velad
 
 download_vela_images_addons:
-	./hack/download_vela_images.sh ${VELA_VERSION} ${VELAUX_VERSION}
+	./hack/download_vela_images.sh ${VELA_VERSION} ${VELAUX_VERSION} ${ARCH}
 	./hack/download_addons.sh ${VELAUX_VERSION}
 
 download_k3d:
-	./hack/download_k3d_images.sh
+	./hack/download_k3d_images.sh ${ARCH}
 
-download_k3s: download_k3s_images
+download_k3s_bin_script:
 	mkdir -p ${STATIC_DIR}/k3s/other
 	curl -Lo ${STATIC_DIR}/k3s/other/k3s https://github.com/k3s-io/k3s/releases/download/${K3S_VERSION}/k3s
 	curl -Lo ${STATIC_DIR}/k3s/other/setup.sh https://get.k3s.io
 
 download_k3s_images:
 	mkdir -p ${STATIC_DIR}/k3s/images
-	curl -Lo ${STATIC_DIR}/k3s/images/k3s-airgap-images-amd64.tar.gz https://github.com/k3s-io/k3s/releases/download/${K3S_VERSION}/k3s-airgap-images-amd64.tar.gz
+	curl -Lo ${STATIC_DIR}/k3s/images/k3s-airgap-images.tar.gz https://github.com/k3s-io/k3s/releases/download/${K3S_VERSION}/k3s-airgap-images-${ARCH}.tar.gz
 
 CHART_DIR := ${STATIC_DIR}/vela/charts
 pack_vela_chart:
