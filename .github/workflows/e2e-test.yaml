@@ -78,19 +78,19 @@ jobs:
       - run: chmod u+x velad-darwin-amd64 && mv velad-darwin-amd64 velad
       - run: ./velad install
       - run: vela def list
-  test-linux-arm64:
-    runs-on: ubuntu-20.04
-    needs: [ build-artifact ]
-    steps:
-      - uses: actions/download-artifact@v3
-        with:
-          name: velad-darwin-amd64
-      - run: chmod u+x velad-linux-amd64 && mv velad-linux-amd64 velad
-      - name: pguyot/arm-runner-action@v2
-        with:
-          commands: |
-            sudo ./velad install
-            sudo vela def list
+#  test-linux-arm64:
+#    runs-on: ubuntu-20.04
+#    needs: [ build-artifact ]
+#    steps:
+#      - uses: actions/download-artifact@v3
+#        with:
+#          name: velad-darwin-amd64
+#      - run: chmod u+x velad-linux-amd64 && mv velad-linux-amd64 velad
+#      - name: pguyot/arm-runner-action@v2
+#        with:
+#          commands: |
+#            sudo ./velad install
+#            sudo vela def list
 
 #  test-windows:
 #    runs-on: windows-2022
