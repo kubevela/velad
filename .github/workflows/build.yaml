@@ -20,7 +20,7 @@ jobs:
         run: make linux-amd64
       - name: Build darwin
         run: |
-          GOOS=darwin GOARCH=amd64 make darwin-amd64
+          OS=darwin ARCH=amd64 make darwin-amd64
       - name: Build windows
         run: |
-          GOOS=windows GOARCH=amd64 make windows-amd64
+          OS=windows ARCH=amd64 make windows-amd64

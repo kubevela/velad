@@ -26,16 +26,16 @@ jobs:
           go-version: 1.17
       - name: Build linux amd64
         run: |
-          GOOS=linux GOARCH=amd64 make linux-amd64
+          OS=linux ARCH=amd64 make linux-amd64
       - name: Build linux arm64
         run: |
-          GOOS=linux GOARCH=arm64 make linux-arm64
+          OS=linux ARCH=arm64 make linux-arm64
       - name: Build darwin
         run: |
-          GOOS=darwin GOARCH=amd64 make darwin-amd64
+          OS=darwin ARCH=amd64 make darwin-amd64
       - name: Build windows
         run: |
-          GOOS=windows GOARCH=amd64 make windows-amd64
+          OS=windows ARCH=amd64 make windows-amd64
       - name: Upload linux amd64 artifacts
         uses: actions/upload-artifact@v3
         with:
