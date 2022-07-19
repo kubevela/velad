@@ -4,7 +4,7 @@ Lightweight Deploy tool, helps setup [KubeVela](https://github.com/kubevela/kube
 
 English | [简体中文](docs/readme-zh.md)
 
-![Build](https://github.com/kubevela/velad/actions/workflows/build.yaml/badge.svg)
+![E2E Test](https://github.com/kubevela/velad/actions/workflows/e2e-test.yaml/badge.svg)
 
 ## Introduction
 
