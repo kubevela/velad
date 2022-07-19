@@ -10,7 +10,7 @@ var (
 	// K3sImageDir is the directory to save the k3s air-gap image
 	K3sImageDir = "/var/lib/rancher/k3s/agent/images/"
 	// K3sImageLocation is where to save k3s air-gap images
-	K3sImageLocation = "/var/lib/rancher/k3s/agent/images/k3s-airgap-images-amd64.tar.gz"
+	K3sImageLocation = "/var/lib/rancher/k3s/agent/images/k3s-airgap-images.tar.gz"
 )
 
 var (

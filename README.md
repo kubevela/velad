@@ -73,3 +73,7 @@ velad uninstall
 ### More example
 
 Please check [docs](./docs/) for more VelaD example
+
+## Known issues
+
+- Installation on darwin-arm64 (Apple chip) machine isn't fully air-gapped. Please track #64 for more info.
