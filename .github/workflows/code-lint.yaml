@@ -39,7 +39,8 @@ jobs:
       - name: Download resources
         run: |
           make download_vela_images_addons
-          make download_k3s
+          make download_k3s_images
+          make download_k3s_bin_script
           make download_k3d
           make pack_vela_chart
 
@@ -76,7 +77,8 @@ jobs:
       - name: Download resources
         run: |
           make download_vela_images_addons
-          make download_k3s
+          make download_k3s_images
+          make download_k3s_bin_script
           make download_k3d
           make pack_vela_chart
 
@@ -116,7 +118,8 @@ jobs:
       - name: Download resources
         run: |
           make download_vela_images_addons
-          make download_k3s
+          make download_k3s_images
+          make download_k3s_bin_script
           make download_k3d
           make pack_vela_chart
 

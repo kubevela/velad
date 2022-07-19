@@ -20,11 +20,11 @@ cd velad
 ```shell
 make
 ```
-This will build amd64-linux version of VelaD by default. To build other version, you need to specify `GOOS` and `GOARCH`
+This will build amd64-linux version of VelaD by default. To build other version, you need to specify `OS` and `ARCH`
 and the target. For example, you can build a darwin-amd64 version by:
 
 ```shell
-GOOS=darwin GOARCH=amd64 make darwin-amd64
+OS=darwin ARCH=amd64 make darwin-amd64
 ```
 
 ### Debug
@@ -36,7 +36,8 @@ When use IDE to debug VelaD, you need to do several things
 If you want build linux version, run 
 ```shell
 VELAUX_VERSION=v1.x.y VELA_VERSION=v1.z.w make download_vela_images_addons 
-make download_k3s
+make download_k3s_bin_script 
+make download_k3s_images
 make pack_vela_chart
 ```
 
@@ -56,7 +57,7 @@ make download_k3s_images
 If you are using macOS with intel chip, the complete build command is like:
 
 ```shell
-GOOS=darwin GOARCH=amd64 \
+OS=darwin ARCH=amd64 \
 go build -ldflags="-X github.com/oam-dev/velad/version.VelaVersion=v1.x.y -X github.com/oam-dev/velad/version.VelaUXVersion=v1.x.y"  \
 -o bin/velad \
 cmd/velad/main.go
