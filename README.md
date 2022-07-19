@@ -4,7 +4,7 @@ Lightweight Deploy tool, helps setup [KubeVela](https://github.com/kubevela/kube
 
 English | [简体中文](docs/readme-zh.md)
 
-![Build](https://github.com/kubevela/velad/actions/workflows/build.yaml/badge.svg)
+![E2E Test](https://github.com/kubevela/velad/actions/workflows/e2e-test.yaml/badge.svg)
 
 ## Introduction
 
@@ -73,3 +73,7 @@ velad uninstall
 ### More example
 
 Please check [docs](./docs/) for more VelaD example
+
+## Known issues
+
+- Installation on darwin-arm64 (Apple chip) machine isn't fully air-gapped. Please track #64 for more info.

@@ -419,7 +419,8 @@ func PrepareK3sImages() error {
 	if err != nil {
 		return err
 	}
-	k3sImagesPath := filepath.Join(k3sImagesDir, "k3s-airgap-images-amd64.tgz")
+	k3sImagesPath := filepath.Join(k3sImagesDir, "k3s-airgap-images.tgz")
+	info("Saving k3s image airgap install tarball to", k3sImagesPath)
 	// #nosec
 	k3sImagesFile, err := os.OpenFile(k3sImagesPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0600)
 	if err != nil {
