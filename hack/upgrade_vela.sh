@@ -27,9 +27,16 @@ popd
 
 mv kubevela/"$PATCH_FILE_NAME" .
 
-echo "Patching charts..."
-git apply -v --check --reject --apply --directory $WORKDIR "$PATCH_FILE_NAME"
-echo "Patching done"
+
+if [ -s "$PATCH_FILE_NAME" ]; then
+    # The file is not-empty.
+    echo "Patch file is not empty, applying patch..."
+    git apply -v --check --reject --apply --directory $WORKDIR "$PATCH_FILE_NAME"
+    echo "Patching done"
+else
+    # The file is empty.
+    echo "Patch file is empty, no need to apply patch"
+fi
 
 rm "$PATCH_FILE_NAME"
 rm -rf kubevela
