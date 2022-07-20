@@ -408,7 +408,7 @@ func runClusterIfNotExist(ctx context.Context, cluster config.ClusterConfig) err
 
 // PrepareK3sImages extracts k3s images to ~/.vela/velad/k3s/images.tg
 func PrepareK3sImages() error {
-	embedK3sImage, err := resources.K3sImage.Open("static/k3s/images/k3s-airgap-images-amd64.tar.gz")
+	embedK3sImage, err := resources.K3sImage.Open("static/k3s/images/k3s-airgap-images.tar.gz")
 	if err != nil {
 		return err
 	}
@@ -419,7 +419,8 @@ func PrepareK3sImages() error {
 	if err != nil {
 		return err
 	}
-	k3sImagesPath := filepath.Join(k3sImagesDir, "k3s-airgap-images-amd64.tgz")
+	k3sImagesPath := filepath.Join(k3sImagesDir, "k3s-airgap-images.tgz")
+	info("Saving k3s image airgap install tarball to", k3sImagesPath)
 	// #nosec
 	k3sImagesFile, err := os.OpenFile(k3sImagesPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0600)
 	if err != nil {

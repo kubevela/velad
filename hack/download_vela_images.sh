@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+set -x
 
 VELA_IMAGE_DIR=pkg/resources/static/vela/images
 rm -rf "$VELA_IMAGE_DIR"
@@ -23,6 +24,9 @@ elif [[ $2 == v* ]]; then
 else
   velaux_version=v$2
 fi
+
+# optional, amd64 if not set
+ARCH=$3
 
 function set_cluster_gateway_version() {
     cluster_gateway_version=UNKNOWN
@@ -49,12 +53,21 @@ function download_images() {
     do
       IMAGE_NAME=$(echo "$IMG" | cut -f1 -d: | cut -f2 -d/)
       echo saving "$IMG" to "$VELA_IMAGE_DIR"/"$IMAGE_NAME".tar.gz
-      docker pull "$IMG"
+      $DOCKER_PULL "$IMG"
       docker save -o "$VELA_IMAGE_DIR"/"$IMAGE_NAME".tar "$IMG"
       gzip -f "$VELA_IMAGE_DIR"/"$IMAGE_NAME".tar
     done
 }
 
+function determine_pull_command() {
+  DOCKER_PULL="docker pull --platform=linux/amd64"
+  if [ "$1" == "arm64" ]; then
+      DOCKER_PULL="docker pull --platform=linux/arm64"
+  fi
+}
+
+
+determine_pull_command "$ARCH"
 set_cluster_gateway_version
 set_certgen_version
 download_images

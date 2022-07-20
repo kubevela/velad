@@ -18,7 +18,7 @@ jobs:
     name: build
     strategy:
       matrix:
-        TARGETS: [ linux/amd64, darwin/amd64, windows/amd64 ]
+        TARGETS: [ linux/amd64, darwin/amd64, windows/amd64, linux/arm64, darwin/arm64]
     env:
       VELA_VERSION_KEY: github.com/oam-dev/velad/version.VelaVersion
       VELAUX_VERSION_KEY: github.com/oam-dev/velad/version.VelaUXVersion
@@ -62,7 +62,8 @@ jobs:
       - name: Build
         run: |
           make download_vela_images_addons
-          make download_k3s
+          make download_k3s_images
+          make download_k3s_bin_script
           make download_k3d
           make pack_vela_chart
           ${{ env.GO_BUILD_ENV }} GOOS=${{ steps.get_matrix.outputs.OS }} GOARCH=${{ steps.get_matrix.outputs.ARCH }} \

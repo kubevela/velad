@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"runtime"
 	"strings"
 
 	"github.com/oam-dev/kubevela/pkg/utils/system"
@@ -50,6 +51,11 @@ func PrepareVelaChart() (string, error) {
 
 // LoadVelaImages load vela-core and velaUX images
 func LoadVelaImages() error {
+	if runtime.GOOS == apis.GoosDarwin && runtime.GOARCH == "arm64" {
+		info("Skip importing vela-core and VelaUX image on darwin-arm64")
+		return nil
+	}
+	var err error
 	dir, err := resources.VelaImages.ReadDir("static/vela/images")
 	if err != nil {
 		return err
