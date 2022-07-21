@@ -115,34 +115,23 @@ func (d *K3dHandler) GenKubeconfig(bindIP string) error {
 	var err error
 	var cluster = d.cfg.Cluster.Name
 	// 1. kubeconfig for access from host
-	cfg := configPath(cluster)
-	if _, err := k3dClient.KubeconfigGetWrite(context.Background(), runtimes.SelectedRuntime, &d.cfg.Cluster, cfg,
+	cfgHost := configPath(cluster)
+	info("Generating host kubeconfig into", cfgHost)
+	if _, err := k3dClient.KubeconfigGetWrite(context.Background(), runtimes.SelectedRuntime, &d.cfg.Cluster, cfgHost,
 		&k3dClient.WriteKubeConfigOptions{UpdateExisting: true, OverwriteExisting: false, UpdateCurrentContext: true}); err != nil {
 		return errors.Wrap(err, "failed to gen kubeconfig")
 	}
 
-	cfgContent, err := os.ReadFile(cfg)
+	_cfgContent, err := os.ReadFile(cfgHost)
 	if err != nil {
 		return errors.Wrap(err, "read kubeconfig")
 	}
-	// 2. kubeconfig for access from other VelaD cluster
-	// Basically we replace the IP with IP inside the docker network
-	cfgIn := configPathInternal(cluster)
-	networks, err := dockerCli.NetworkInspect(d.ctx, apis.VelaDDockerNetwork, types.NetworkInspectOptions{})
-	if err != nil {
-		klog.ErrorS(err, "inspect docker network")
-		return err
-	}
-	var containerIP string
-	cs := networks.Containers
-	for _, c := range cs {
-		if c.Name == fmt.Sprintf("k3d-%s-server-0", d.cfg.Cluster.Name) {
-			containerIP = strings.TrimSuffix(c.IPv4Address, "/16")
-		}
-	}
-	kubeConfig := string(cfgContent)
-	var re *regexp.Regexp
-	var hostToReplace string
+
+	var (
+		hostToReplace string
+		kubeConfig    = string(_cfgContent)
+	)
+
 	switch {
 	case strings.Contains(kubeConfig, "0.0.0.0"):
 		hostToReplace = "0.0.0.0"
@@ -151,7 +140,31 @@ func (d *K3dHandler) GenKubeconfig(bindIP string) error {
 	default:
 		return errors.Wrap(err, "unrecognized kubeconfig format")
 	}
-	re = regexp.MustCompile(hostToReplace + `:\d{4}`)
+
+	// Replace host config with loop back address
+	cfgHostContent := strings.ReplaceAll(kubeConfig, hostToReplace, "127.0.0.1")
+	err = ioutil.WriteFile(cfgHost, []byte(cfgHostContent), 0600)
+	if err != nil {
+		errf("Fail to re-write host kubeconfig")
+	}
+
+	// 2. kubeconfig for access from other VelaD cluster
+	// Basically we replace the IP with IP inside the docker network
+	cfgIn := configPathInternal(cluster)
+	info("Generating internal kubeconfig into", cfgIn)
+	var containerIP string
+	networks, err := dockerCli.NetworkInspect(d.ctx, apis.VelaDDockerNetwork, types.NetworkInspectOptions{})
+	if err != nil {
+		klog.ErrorS(err, "inspect docker network")
+		return err
+	}
+	cs := networks.Containers
+	for _, c := range cs {
+		if c.Name == fmt.Sprintf("k3d-%s-server-0", d.cfg.Cluster.Name) {
+			containerIP = strings.TrimSuffix(c.IPv4Address, "/16")
+		}
+	}
+	re := regexp.MustCompile(hostToReplace + `:\d{4}`)
 	cfgInContent := re.ReplaceAllString(kubeConfig, fmt.Sprintf("%s:6443", containerIP))
 	err = ioutil.WriteFile(cfgIn, []byte(cfgInContent), 0600)
 	if err != nil {
@@ -164,7 +177,7 @@ func (d *K3dHandler) GenKubeconfig(bindIP string) error {
 	if bindIP != "" {
 		cfgOut := configPathExternal(cluster)
 		info("Generating external kubeconfig for remote access into ", cfgOut)
-		cfgOutContent := strings.Replace(string(cfgContent), hostToReplace, bindIP, 1)
+		cfgOutContent := strings.Replace(kubeConfig, hostToReplace, bindIP, 1)
 		err = os.WriteFile(cfgOut, []byte(cfgOutContent), 0600)
 		if err != nil {
 			return err
