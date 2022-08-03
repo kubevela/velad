@@ -1,6 +1,8 @@
 package vela
 
 import (
+	"bytes"
+	"compress/gzip"
 	"fmt"
 	"io"
 	"os"
@@ -71,7 +73,6 @@ func LoadVelaImages(ctx *apis.Context) error {
 	}
 	var (
 		err      error
-		imageTgz string
 		imageTar string
 	)
 	dir, err := resources.VelaImages.ReadDir("static/vela/images")
@@ -84,23 +85,20 @@ func LoadVelaImages(ctx *apis.Context) error {
 			return err
 		}
 		name := strings.Split(entry.Name(), ".")[0]
-		format := "vela-image-" + name + "-*.tar.gz"
+		format := "vela-image-" + name + "-*.tar"
+		buffer, err := decompressGzipFile(file)
+		if err != nil {
+			return errors.Wrapf(err, "fail to decompress gzip file %s", entry.Name())
+		}
+		utils.CloseQuietly(file)
 		info("Saving and temporary image file:", format)
 		if !ctx.DryRun {
-			imageTgz, err = utils.SaveToTemp(file, format)
-			if err != nil {
-				return err
-			}
-			// #nosec
-			unzipCmd := exec.Command("gzip", "-d", imageTgz)
-			output, err := unzipCmd.CombinedOutput()
-			utils.InfoBytes(output)
+			imageTar, err = utils.SaveToTemp(buffer, format)
 			if err != nil {
 				return err
 			}
 		}
 
-		imageTar = strings.TrimSuffix(imageTgz, ".gz")
 		infof("Importing image to cluster using temporary file: %s\n", format)
 		if !ctx.DryRun {
 			err = h.LoadImage(imageTar)
@@ -205,7 +203,7 @@ func InstallVelaChart(ctx *apis.Context, args apis.InstallArgs) error {
 	userDefinedArgs := utils.TransArgsToString(args.InstallArgs)
 	installArgs = append(installArgs, userDefinedArgs...)
 	installCmd.SetArgs(installArgs)
-	infof("Executing \"vela install")
+	infof("Executing \"vela install ")
 	for _, arg := range installArgs {
 		infof("%s ", arg)
 	}
@@ -260,4 +258,21 @@ func fillVelaUXStatus(status *apis.VelaStatus) {
 		status.VelaUXAddonDirPath = velauxDir
 	}
 
+}
+
+// decompressGzipFile helps decompress gzip file, return a buffer of decompressed data.
+func decompressGzipFile(file io.Reader) (*bytes.Buffer, error) {
+	var dest bytes.Buffer
+	r, err := gzip.NewReader(file)
+	if err != nil {
+		return nil, errors.Wrap(err, "create gzip reader")
+	}
+	defer utils.CloseQuietly(r)
+
+	// Can't be user input, so ignore the warning.
+	_, err = io.Copy(&dest, r) // #nosec G110
+	if err != nil {
+		return nil, err
+	}
+	return &dest, nil
 }

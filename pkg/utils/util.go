@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/fs"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -58,7 +57,7 @@ func init() {
 }
 
 // SaveToTemp helps save an embedded file into a temporary file
-func SaveToTemp(file fs.File, format string) (string, error) {
+func SaveToTemp(content io.Reader, format string) (string, error) {
 	tmpDir, err := GetTmpDir()
 	if err != nil {
 		return "", err
@@ -69,7 +68,7 @@ func SaveToTemp(file fs.File, format string) (string, error) {
 	}
 	defer CloseQuietly(tempFile)
 
-	_, err = io.Copy(tempFile, file)
+	_, err = io.Copy(tempFile, content)
 	if err != nil {
 		return "", err
 	}
