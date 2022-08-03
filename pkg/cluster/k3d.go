@@ -500,7 +500,6 @@ func (o k3dSetupOptions) loadK3dImages() error {
 		var (
 			format   = "k3d-image-" + name + "-*.tar.gz"
 			imageTgz string
-			imageTar string
 		)
 		if o.dryRun {
 			info("Saving and temporary image file:", format)
@@ -509,21 +508,13 @@ func (o k3dSetupOptions) loadK3dImages() error {
 			if err != nil {
 				return err
 			}
-			// #nosec
-			unzipCmd := exec.Command("gzip", "-d", imageTgz)
-			output, err := unzipCmd.CombinedOutput()
-			utils.InfoBytes(output)
-			if err != nil {
-				return err
-			}
-			imageTar = strings.TrimSuffix(imageTgz, ".gz")
 		}
 
 		if o.dryRun {
 			infof("Importing image to docker using temporary file: %s\n", format)
 		} else {
 			// #nosec
-			importCmd := exec.Command("docker", "image", "load", "-i", imageTar)
+			importCmd := exec.Command("docker", "image", "load", "-i", imageTgz)
 			output, err := importCmd.CombinedOutput()
 			utils.InfoBytes(output)
 			if err != nil {
