@@ -61,6 +61,8 @@ jobs:
           echo "LDFLAGS=${LDFLAGS}" >> $GITHUB_ENV
       - name: Build
         run: |
+          export OS=${{ steps.get_matrix.outputs.OS }}
+          export ARCH=${{ steps.get_matrix.outputs.ARCH }}
           make download_vela_images_addons
           make download_k3s_images
           make download_k3s_bin_script
