@@ -30,7 +30,7 @@ if ((Get-ExecutionPolicy) -gt 'RemoteSigned' -or (Get-ExecutionPolicy) -eq 'ByPa
 # Check if VelaD is installed.
 if (Test-Path $VelaDFilePath -PathType Leaf) {
     Write-Warning "velad is detected - $VelaDFilePath"
-    Invoke-Expression "$VelaDFilePath --version"
+    Invoke-Expression "$VelaDFilePath version"
     Write-Output "Reinstalling VelaD..."
 }
 else {
@@ -76,7 +76,7 @@ if (!(Test-Path $VelaDFilePath -PathType Leaf)) {
 }
 
 # Check the VelaD version
-Invoke-Expression "$VelaDFilePath --version"
+Invoke-Expression "$VelaDFilePath version"
 
 # Clean up zipfile
 Write-Output "Clean up $zipFilePath..."
