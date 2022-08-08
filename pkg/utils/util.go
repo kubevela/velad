@@ -238,12 +238,7 @@ func PrintGuide(ctx *apis.Context, args apis.InstallArgs) {
 		printHTTPGuide(args.Name)
 	}
 
-	emoji.Println(":key: To access the cluster, set KUBECONFIG:")
-	var kubeconfigArg = "--host"
-	if args.BindIP != "" {
-		kubeconfigArg = "--external"
-	}
-	emoji.Printf("    export KUBECONFIG=$(velad kubeconfig --name %s %s)\n", args.Name, kubeconfigArg)
+	printKubeconfigGuide(args)
 }
 
 func printWindowsPathGuide() {
@@ -256,6 +251,20 @@ func printWindowsPathGuide() {
 	Infof("      set PATH=%%PATH%%;%s\n", velaDir)
 	Info("    If you are using Powershell:")
 	Infof("      $Env:PATH += ';%s'\n", velaDir)
+}
+
+func printKubeconfigGuide(args apis.InstallArgs) {
+	emoji.Println(":key: To access the cluster, set KUBECONFIG:")
+	var kubeconfigArg = "--host"
+	if args.BindIP != "" {
+		kubeconfigArg = "--external"
+	}
+	switch runtime.GOOS {
+	case apis.GoosLinux, apis.GoosDarwin:
+		emoji.Printf("    export KUBECONFIG=$(velad kubeconfig --name %s %s)\n", args.Name, kubeconfigArg)
+	case apis.GoosWindows:
+		emoji.Printf("    $env:KUBECONFIG = $(velad kubeconfig --name %s %s)\n", args.Name, kubeconfigArg)
+	}
 }
 
 // IsVelaCommand judge if app start by vela
