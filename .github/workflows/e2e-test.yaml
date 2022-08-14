@@ -59,7 +59,7 @@ jobs:
         with:
           name: velad-darwin-amd64
       - name: Setup Docker
-        uses: docker-practice/actions-setup-docker@1.0.8
+        uses: docker-practice/actions-setup-docker@1.0.11
       - run: chmod u+x velad-darwin-amd64 && mv velad-darwin-amd64 velad
       - run: ./velad install
       - run: vela def list
