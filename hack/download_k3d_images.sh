@@ -7,7 +7,7 @@ K3D_IMAGE_DIR=pkg/resources/static/k3d/images
 mkdir -p "$K3D_IMAGE_DIR"
 
 function download_k3d_images() {
-  vela_images=("ghcr.io/k3d-io/k3d-tools:5.4.1"
+  vela_images=("ghcr.io/k3d-io/k3d-tools:latest"
     "ghcr.io/k3d-io/k3d-proxy:5.4.1"
     "docker.io/rancher/k3s:v1.21.10-k3s1")
 
