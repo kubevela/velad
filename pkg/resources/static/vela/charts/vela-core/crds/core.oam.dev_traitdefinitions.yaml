@@ -410,7 +410,8 @@ spec:
                 type: boolean
               schematic:
                 description: Schematic defines the data format and template of the
-                  encapsulation of the trait
+                  encapsulation of the trait. Only CUE and Kube schematic are supported
+                  for now.
                 properties:
                   cue:
                     description: CUE defines the encapsulation in CUE format
@@ -557,10 +558,6 @@ spec:
                     - configuration
                     type: object
                 type: object
-              skipRevisionAffect:
-                description: SkipRevisionAffect defines the update this trait will
-                  not generate a new application Revision
-                type: boolean
               status:
                 description: Status defines the custom health policy and status message
                   for trait
