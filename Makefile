@@ -2,8 +2,9 @@ include makefiles/dependency.mk
 
 K3S_VERSION ?= v1.21.10+k3s1
 STATIC_DIR := pkg/resources/static
-VELA_VERSION ?= v1.5.7
-VELAUX_VERSION ?= v1.5.4
+VELA_VERSION ?= v1.5.8
+VELAUX_VERSION ?= v1.5.8
+VELAUX_IMAGE_VERSION ?= ${VELAUX_VERSION}
 LDFLAGS= "-X github.com/oam-dev/velad/version.VelaUXVersion=${VELAUX_VERSION} -X github.com/oam-dev/velad/version.VelaVersion=${VELA_VERSION}"
 OS ?= linux
 ARCH ?= amd64
@@ -22,7 +23,7 @@ darwin-amd64 darwin-arm64 windows-amd64: download_vela_images_addons download_k3
 	github.com/oam-dev/velad/cmd/velad
 
 download_vela_images_addons:
-	./hack/download_vela_images.sh ${VELA_VERSION} ${VELAUX_VERSION} ${ARCH}
+	./hack/download_vela_images.sh ${VELA_VERSION} ${VELAUX_IMAGE_VERSION} ${ARCH}
 	./hack/download_addons.sh ${VELAUX_VERSION}
 
 download_k3d:
