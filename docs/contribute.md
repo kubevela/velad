@@ -4,7 +4,7 @@ This guild helps you get started developing VelaD
 
 ### Prerequisites
 
-1. Golang version 1.17+
+1. Golang version 1.19+
 2. Docker (for non-linux user)
 3. golangci-lint 1.38.0+, it will install automatically if you run make, you can install it [manually](https://golangci-lint.run/usage/install/#local-installation) if the installation is too slow.
 

@@ -63,7 +63,7 @@ go-check:
 	go vet ./...
 
 reviewable: lint staticcheck fmt go-check
-	go mod tidy -compat=1.17
+	go mod tidy
 
 check-diff: reviewable
 	git --no-pager diff

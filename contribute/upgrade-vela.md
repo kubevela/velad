@@ -43,7 +43,7 @@ github.com/oam-dev/kubevela v1.x.y
 Then change the `v1.x.y` to version you want to upgrade to, then run:
 
 ```shell
-go mod tidy -compat=1.17
+go mod tidy
 ```
 
 ### Upgrade vela version in makefile

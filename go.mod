@@ -1,6 +1,6 @@
 module github.com/oam-dev/velad
 
-go 1.17
+go 1.19
 
 require (
 	github.com/docker/docker v20.10.16+incompatible
