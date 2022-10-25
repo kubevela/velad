@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         uses: actions/setup-go@v2
         with:
-          go-version: 1.17
+          go-version: 1.19
       - name: Get matrix
         id: get_matrix
         run: |
@@ -51,6 +51,7 @@ jobs:
       - run: chmod u+x velad-linux-amd64 && mv velad-linux-amd64 velad
       - run: sudo ./velad install
       - run: sudo vela def list
+      - run: sudo vela addon enable /root/.vela/addons/velaux
   test-darwin:
     runs-on: macos-12
     needs: [ build-artifact ]
@@ -63,6 +64,7 @@ jobs:
       - run: chmod u+x velad-darwin-amd64 && mv velad-darwin-amd64 velad
       - run: ./velad install
       - run: vela def list
+      - run: vela addon enable ~/.vela/addons/velaux
 #  test-linux-arm64:
 #    runs-on: ubuntu-20.04
 #    needs: [ build-artifact ]
