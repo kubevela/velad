@@ -263,7 +263,7 @@ require (
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
 	go4.org/intern v0.0.0-20211027215823-ae77deb06f29 // indirect
-	go4.org/unsafe/assume-no-moving-gc v0.0.0-20211027215541-db492cf91b37 // indirect
+	go4.org/unsafe/assume-no-moving-gc v0.0.0-20220617031537-928513b29760 // indirect
 	golang.org/x/crypto v0.0.0-20220507011949-2cf3adece122 // indirect
 	golang.org/x/net v0.0.0-20220906165146-f3363e06e74c // indirect
 	golang.org/x/oauth2 v0.0.0-20220622183110-fd043fe589d2 // indirect
