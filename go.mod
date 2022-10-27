@@ -8,7 +8,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/k3d-io/k3d/v5 v5.4.1
 	github.com/kyokomi/emoji/v2 v2.2.9
-	github.com/oam-dev/kubevela v1.6.0-alpha.6
+	github.com/oam-dev/kubevela v1.6.0-beta.1
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.4.0
 	github.com/stretchr/testify v1.7.1
@@ -160,7 +160,7 @@ require (
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kevinburke/ssh_config v0.0.0-20201106050909-4977a11b4351 // indirect
 	github.com/klauspost/compress v1.15.9 // indirect
-	github.com/kubevela/pkg v0.0.0-20221017134311-26e5042d4503 // indirect
+	github.com/kubevela/pkg v0.0.0-20221024115939-a103acee6db2 // indirect
 	github.com/kubevela/prism v1.5.1-0.20220915071949-6bf3ad33f84f // indirect
 	github.com/kubevela/workflow v0.0.0-20221019093241-b5b7a0d79051 // indirect
 	github.com/kyokomi/emoji v2.2.4+incompatible // indirect
