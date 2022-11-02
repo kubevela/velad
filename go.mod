@@ -8,7 +8,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/k3d-io/k3d/v5 v5.4.1
 	github.com/kyokomi/emoji/v2 v2.2.9
-	github.com/oam-dev/kubevela v1.6.0-alpha.6
+	github.com/oam-dev/kubevela v1.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.4.0
 	github.com/stretchr/testify v1.7.1
@@ -21,7 +21,7 @@ require (
 
 require (
 	cloud.google.com/go/compute v1.7.0 // indirect
-	cuelang.org/go v0.4.4-0.20220915174651-ad253ed099e9 // indirect
+	cuelang.org/go v0.5.0-alpha.1 // indirect
 	github.com/AlecAivazis/survey/v2 v2.1.1 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
 	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
@@ -159,10 +159,10 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kevinburke/ssh_config v0.0.0-20201106050909-4977a11b4351 // indirect
-	github.com/klauspost/compress v1.15.9 // indirect
-	github.com/kubevela/pkg v0.0.0-20221017134311-26e5042d4503 // indirect
+	github.com/klauspost/compress v1.15.11 // indirect
+	github.com/kubevela/pkg v0.0.0-20221024115939-a103acee6db2 // indirect
 	github.com/kubevela/prism v1.5.1-0.20220915071949-6bf3ad33f84f // indirect
-	github.com/kubevela/workflow v0.0.0-20221019093241-b5b7a0d79051 // indirect
+	github.com/kubevela/workflow v0.3.1 // indirect
 	github.com/kyokomi/emoji v2.2.4+incompatible // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
@@ -264,14 +264,14 @@ require (
 	go.uber.org/zap v1.21.0 // indirect
 	go4.org/intern v0.0.0-20211027215823-ae77deb06f29 // indirect
 	go4.org/unsafe/assume-no-moving-gc v0.0.0-20220617031537-928513b29760 // indirect
-	golang.org/x/crypto v0.0.0-20220507011949-2cf3adece122 // indirect
+	golang.org/x/crypto v0.0.0-20220926161630-eccd6366d1be // indirect
 	golang.org/x/net v0.0.0-20220906165146-f3363e06e74c // indirect
 	golang.org/x/oauth2 v0.0.0-20220622183110-fd043fe589d2 // indirect
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
-	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
+	golang.org/x/sys v0.0.0-20220928140112-f11e5e49a4ec // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/text v0.3.8 // indirect
-	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
+	golang.org/x/time v0.0.0-20220922220347-f3bd1da661af // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20220628213854-d9e0b6570c03 // indirect
