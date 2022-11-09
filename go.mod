@@ -8,7 +8,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/k3d-io/k3d/v5 v5.4.1
 	github.com/kyokomi/emoji/v2 v2.2.9
-	github.com/oam-dev/kubevela v1.6.0
+	github.com/oam-dev/kubevela v1.6.1
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.4.0
 	github.com/stretchr/testify v1.7.1
@@ -147,6 +147,7 @@ require (
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.0 // indirect
 	github.com/hashicorp/go-version v1.3.0 // indirect
+	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/hcl/v2 v2.9.1 // indirect
 	github.com/huandu/xstrings v1.3.2 // indirect
@@ -162,7 +163,7 @@ require (
 	github.com/klauspost/compress v1.15.11 // indirect
 	github.com/kubevela/pkg v0.0.0-20221024115939-a103acee6db2 // indirect
 	github.com/kubevela/prism v1.5.1-0.20220915071949-6bf3ad33f84f // indirect
-	github.com/kubevela/workflow v0.3.1 // indirect
+	github.com/kubevela/workflow v0.3.2 // indirect
 	github.com/kyokomi/emoji v2.2.4+incompatible // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect

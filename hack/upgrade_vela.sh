@@ -8,16 +8,27 @@
 
 set -e
 
-[ $# = 2 ] || { echo "Usage: "$0" version_now version_to" >&2; exit 1; }
+[ $# = 1 ] || { echo "Usage: "$0" version_to" >&2; exit 1; }
 
-VERSION_NOW=$1
-VERSION_TO=$2
+VERSION_NOW=$(cat Makefile |grep "VELA_VERSION ?=" |grep -o "v.*")
+VERSION_TO=$1
 PATCH_FILE_NAME=$VERSION_NOW-$VERSION_TO.patch
 WORKDIR=pkg/resources/static/vela
 
+echo "Upgrading KubeVela version From: "$VERSION_NOW" --> TO: "$VERSION_TO
 echo "Upgrading chart version..."
 
 ./hack/upgrade_chart_version.sh $VERSION_TO
+
+echo "Upgrading go.mod version..."
+
+sed -i "" -e "s/github.com\/oam-dev\/kubevela v.*/github.com\/oam-dev\/kubevela $VERSION_TO/g" go.mod
+go mod tidy
+
+echo "Upgrading version variable in Makefile"
+
+sed -i "" -e "s/VELA_VERSION ?= v.*/VELA_VERSION ?= $VERSION_TO/g" Makefile
+echo "Upgrading vela-templates..."
 
 git clone https://github.com/kubevela/kubevela.git
 
