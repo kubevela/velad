@@ -1126,6 +1126,7 @@ github.com/hashicorp/go.net v0.0.1/go.mod h1:hjKkEWcCURg++eb33jQU7oqQcI9XDCnUzHA
 github.com/hashicorp/golang-lru v0.5.0/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
 github.com/hashicorp/golang-lru v0.5.1/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
 github.com/hashicorp/golang-lru v0.5.3/go.mod h1:iADmTwqILo4mZ8BN3D2Q6+9jd8WM5uGBxy+E8yxSoD4=
+github.com/hashicorp/golang-lru v0.5.4 h1:YDjusn29QI/Das2iO9M0BHnIbxPeyuCHsjMW+lJfyTc=
 github.com/hashicorp/golang-lru v0.5.4/go.mod h1:iADmTwqILo4mZ8BN3D2Q6+9jd8WM5uGBxy+E8yxSoD4=
 github.com/hashicorp/hcl v0.0.0-20170504190234-a4b07c25de5f/go.mod h1:oZtUIOe8dh44I2q6ScRibXws4Ajl+d+nod3AaR9vL5w=
 github.com/hashicorp/hcl v1.0.0 h1:0Anlzjpi4vEasTeNFn2mLJgTSwt0+6sfsiTG8qcWGx4=
@@ -1281,8 +1282,8 @@ github.com/kubevela/pkg v0.0.0-20221024115939-a103acee6db2 h1:C3cAfrxst1+dIWgLLh
 github.com/kubevela/pkg v0.0.0-20221024115939-a103acee6db2/go.mod h1:TgIGEB/r0NOy63Jzem7WsL3AIr34l+ClH9dmPqcZ4d4=
 github.com/kubevela/prism v1.5.1-0.20220915071949-6bf3ad33f84f h1:1lUtU1alPThdcsn4MI6XjPb7eJLuZPpmlEdgjtnUMKw=
 github.com/kubevela/prism v1.5.1-0.20220915071949-6bf3ad33f84f/go.mod h1:m724/7ANnB/iukyHW20+DicpeJMEC/JA0ZhgsHY10MA=
-github.com/kubevela/workflow v0.3.1 h1:R2h6bZbcBSF1OswF0LtLIGn+X+fS0xPOoYgWgOPn1Ig=
-github.com/kubevela/workflow v0.3.1/go.mod h1:5jfZ8T1m/En44wDGRf2YqCSlODfEnAV+9PnzoLoDlFs=
+github.com/kubevela/workflow v0.3.2 h1:r9jznJN5Tzwkg002qiHduhSD/iDwX+F+lG72yj2B5Eo=
+github.com/kubevela/workflow v0.3.2/go.mod h1:5jfZ8T1m/En44wDGRf2YqCSlODfEnAV+9PnzoLoDlFs=
 github.com/kulti/thelper v0.4.0/go.mod h1:vMu2Cizjy/grP+jmsvOFDx1kYP6+PD1lqg4Yu5exl2U=
 github.com/kunwardeep/paralleltest v1.0.3/go.mod h1:vLydzomDFpk7yu5UX02RmP0H8QfRPOV/oFhWN85Mjb4=
 github.com/kylelemons/godebug v0.0.0-20160406211939-eadb3ce320cb/go.mod h1:B69LEHPfb2qLo0BaaOLcbitczOKLWTsrBG9LczfCD4k=
@@ -1518,8 +1519,8 @@ github.com/oam-dev/cluster-gateway v1.4.0 h1:ZZcNRYsUDRWM5JnNX28/zdSPRKERGstcAY+
 github.com/oam-dev/cluster-gateway v1.4.0/go.mod h1:qnCczkXtTY7h0SqxjZqAAyKQPwrJjLIFy+IdeoaYKCU=
 github.com/oam-dev/cluster-register v1.0.4-0.20220928064144-5f76a9d7ca8c h1:RE/33gzs9hoyegcTaUXDG/hayffJ197ljMUGNP6I/5A=
 github.com/oam-dev/cluster-register v1.0.4-0.20220928064144-5f76a9d7ca8c/go.mod h1:nKEUMfuEB8pHKsaSah9IA+UQzezrPYebBdRozyNtlZc=
-github.com/oam-dev/kubevela v1.6.0 h1:FFpiDsZ+OXvT4nURdDCjkoPXaIVUdOCBjRJsHyBqyoI=
-github.com/oam-dev/kubevela v1.6.0/go.mod h1:zpXSe8C0n4jfYVe9OBXYxcbcszdnety2662WddXJA50=
+github.com/oam-dev/kubevela v1.6.1 h1:IDrmDUnh9HWnTvw6IhJnEvGSg4VzdEvdIHfXU5b5+pE=
+github.com/oam-dev/kubevela v1.6.1/go.mod h1:EVfun0A8lVFe9wbu+4PiUmTLkaAFmZSdO9/izFywcBM=
 github.com/oam-dev/stern v1.13.2 h1:jlGgtJbKmIVhzkH44ft5plkgs8XEfvxbFrQdX60CQR4=
 github.com/oam-dev/stern v1.13.2/go.mod h1:0pLjZt0amXE/ErF16Rdrgd98H2owN8Hmn3/7CX5+AeA=
 github.com/oam-dev/terraform-config-inspect v0.0.0-20210418082552-fc72d929aa28 h1:tD8HiFKnt0jnwdTWjeqUnfnUYLD/+Nsmj8ZGIxqDWiU=

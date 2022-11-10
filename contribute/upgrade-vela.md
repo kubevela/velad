@@ -20,31 +20,16 @@ Output like:
 version: v1.4.2
 ```
 
-Then use upgrade script, for example if you want to upgrade vela to v1.4.3, use `v1.4.2` and `v1.4.3`
-as the first and the second argument:
+Then use upgrade script, for example if you want to upgrade vela to v1.4.3, then use v1.4.3 as the version parameter.
 
 ```shell
-./hack/upgrade_vela.sh v1.4.2 v1.4.3
+./hack/upgrade_vela.sh v1.4.3
 ```
 
-This script will clone the KubeVela repo and make diff between tag v1.4.2 and v1.4.3. Then try to patch the diff in VelaD's
+This script will clone the KubeVela repo and make diff between version now and v1.4.3. Then try to patch the diff in VelaD's
 embedded vela-core chart in `pkg/resources/static/vela/charts/vela-core`
 
 If there are conflict, you have to resolve them manually.
-
-### Upgrade go.mod
-
-In go.mod file, find this item:
-
-```text
-github.com/oam-dev/kubevela v1.x.y
-```
-
-Then change the `v1.x.y` to version you want to upgrade to, then run:
-
-```shell
-go mod tidy
-```
 
 ### Upgrade vela version in makefile
 
@@ -53,8 +38,8 @@ In `Makefile`, find this two variables, upgrade them to right version.
 > VelaUX sometimes don't release new version together with KubeVela, make sure VelaUX version is right.
 
 ```makefile
-VELA_VERSION ?= v1.4.2
-VELAUX_VERSION ?= v1.4.2
+VELAUX_VERSION ?= v1.6.0
+VELAUX_IMAGE_VERSION ?= ${VELAUX_VERSION}
 ```
 
 ### After upgrade
