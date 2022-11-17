@@ -1282,8 +1282,8 @@ github.com/kubevela/pkg v0.0.0-20221024115939-a103acee6db2 h1:C3cAfrxst1+dIWgLLh
 github.com/kubevela/pkg v0.0.0-20221024115939-a103acee6db2/go.mod h1:TgIGEB/r0NOy63Jzem7WsL3AIr34l+ClH9dmPqcZ4d4=
 github.com/kubevela/prism v1.5.1-0.20220915071949-6bf3ad33f84f h1:1lUtU1alPThdcsn4MI6XjPb7eJLuZPpmlEdgjtnUMKw=
 github.com/kubevela/prism v1.5.1-0.20220915071949-6bf3ad33f84f/go.mod h1:m724/7ANnB/iukyHW20+DicpeJMEC/JA0ZhgsHY10MA=
-github.com/kubevela/workflow v0.3.2 h1:r9jznJN5Tzwkg002qiHduhSD/iDwX+F+lG72yj2B5Eo=
-github.com/kubevela/workflow v0.3.2/go.mod h1:5jfZ8T1m/En44wDGRf2YqCSlODfEnAV+9PnzoLoDlFs=
+github.com/kubevela/workflow v0.3.3 h1:NSbQGcABWJIzUV5wfWFJsrO/ffZ4mCVfofUtUHCTojQ=
+github.com/kubevela/workflow v0.3.3/go.mod h1:5jfZ8T1m/En44wDGRf2YqCSlODfEnAV+9PnzoLoDlFs=
 github.com/kulti/thelper v0.4.0/go.mod h1:vMu2Cizjy/grP+jmsvOFDx1kYP6+PD1lqg4Yu5exl2U=
 github.com/kunwardeep/paralleltest v1.0.3/go.mod h1:vLydzomDFpk7yu5UX02RmP0H8QfRPOV/oFhWN85Mjb4=
 github.com/kylelemons/godebug v0.0.0-20160406211939-eadb3ce320cb/go.mod h1:B69LEHPfb2qLo0BaaOLcbitczOKLWTsrBG9LczfCD4k=
@@ -1519,8 +1519,8 @@ github.com/oam-dev/cluster-gateway v1.4.0 h1:ZZcNRYsUDRWM5JnNX28/zdSPRKERGstcAY+
 github.com/oam-dev/cluster-gateway v1.4.0/go.mod h1:qnCczkXtTY7h0SqxjZqAAyKQPwrJjLIFy+IdeoaYKCU=
 github.com/oam-dev/cluster-register v1.0.4-0.20220928064144-5f76a9d7ca8c h1:RE/33gzs9hoyegcTaUXDG/hayffJ197ljMUGNP6I/5A=
 github.com/oam-dev/cluster-register v1.0.4-0.20220928064144-5f76a9d7ca8c/go.mod h1:nKEUMfuEB8pHKsaSah9IA+UQzezrPYebBdRozyNtlZc=
-github.com/oam-dev/kubevela v1.6.1 h1:IDrmDUnh9HWnTvw6IhJnEvGSg4VzdEvdIHfXU5b5+pE=
-github.com/oam-dev/kubevela v1.6.1/go.mod h1:EVfun0A8lVFe9wbu+4PiUmTLkaAFmZSdO9/izFywcBM=
+github.com/oam-dev/kubevela v1.6.2 h1:DostAplEUK+7jDSeSAidMSTknliORd1kPNtrnYN3wYc=
+github.com/oam-dev/kubevela v1.6.2/go.mod h1:h9CRT8/TwcMnSsSxQ6UWKcAbiEfjhibycPMtVv79zrA=
 github.com/oam-dev/stern v1.13.2 h1:jlGgtJbKmIVhzkH44ft5plkgs8XEfvxbFrQdX60CQR4=
 github.com/oam-dev/stern v1.13.2/go.mod h1:0pLjZt0amXE/ErF16Rdrgd98H2owN8Hmn3/7CX5+AeA=
 github.com/oam-dev/terraform-config-inspect v0.0.0-20210418082552-fc72d929aa28 h1:tD8HiFKnt0jnwdTWjeqUnfnUYLD/+Nsmj8ZGIxqDWiU=
