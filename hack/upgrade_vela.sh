@@ -39,7 +39,7 @@ popd
 mv kubevela/"$PATCH_FILE_NAME" .
 
 echo "Patching charts..."
-git apply -v --check --reject --apply --directory $WORKDIR "$PATCH_FILE_NAME"
+git apply --allow-empty -v --check --reject --apply --directory $WORKDIR "$PATCH_FILE_NAME"
 echo "Patching done"
 
 rm "$PATCH_FILE_NAME"
