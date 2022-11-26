@@ -45,26 +45,50 @@ jobs:
     runs-on: ubuntu-20.04
     needs: [ build-artifact ]
     steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.19
+      - name: Install ginkgo
+        run: go install github.com/onsi/ginkgo/ginkgo@v1.16.5
       - uses: actions/download-artifact@v3
         with:
           name: velad-linux-amd64
-      - run: chmod u+x velad-linux-amd64 && mv velad-linux-amd64 velad
-      - run: sudo ./velad install
-      - run: sudo vela def list
-      - run: sudo vela addon enable /root/.vela/addons/velaux
+      - run: |
+          chmod u+x velad-linux-amd64 && mv velad-linux-amd64 velad
+          sudo ./velad install
+          sudo chmod a+r $(./velad kubeconfig --host)
+          kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=vela-core --timeout=180s -n vela-system --kubeconfig=$(./velad kubeconfig --host)
+          sudo vela addon enable /root/.vela/addons/velaux
+      - name: Run e2e test
+        run: ginkgo -v ./test/e2e-test
   test-darwin:
     runs-on: macos-12
     needs: [ build-artifact ]
     steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.19
+      - name: Install ginkgo
+        run: go install github.com/onsi/ginkgo/ginkgo@v1.16.5
       - uses: actions/download-artifact@v3
         with:
           name: velad-darwin-amd64
       - name: Setup Docker
         uses: docker-practice/actions-setup-docker@1.0.11
-      - run: chmod u+x velad-darwin-amd64 && mv velad-darwin-amd64 velad
-      - run: ./velad install
-      - run: vela def list
-      - run: vela addon enable ~/.vela/addons/velaux
+      - run: |
+          chmod u+x velad-darwin-amd64 && mv velad-darwin-amd64 velad
+          ./velad install
+          export KUBECONFIG=$(./velad kubeconfig --host)
+          kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=vela-core --timeout=180s -n vela-system
+          vela addon enable ~/.vela/addons/velaux
+#      TODO(qiaozp): fix the issue of e2e test on darwin
+#      - name: Run e2e test
+#        run: ginkgo -v ./test/e2e-test
+
 #  test-linux-arm64:
 #    runs-on: ubuntu-20.04
 #    needs: [ build-artifact ]

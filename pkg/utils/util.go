@@ -3,6 +3,8 @@ package utils
 import (
 	"context"
 	"fmt"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
 	"io"
 	"io/ioutil"
 	"os"
@@ -11,8 +13,6 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
 	"github.com/kyokomi/emoji/v2"
 	"github.com/oam-dev/kubevela/pkg/utils/system"
 	"github.com/oam-dev/kubevela/references/cli"
@@ -313,33 +313,34 @@ func GetCLIInstallPath() string {
 }
 
 func printHTTPGuide(clusterName string) {
-	// TODO: validate process within linux (with K3s)
-	if runtime.GOOS == apis.GoosLinux {
-		return
-	}
-	dockerCli, err := client.NewClientWithOpts(client.FromEnv)
-	if err != nil {
-		Errf("Failed to create docker client: %v", err)
-	}
-	list, err := dockerCli.ContainerList(context.Background(), types.ContainerListOptions{})
-	if err != nil {
-		Errf("Failed to list containers: %v", err)
-	}
-	var ports []types.Port
-	for _, c := range list {
-		for _, name := range c.Names {
-			if name == fmt.Sprintf("/k3d-velad-cluster-%s-serverlb", clusterName) {
-				ports = c.Ports
+	switch runtime.GOOS {
+	case apis.GoosLinux:
+		emoji.Printf(":laptop: When using gateway trait, you can access with 127.0.0.1\n")
+	default:
+		dockerCli, err := client.NewClientWithOpts(client.FromEnv)
+		if err != nil {
+			Errf("Failed to create docker client: %v", err)
+		}
+		list, err := dockerCli.ContainerList(context.Background(), types.ContainerListOptions{})
+		if err != nil {
+			Errf("Failed to list containers: %v", err)
+		}
+		var ports []types.Port
+		for _, c := range list {
+			for _, name := range c.Names {
+				if name == fmt.Sprintf("/k3d-velad-cluster-%s-serverlb", clusterName) {
+					ports = c.Ports
+				}
 			}
 		}
-	}
-	if len(ports) == 0 {
-		Errf("[No cluster load-balancer container found]\n")
-	}
-	for _, p := range ports {
-		if p.PrivatePort == 80 {
-			emoji.Printf(":laptop: When using gateway trait, you can access with 127.0.0.1:%d\n", p.PublicPort)
+		if len(ports) == 0 {
+			Errf("[No cluster load-balancer container found]\n")
 		}
-	}
+		for _, p := range ports {
+			if p.PrivatePort == 80 {
+				emoji.Printf(":laptop: When using gateway trait, you can access with 127.0.0.1:%d\n", p.PublicPort)
+			}
+		}
 
+	}
 }
