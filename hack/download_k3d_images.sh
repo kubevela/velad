@@ -7,11 +7,11 @@ K3D_IMAGE_DIR=pkg/resources/static/k3d/images
 mkdir -p "$K3D_IMAGE_DIR"
 
 function download_k3d_images() {
-  vela_images=("ghcr.io/k3d-io/k3d-tools:latest"
-    "ghcr.io/k3d-io/k3d-proxy:5.4.1"
-    "docker.io/rancher/k3s:v1.21.10-k3s1")
+  k3d_images=("ghcr.io/k3d-io/k3d-tools:latest"
+    "ghcr.io/k3d-io/k3d-proxy:5.4.6"
+    "docker.io/rancher/k3s:v1.24.8-k3s1")
 
-  for IMG in ${vela_images[*]}; do
+  for IMG in ${k3d_images[*]}; do
     IMAGE_NAME=$(echo "$IMG" | cut -f1 -d: | cut -f3 -d/)
     echo saving "$IMG" to "$K3D_IMAGE_DIR"/"$IMAGE_NAME".tar
     $DOCKER_PULL "$IMG"

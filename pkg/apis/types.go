@@ -118,7 +118,7 @@ var (
 	VelaDDockerNetwork = "k3d-velad"
 
 	// K3dImageK3s is k3s image tag
-	K3dImageK3s = "rancher/k3s:v1.21.10-k3s1"
+	K3dImageK3s = "rancher/k3s:v1.24.8-k3s1"
 	// K3dImageTools is k3d tools image tag
 	K3dImageTools = "ghcr.io/k3d-io/k3d-tools:latest"
 	// K3dImageProxy is k3d proxy image tag

@@ -35,7 +35,7 @@ jobs:
           echo ::set-output name=ARCH::${TARGETS#*/}
       - name: Build
         run: |
-          OS=${{ steps.get_matrix.outputs.OS }} ARCH=${{ steps.get_matrix.outputs.ARCH }} make ${{ steps.get_matrix.outputs.OS }}-${{ steps.get_matrix.outputs.ARCH }}
+          make ${{ steps.get_matrix.outputs.OS }}-${{ steps.get_matrix.outputs.ARCH }}
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:

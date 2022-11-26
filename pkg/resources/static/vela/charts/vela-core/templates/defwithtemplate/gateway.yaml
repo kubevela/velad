@@ -95,7 +95,7 @@ spec:
         	http: [string]: int
 
         	// +usage=Specify the class of ingress to use
-        	class: *"nginx" | string
+        	class: *"traefik" | string
 
         	// +usage=Set ingress class in '.spec.ingressClassName' instead of 'kubernetes.io/ingress.class' annotation.
         	classInSpec: *false | bool

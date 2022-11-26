@@ -51,7 +51,7 @@ type k3dSetupOptions struct {
 
 const (
 	// K3dImageTag is image tag of k3d
-	K3dImageTag = "v1.21.10-k3s1"
+	K3dImageTag = "v1.24.8-k3s1"
 )
 
 func init() {
