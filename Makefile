@@ -1,22 +1,46 @@
 include makefiles/dependency.mk
 
-K3S_VERSION ?= v1.21.10+k3s1
+K3S_VERSION ?= v1.24.8+k3s1
 STATIC_DIR := pkg/resources/static
 VELA_VERSION ?= v1.6.4
 VELAUX_VERSION ?= v1.6.4
 VELAUX_IMAGE_VERSION ?= ${VELAUX_VERSION}
 LDFLAGS= "-X github.com/oam-dev/velad/version.VelaUXVersion=${VELAUX_VERSION} -X github.com/oam-dev/velad/version.VelaVersion=${VELA_VERSION}"
-OS ?= linux
-ARCH ?= amd64
 
-.DEFAULT_GOAL := linux-amd64
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S), Linux)
+OS ?= linux
+else
+OS ?= darwin
+endif
+UNAME_M := $(shell uname -m)
+ifeq ($(UNAME_M), arm64)
+ARCH ?= arm64
+else
+ARCH ?= amd64
+endif
+
+.DEFAULT_GOAL := build
+build:
+	echo "Building for ${OS}/${ARCH}"
+	OS=${OS} ARCH=${ARCH} make $(OS)-$(ARCH)
+
+
 linux-amd64 linux-arm64: download_vela_images_addons pack_vela_chart download_k3s_bin_script download_k3s_images
+	$(eval OS := $(word 1, $(subst -, ,$@)))
+	$(eval ARCH := $(word 2, $(subst -, ,$@)))
+	echo "Compiling for ${OS}/${ARCH}"
+
 	GOOS=${OS} GOARCH=${ARCH} \
 	go build -o bin/velad-${OS}-${ARCH} \
 	-ldflags=${LDFLAGS} \
 	github.com/oam-dev/velad/cmd/velad
 
 darwin-amd64 darwin-arm64 windows-amd64: download_vela_images_addons download_k3d pack_vela_chart download_k3s_images
+	$(eval OS := $(word 1, $(subst -, ,$@)))
+	$(eval ARCH := $(word 2, $(subst -, ,$@)))
+	echo "Compiling for ${OS}/${ARCH}"
+
 	GOOS=${OS} GOARCH=${ARCH} \
 	go build -o bin/velad-${OS}-${ARCH} \
 	-ldflags=${LDFLAGS} \
