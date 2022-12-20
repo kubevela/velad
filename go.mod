@@ -8,7 +8,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/k3d-io/k3d/v5 v5.4.1
 	github.com/kyokomi/emoji/v2 v2.2.9
-	github.com/oam-dev/kubevela v1.6.4
+	github.com/oam-dev/kubevela v1.6.5
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.20.2
 	github.com/pkg/errors v0.9.1
@@ -77,7 +77,6 @@ require (
 	github.com/cockroachdb/apd/v2 v2.0.2 // indirect
 	github.com/containerd/cgroups v1.0.3 // indirect
 	github.com/containerd/containerd v1.6.2 // indirect
-	github.com/containerd/continuity v0.2.1 // indirect
 	github.com/coreos/go-oidc v2.1.0+incompatible // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
@@ -179,7 +178,7 @@ require (
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
-	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
+	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
 	github.com/miekg/pkcs11 v1.0.3 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
