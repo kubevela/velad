@@ -213,7 +213,7 @@ func (d *K3dHandler) SetKubeconfig() error {
 
 // LoadImage loads image from local path
 func (d *K3dHandler) LoadImage(image string) error {
-	err := k3dClient.ImageImportIntoClusterMulti(d.ctx, runtimes.SelectedRuntime, []string{image}, &d.cfg.Cluster, k3d.ImageImportOpts{})
+	err := k3dClient.ImageImportIntoClusterMulti(d.ctx, runtimes.SelectedRuntime, []string{image}, &d.cfg.Cluster, k3d.ImageImportOpts{Mode: k3d.ImportModeAutoDetect})
 	return errors.Wrap(err, "failed to import image")
 }
 
