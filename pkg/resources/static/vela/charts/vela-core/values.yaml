@@ -8,10 +8,10 @@
 systemDefinitionNamespace:
 
 ## @param applicationRevisionLimit Application revision limit
-applicationRevisionLimit: 10
+applicationRevisionLimit: 2
 
 ## @param definitionRevisionLimit Definition revision limit
-definitionRevisionLimit: 20
+definitionRevisionLimit: 2
 
 ## @param concurrentReconciles concurrentReconciles is the concurrent reconcile number of the controller
 concurrentReconciles: 4
@@ -25,9 +25,6 @@ OAMSpecVer: "v0.3"
 
 ## @param disableCaps Disable capability
 disableCaps: "rollout"
-
-## @param enableFluxcdAddon Whether to enable fluxcd addon
-enableFluxcdAddon: false
 
 ## @param dependCheckWait dependCheckWait is the time to wait for ApplicationConfiguration's dependent-resource ready
 dependCheckWait: 30s
@@ -102,7 +99,7 @@ optimize:
   resourceTrackerListOp: true
   controllerReconcileLoopReduction: false
   markWithProb: 0.1
-  disableComponentRevision: false
+  disableComponentRevision: true
   disableApplicationRevision: false
   disableWorkflowRecorder: false
   enableInMemoryWorkflowContext: false
@@ -110,16 +107,20 @@ optimize:
   enableResourceTrackerDeleteOnlyTrigger: true
 
 ##@param featureGates.enableLegacyComponentRevision if disabled, only component with rollout trait will create component revisions
-##@param featureGates.gzipResourceTracker if enabled, resourceTracker will be compressed using gzip before being stored
-##@param featureGates.zstdResourceTracker if enabled, resourceTracker will be compressed using zstd before being stored. It is much faster and more efficient than gzip. If both gzip and zstd are enabled, zstd will be used.
+##@param featureGates.gzipResourceTracker compress ResourceTracker using gzip (good) before being stored. This is reduces network throughput when dealing with huge ResourceTrackers.
+##@param featureGates.zstdResourceTracker compress ResourceTracker using zstd (fast and good) before being stored. This is reduces network throughput when dealing with huge ResourceTrackers. Note that zstd will be prioritized if you enable other compression options.
 ##@param featureGates.applyOnce if enabled, the apply-once feature will be applied to all applications, no state-keep and no resource data storage in ResourceTracker
 ##@param featureGates.multiStageComponentApply if enabled, the multiStageComponentApply feature will be combined with the stage field in TraitDefinition to complete the multi-stage apply.
+##@param featureGates.gzipApplicationRevision compress apprev using gzip (good) before being stored. This is reduces network throughput when dealing with huge apprevs.
+##@param featureGates.zstdApplicationRevision compress apprev using zstd (fast and good) before being stored. This is reduces network throughput when dealing with huge apprevs. Note that zstd will be prioritized if you enable other compression options.
 featureGates:
   enableLegacyComponentRevision: false
   gzipResourceTracker: false
-  zstdResourceTracker: false
+  zstdResourceTracker: true
   applyOnce: false
   multiStageComponentApply: false
+  gzipApplicationRevision: false
+  zstdApplicationRevision: true
 
 ## @section MultiCluster parameters
 
@@ -249,11 +250,11 @@ admissionWebhooks:
     enabled: false
     revisionHistoryLimit: 3
 
-## @param kubeClient.qps The qps for reconcile clients, default is 50
-## @param kubeClient.burst The burst for reconcile clients, default is 100
+## @param kubeClient.qps The qps for reconcile clients, default is 100
+## @param kubeClient.burst The burst for reconcile clients, default is 200
 kubeClient:
-  qps: 50
-  burst: 100
+  qps: 100
+  burst: 200
 
 ## @param authentication.enabled Enable authentication for application
 ## @param authentication.withUser Application authentication will impersonate as the request User
