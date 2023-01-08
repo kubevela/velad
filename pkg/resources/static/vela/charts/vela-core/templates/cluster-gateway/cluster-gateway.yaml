@@ -26,6 +26,23 @@ spec:
 {{ end }}
 ---
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-cluster-gateway-proxy-config
+  namespace: {{ .Release.Namespace }}
+data:
+  config.yaml: |
+    apiVersion: cluster.core.oam.dev/v1alpha1
+    kind: ClusterGatewayProxyConfiguration
+    spec:
+      clientIdentityExchanger:
+        rules:
+          - name: super-user
+            source:
+              group: kubevela:ux
+            type: PrivilegedIdentityExchanger
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Release.Name }}-cluster-gateway-service

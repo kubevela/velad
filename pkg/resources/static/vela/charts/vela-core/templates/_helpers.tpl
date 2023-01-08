@@ -196,6 +196,7 @@ containers:
     - "--secure-port={{ .Values.multicluster.clusterGateway.port }}"
     - "--secret-namespace={{ .Release.Namespace }}"
     - "--feature-gates=APIPriorityAndFairness=false,ClientIdentityPenetration={{ .Values.authentication.enabled }}"
+    - "--cluster-gateway-proxy-config=/etc/proxy-config/config.yaml"
     {{ if .Values.multicluster.clusterGateway.secureTLS.enabled }}
     - "--tls-cert-file={{ .Values.multicluster.clusterGateway.secureTLS.certPath }}/tls.crt"
     - "--tls-private-key-file={{ .Values.multicluster.clusterGateway.secureTLS.certPath }}/tls.key"
@@ -206,14 +207,20 @@ containers:
   {{- toYaml .Values.multicluster.clusterGateway.resources | nindent 6 }}
   ports:
     - containerPort: {{ .Values.multicluster.clusterGateway.port }}
-  {{ if .Values.multicluster.clusterGateway.secureTLS.enabled }}
   volumeMounts:
+    - mountPath: /etc/proxy-config
+      name: proxy-config
+  {{ if .Values.multicluster.clusterGateway.secureTLS.enabled }}
     - mountPath: {{ .Values.multicluster.clusterGateway.secureTLS.certPath }}
       name: tls-cert-vol
       readOnly: true
   {{- end }}
-{{ if .Values.multicluster.clusterGateway.secureTLS.enabled }}
 volumes:
+  - configMap:
+      defaultMode: 420
+      name: {{ .Release.Name }}-cluster-gateway-proxy-config
+    name: proxy-config
+{{ if .Values.multicluster.clusterGateway.secureTLS.enabled }}
 - name: tls-cert-vol
   secret:
     defaultMode: 420

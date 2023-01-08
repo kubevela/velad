@@ -11,21 +11,6 @@ metadata:
   {{- end }}
 {{- end }}
 
----
-
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: {{ include "kubevela.fullname" . }}:manager-rolebinding
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: {{ if .Values.authentication.enabled }} {{ include "kubevela.fullname" . }}:manager {{ else }} "cluster-admin" {{ end }}
-subjects:
-  - kind: ServiceAccount
-    name: {{ include "kubevela.serviceAccountName" . }}
-    namespace: {{ .Release.Namespace }}
-
 {{ if .Values.authentication.enabled }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -66,8 +51,40 @@ rules:
   - apiGroups: ["authorization.k8s.io"]
     resources: ["subjectaccessreviews"]
     verbs: ["*"]
-{{ end }}
 
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "kubevela.fullname" . }}:manager-authentication-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "kubevela.fullname" . }}:manager
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "kubevela.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+
+{{ else }}
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "kubevela.fullname" . }}:manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: "cluster-admin"
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "kubevela.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+
+{{ end }}
 ---
 # permissions to do leader election.
 apiVersion: rbac.authorization.k8s.io/v1
@@ -116,7 +133,39 @@ subjects:
     name: {{ include "kubevela.serviceAccountName" . }}
 
 ---
-{{ if not .Values.deployByPod }}
+# permissions to read the view of VelaQL, schemas, and templates.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "kubevela.fullname" . }}:template-reader-role
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "kubevela.fullname" . }}:template-reader-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "kubevela.fullname" . }}:template-reader-role
+subjects:
+  - kind: Group
+    name: template-reader
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -135,9 +184,9 @@ spec:
       labels:
     {{- include "kubevela.selectorLabels" . | nindent 8 }}
       annotations:
-          prometheus.io/path: /metrics
-          prometheus.io/port: "8080"
-          prometheus.io/scrape: "true"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -223,6 +272,9 @@ spec:
             - "--feature-gates=ZstdResourceTracker={{- .Values.featureGates.zstdResourceTracker | toString -}}"
             - "--feature-gates=ApplyOnce={{- .Values.featureGates.applyOnce | toString -}}"
             - "--feature-gates=MultiStageComponentApply= {{- .Values.featureGates.multiStageComponentApply | toString -}}"
+            - "--feature-gates=GzipApplicationRevision={{- .Values.featureGates.gzipResourceTracker | toString -}}"
+            - "--feature-gates=ZstdApplicationRevision={{- .Values.featureGates.zstdResourceTracker | toString -}}"
+            - "--feature-gates=PreDispatchDryRun={{- .Values.featureGates.preDispatchDryRun | toString -}}"
             {{ if .Values.authentication.enabled }}
             {{ if .Values.authentication.withUser }}
             - "--authentication-with-user"
@@ -278,4 +330,3 @@ spec:
       tolerations:
     {{- toYaml . | nindent 8 }}
   {{- end }}
-{{ end }}

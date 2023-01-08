@@ -113,6 +113,8 @@ optimize:
 ##@param featureGates.multiStageComponentApply if enabled, the multiStageComponentApply feature will be combined with the stage field in TraitDefinition to complete the multi-stage apply.
 ##@param featureGates.gzipApplicationRevision compress apprev using gzip (good) before being stored. This is reduces network throughput when dealing with huge apprevs.
 ##@param featureGates.zstdApplicationRevision compress apprev using zstd (fast and good) before being stored. This is reduces network throughput when dealing with huge apprevs. Note that zstd will be prioritized if you enable other compression options.
+##@param featureGates.preDispatchDryRun enable dryrun before dispatching resources. Enable this flag can help prevent unsuccessful dispatch resources entering resourcetracker and improve the user experiences of gc but at the cost of increasing network requests.
+##@param
 featureGates:
   enableLegacyComponentRevision: false
   gzipResourceTracker: false
@@ -121,6 +123,7 @@ featureGates:
   multiStageComponentApply: false
   gzipApplicationRevision: false
   zstdApplicationRevision: true
+  preDispatchDryRun: true
 
 ## @section MultiCluster parameters
 
@@ -145,7 +148,7 @@ multicluster:
     port: 9443
     image:
       repository: oamdev/cluster-gateway
-      tag: v1.4.0
+      tag: v1.7.0-alpha.3
       pullPolicy: IfNotPresent
     resources:
       limits:
@@ -196,7 +199,7 @@ serviceAccount:
 
 ## @skip podSecurityContext
 podSecurityContext: {}
-  # fsGroup: 2000
+# fsGroup: 2000
 
 ## @skip securityContext
 securityContext: {}
@@ -205,7 +208,7 @@ securityContext: {}
   #   - ALL
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
-  # runAsUser: 1000
+# runAsUser: 1000
 
 ## @param nodeSelector Node selector
 nodeSelector: {}
@@ -262,6 +265,9 @@ kubeClient:
 ## @param authentication.groupPattern Application authentication will impersonate as the request Group that matches the pattern
 authentication:
   enabled: false
-  withUser: false
+  withUser: true
   defaultUser: kubevela:vela-core
   groupPattern: kubevela:*
+
+## @param deployByPod Use pod instead of Deployment to deploy vela-core
+deployByPod: false
