@@ -29,6 +29,8 @@ require (
 	github.com/go-git/gcfg v1.5.0 // indirect
 	github.com/go-git/go-billy/v5 v5.3.1 // indirect
 	github.com/go-git/go-git/v5 v5.5.1 // indirect
+	github.com/moby/sys/mount v0.3.0 // indirect
+	github.com/moby/sys/mountinfo v0.5.0 // indirect
 	github.com/pjbgf/sha1cd v0.2.3 // indirect
 	github.com/skeema/knownhosts v1.1.0 // indirect
 )
@@ -88,7 +90,6 @@ require (
 	github.com/cockroachdb/apd/v2 v2.0.2 // indirect
 	github.com/containerd/cgroups v1.0.3 // indirect
 	github.com/containerd/containerd v1.6.12 // indirect
-	github.com/containerd/continuity v0.3.0 // indirect
 	github.com/coreos/go-oidc v2.1.0+incompatible // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
@@ -337,7 +338,6 @@ replace (
 	cuelang.org/go => github.com/kubevela/cue v0.4.4-0.20221107123854-a976b0e340be
 	github.com/containerd/containerd => github.com/containerd/containerd v1.5.0
 	github.com/docker/cli => github.com/docker/cli v20.10.9+incompatible
-	github.com/docker/docker => github.com/moby/moby v17.12.0-ce-rc1.0.20200618181300-9dc6525e6118+incompatible
 	github.com/emicklei/go-restful/v3 => github.com/emicklei/go-restful v0.0.0-20170410110728-ff4f55a20633
 	github.com/google/certificate-transparency-go => github.com/google/certificate-transparency-go v1.1.3
 	github.com/k3d-io/k3d => github.com/chivalryq/k3d v0.0.0-20221225143029-cef3837bf18d
@@ -348,9 +348,7 @@ replace (
 	go.opentelemetry.io/otel/sdk => go.opentelemetry.io/otel/sdk v0.20.0
 	go.opentelemetry.io/otel/trace => go.opentelemetry.io/otel/trace v0.20.0
 	go.opentelemetry.io/proto/otlp => go.opentelemetry.io/proto/otlp v0.7.0
-	k8s.io/api => k8s.io/api v0.25.5
-	k8s.io/apimachinery => k8s.io/apimachinery v0.24.0
-	k8s.io/client-go => k8s.io/client-go v0.24.0
+	//k8s.io/api => k8s.io/api v0.25.5
 	k8s.io/component-base => k8s.io/component-base v0.25.3 // indirect
 )
 
