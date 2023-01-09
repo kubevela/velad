@@ -221,10 +221,10 @@ volumes:
       name: {{ .Release.Name }}-cluster-gateway-proxy-config
     name: proxy-config
 {{ if .Values.multicluster.clusterGateway.secureTLS.enabled }}
-- name: tls-cert-vol
-  secret:
-    defaultMode: 420
-    secretName: {{ template "kubevela.fullname" . }}-cluster-gateway-tls-v2
+  - name: tls-cert-vol
+    secret:
+      defaultMode: 420
+      secretName: {{ template "kubevela.fullname" . }}-cluster-gateway-tls-v2
 {{ end }}
 {{- with .Values.nodeSelector }}
 nodeSelector:
