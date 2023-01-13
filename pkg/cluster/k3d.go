@@ -131,6 +131,7 @@ func (d *K3dHandler) GenKubeconfig(ctx apis.Context, bindIP string) error {
 		}
 	}
 
+	//nolint:gosec
 	_cfgContent, err := os.ReadFile(cfgHost)
 	if err != nil {
 		return errors.Wrap(err, "read kubeconfig")
