@@ -174,9 +174,9 @@ var _ io.Writer = &VeladWriter{}
 // Write implements io.Writer. Change the hint to "vela addon enable velaux" and print it with local dir.
 func (v VeladWriter) Write(p []byte) (n int, err error) {
 	if strings.HasPrefix(string(p), "If you want to enable dashboard, please run \"vela addon enable velaux\"") {
-		return fmt.Fprintf(v, "If you want to enable dashboard, please run \"vela addon enable %s\"\n", velauxDir)
+		return fmt.Fprintf(v.W, "If you want to enable dashboard, please run \"vela addon enable %s\"\n", velauxDir)
 	}
-	return fmt.Fprint(v, string(p))
+	return fmt.Fprint(v.W, string(p))
 }
 
 // GetTmpDir returns the temporary directory when want to save some files
