@@ -3,7 +3,7 @@ package loadbalancer
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"os/exec"
 	"os/user"
@@ -93,7 +93,7 @@ func setNginxConf(args apis.LoadBalancerArgs) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "execute template")
 	}
-	all, err := ioutil.ReadAll(buf)
+	all, err := io.ReadAll(buf)
 	if err != nil {
 		return "", errors.Wrap(err, "read template result")
 	}

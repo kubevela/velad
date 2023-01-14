@@ -3,6 +3,10 @@ package e2e_test
 import (
 	"context"
 	"fmt"
+	"os/exec"
+	"runtime"
+	"time"
+
 	"github.com/oam-dev/kubevela/apis/core.oam.dev/common"
 	"github.com/oam-dev/kubevela/apis/core.oam.dev/v1beta1"
 	"github.com/oam-dev/kubevela/pkg/oam/util"
@@ -10,9 +14,6 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"os/exec"
-	"runtime"
-	"time"
 )
 
 var _ = Describe("Ingress Test", func() {

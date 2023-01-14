@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"os"
 	"os/exec"
@@ -132,6 +131,7 @@ func (d *K3dHandler) GenKubeconfig(ctx apis.Context, bindIP string) error {
 		}
 	}
 
+	//nolint:gosec
 	_cfgContent, err := os.ReadFile(cfgHost)
 	if err != nil {
 		return errors.Wrap(err, "read kubeconfig")
@@ -156,7 +156,7 @@ func (d *K3dHandler) GenKubeconfig(ctx apis.Context, bindIP string) error {
 	// Replace host config with loop back address
 	if !ctx.DryRun {
 		cfgHostContent := strings.ReplaceAll(kubeConfig, hostToReplace, "127.0.0.1")
-		err = ioutil.WriteFile(cfgHost, []byte(cfgHostContent), 0600)
+		err = os.WriteFile(cfgHost, []byte(cfgHostContent), 0600)
 		if err != nil {
 			errf("Fail to re-write host kubeconfig")
 		}
@@ -181,7 +181,7 @@ func (d *K3dHandler) GenKubeconfig(ctx apis.Context, bindIP string) error {
 		}
 		re := regexp.MustCompile(hostToReplace + `:\d{4}`)
 		cfgInContent := re.ReplaceAllString(kubeConfig, fmt.Sprintf("%s:6443", containerIP))
-		err = ioutil.WriteFile(cfgIn, []byte(cfgInContent), 0600)
+		err = os.WriteFile(cfgIn, []byte(cfgInContent), 0600)
 		if err != nil {
 			errf("Fail to write internal kubeconfig")
 		} else {
