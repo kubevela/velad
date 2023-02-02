@@ -7,9 +7,12 @@ K3D_IMAGE_DIR=pkg/resources/static/k3d/images
 mkdir -p "$K3D_IMAGE_DIR"
 
 function download_k3d_images() {
-  k3d_images=("ghcr.io/k3d-io/k3d-tools:latest"
-    "ghcr.io/k3d-io/k3d-proxy:5.4.6"
-    "docker.io/rancher/k3s:v1.24.8-k3s1")
+
+  k3d_images=(
+  "$(cat pkg/apis/types.go| grep "K3dImageK3s" |tail -n1 | cut -f2 -d'"')"
+  "$(cat pkg/apis/types.go| grep "K3dImageTools" |tail -n1 | cut -f2 -d'"')"
+  "$(cat pkg/apis/types.go| grep "K3dImageProxy" |tail -n1 | cut -f2 -d'"')"
+  )
 
   for IMG in ${k3d_images[*]}; do
     IMAGE_NAME=$(echo "$IMG" | cut -f1 -d: | cut -f3 -d/)

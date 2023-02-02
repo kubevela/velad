@@ -122,7 +122,7 @@ var (
 	// K3dImageTools is k3d tools image tag
 	K3dImageTools = "ghcr.io/k3d-io/k3d-tools:latest"
 	// K3dImageProxy is k3d proxy image tag
-	K3dImageProxy = "ghcr.io/k3d-io/k3d-proxy:5.4.1"
+	K3dImageProxy = "ghcr.io/k3d-io/k3d-proxy:5.4.6"
 
 	// KubeVelaHelmRelease is helm release name for vela
 	KubeVelaHelmRelease = "kubevela"
