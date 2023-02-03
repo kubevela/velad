@@ -340,7 +340,7 @@ replace (
 	github.com/docker/cli => github.com/docker/cli v20.10.9+incompatible
 	github.com/emicklei/go-restful/v3 => github.com/emicklei/go-restful v0.0.0-20170410110728-ff4f55a20633
 	github.com/google/certificate-transparency-go => github.com/google/certificate-transparency-go v1.1.3
-	github.com/k3d-io/k3d => github.com/chivalryq/k3d v0.0.0-20221225143029-cef3837bf18d
+	github.com/k3d-io/k3d/v5 => github.com/chivalryq/k3d/v5 v5.0.0-20230115105251-1b3833ce38cc
 	github.com/wercker/stern => github.com/oam-dev/stern v1.13.2
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc => go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.20.0
 	go.opentelemetry.io/otel => go.opentelemetry.io/otel v0.20.0
@@ -348,7 +348,6 @@ replace (
 	go.opentelemetry.io/otel/sdk => go.opentelemetry.io/otel/sdk v0.20.0
 	go.opentelemetry.io/otel/trace => go.opentelemetry.io/otel/trace v0.20.0
 	go.opentelemetry.io/proto/otlp => go.opentelemetry.io/proto/otlp v0.7.0
-	//k8s.io/api => k8s.io/api v0.25.5
 	k8s.io/component-base => k8s.io/component-base v0.25.3 // indirect
 )
 
