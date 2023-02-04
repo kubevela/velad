@@ -106,8 +106,6 @@ require (
 	github.com/docker/go v1.5.1-1.0.20160303222718-d30aec9fd63c // indirect
 	github.com/docker/go-metrics v0.0.1 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
-	github.com/emicklei/go-restful v2.9.5+incompatible // indirect
-	//github.com/emicklei/go-restful v2.9.5+incompatible // indirect
 	github.com/emicklei/go-restful/v3 v3.8.0 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
@@ -283,12 +281,12 @@ require (
 	go4.org/intern v0.0.0-20211027215823-ae77deb06f29 // indirect
 	go4.org/unsafe/assume-no-moving-gc v0.0.0-20220617031537-928513b29760 // indirect
 	golang.org/x/crypto v0.4.0 // indirect
-	golang.org/x/net v0.3.1-0.20221206200815-1e63c2f08a10 // indirect
+	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20220622183110-fd043fe589d2 // indirect
 	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde // indirect
-	golang.org/x/sys v0.3.0 // indirect
-	golang.org/x/term v0.3.0 // indirect
-	golang.org/x/text v0.5.0 // indirect
+	golang.org/x/sys v0.4.0 // indirect
+	golang.org/x/term v0.4.0 // indirect
+	golang.org/x/text v0.6.0 // indirect
 	golang.org/x/time v0.0.0-20220922220347-f3bd1da661af // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
@@ -336,9 +334,7 @@ require (
 
 replace (
 	cuelang.org/go => github.com/kubevela/cue v0.4.4-0.20221107123854-a976b0e340be
-	github.com/containerd/containerd => github.com/containerd/containerd v1.5.0
 	github.com/docker/cli => github.com/docker/cli v20.10.9+incompatible
-	github.com/emicklei/go-restful/v3 => github.com/emicklei/go-restful v0.0.0-20170410110728-ff4f55a20633
 	github.com/google/certificate-transparency-go => github.com/google/certificate-transparency-go v1.1.3
 	github.com/k3d-io/k3d/v5 => github.com/chivalryq/k3d/v5 v5.0.0-20230115105251-1b3833ce38cc
 	github.com/wercker/stern => github.com/oam-dev/stern v1.13.2
