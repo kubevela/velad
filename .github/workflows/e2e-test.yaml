@@ -57,7 +57,7 @@ jobs:
           name: velad-linux-amd64
       - run: |
           chmod u+x velad-linux-amd64 && mv velad-linux-amd64 velad
-          sudo ./velad install
+          sudo ./velad install --set image.pullPolicy=Never --set admissionWebhooks.patch.image.pullPolicy=Never --set multicluster.clusterGateway.image.pullPolicy=Never
           sudo chmod a+r $(./velad kubeconfig --host)
           kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=vela-core --timeout=180s -n vela-system --kubeconfig=$(./velad kubeconfig --host)
           sudo vela addon enable /root/.vela/addons/velaux
@@ -81,7 +81,7 @@ jobs:
         uses: docker-practice/actions-setup-docker@1.0.11
       - run: |
           chmod u+x velad-darwin-amd64 && mv velad-darwin-amd64 velad
-          ./velad install
+          ./velad install --set image.pullPolicy=Never --set admissionWebhooks.patch.image.pullPolicy=Never --set multicluster.clusterGateway.image.pullPolicy=Never
           export KUBECONFIG=$(./velad kubeconfig --host)
           kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=vela-core --timeout=180s -n vela-system
           vela addon enable ~/.vela/addons/velaux
@@ -100,7 +100,7 @@ jobs:
 #      - name: pguyot/arm-runner-action@v2
 #        with:
 #          commands: |
-#            sudo ./velad install
+#            sudo ./velad install --set image.pullPolicy=Never --set admissionWebhooks.patch.image.pullPolicy=Never --set multicluster.clusterGateway.image.pullPolicy=Never
 #            sudo vela def list
 
 #  test-windows:
@@ -113,5 +113,5 @@ jobs:
 #      - name: Setup Docker
 #        uses: docker-practice/actions-setup-docker@master
 #      - run: chmod u+x velad-windows-amd64 && mv velad-windows-amd64 velad.exe
-#      - run: .\velad install
+#      - run: .\velad install --set image.pullPolicy=Never --set admissionWebhooks.patch.image.pullPolicy=Never --set multicluster.clusterGateway.image.pullPolicy=Never
 
