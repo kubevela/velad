@@ -6,7 +6,6 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -62,7 +61,7 @@ func SaveToTemp(content io.Reader, format string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	tempFile, err := ioutil.TempFile(tmpDir, format)
+	tempFile, err := os.CreateTemp(tmpDir, format)
 	if err != nil {
 		return "", err
 	}
