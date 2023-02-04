@@ -6,8 +6,9 @@ set -x
 K3D_IMAGE_DIR=pkg/resources/static/k3d/images
 mkdir -p "$K3D_IMAGE_DIR"
 
-function download_k3d_images() {
+ARCH=$1
 
+function download_k3d_images() {
   k3d_images=(
   "$(cat pkg/apis/types.go| grep "K3dImageK3s" |tail -n1 | cut -f2 -d'"')"
   "$(cat pkg/apis/types.go| grep "K3dImageTools" |tail -n1 | cut -f2 -d'"')"
@@ -29,6 +30,5 @@ function determine_pull_command() {
       DOCKER_PULL="docker pull --platform=linux/arm64"
   fi
 }
-
 determine_pull_command "$ARCH"
 download_k3d_images
