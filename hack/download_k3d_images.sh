@@ -15,7 +15,7 @@ function download_k3d_images() {
   )
 
   for IMG in ${k3d_images[*]}; do
-    IMAGE_NAME=$(echo "$IMG" | cut -f1 -d: | cut -f3 -d/)
+    IMAGE_NAME=$(echo "$IMG" | cut -f1 -d: | awk -F '/' '{print $NF}')
     echo saving "$IMG" to "$K3D_IMAGE_DIR"/"$IMAGE_NAME".tar
     $DOCKER_PULL "$IMG"
     docker save -o "$K3D_IMAGE_DIR"/"$IMAGE_NAME".tar "$IMG"
