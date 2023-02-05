@@ -130,7 +130,7 @@ func (d *K3dHandler) GenKubeconfig(ctx apis.Context, bindIP string) error {
 			return errors.Wrap(err, "failed to gen kubeconfig")
 		}
 	}
-
+	// #nosec
 	_cfgContent, err := os.ReadFile(cfgHost)
 	if err != nil {
 		return errors.Wrap(err, "read kubeconfig")

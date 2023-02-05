@@ -3,14 +3,15 @@ package utils
 import (
 	"context"
 	"fmt"
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
 
 	"github.com/kyokomi/emoji/v2"
 	"github.com/oam-dev/kubevela/pkg/utils/system"
@@ -174,9 +175,9 @@ var _ io.Writer = &VeladWriter{}
 // Write implements io.Writer. Change the hint to "vela addon enable velaux" and print it with local dir.
 func (v VeladWriter) Write(p []byte) (n int, err error) {
 	if strings.HasPrefix(string(p), "If you want to enable dashboard, please run \"vela addon enable velaux\"") {
-		return v.W.Write([]byte(fmt.Sprintf("If you want to enable dashboard, please run \"vela addon enable %s\"\n", velauxDir)))
+		return fmt.Fprintf(v.W, "If you want to enable dashboard, please run \"vela addon enable %s\"\n", velauxDir)
 	}
-	return v.W.Write(p)
+	return fmt.Fprint(v.W, string(p))
 }
 
 // GetTmpDir returns the temporary directory when want to save some files

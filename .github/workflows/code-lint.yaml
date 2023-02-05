@@ -7,14 +7,14 @@ on:
       - release-*
   pull_request:
     branches:
-      - master
+      - main
       - release-*
   workflow_dispatch: { }
 
 env:
   # Common versions
   GO_VERSION: '1.19'
-  GOLANGCI_VERSION: 'v1.38'
+  GOLANGCI_VERSION: 'v1.49'
 
 jobs:
   staticcheck:

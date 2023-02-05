@@ -1,13 +1,14 @@
 package e2e_test
 
 import (
+	"os"
+	"testing"
+
 	"github.com/oam-dev/kubevela/pkg/utils/common"
 	"github.com/oam-dev/velad/pkg/utils"
 	"k8s.io/client-go/tools/clientcmd"
-	"os"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
-	"testing"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
