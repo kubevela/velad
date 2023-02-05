@@ -8,7 +8,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/k3d-io/k3d/v5 v5.4.8-0.20230204095617-5324cf69fe84
 	github.com/kyokomi/emoji/v2 v2.2.9
-	github.com/oam-dev/kubevela v1.7.0
+	github.com/oam-dev/kubevela v1.7.1
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.20.2
 	github.com/pkg/errors v0.9.1
@@ -177,7 +177,7 @@ require (
 	github.com/klauspost/compress v1.15.12 // indirect
 	github.com/kubevela/pkg v0.0.0-20230105054759-263dc191bf51 // indirect
 	github.com/kubevela/prism v1.7.0-alpha.1 // indirect
-	github.com/kubevela/workflow v0.4.0 // indirect
+	github.com/kubevela/workflow v0.4.1 // indirect
 	github.com/kyokomi/emoji v2.2.4+incompatible // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
