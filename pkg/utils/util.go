@@ -16,8 +16,6 @@ import (
 	"github.com/kyokomi/emoji/v2"
 	"github.com/oam-dev/kubevela/pkg/utils/system"
 	"github.com/oam-dev/kubevela/references/cli"
-	"k8s.io/utils/strings/slices"
-
 	"github.com/oam-dev/velad/pkg/apis"
 )
 
@@ -79,26 +77,6 @@ func SaveToTemp(content io.Reader, format string) (string, error) {
 // quality too.
 func CloseQuietly(d io.Closer) {
 	_ = d.Close()
-}
-
-// IfDeployByPod returns true if the given controllers doesn't contain one of Deployment/Job/ReplicaSet
-func IfDeployByPod(controllers string) bool {
-	needControllers := []string{"deployment", "job", "replicaset"}
-	for _, c := range needControllers {
-		if !HaveController(controllers, c) {
-			return true
-		}
-	}
-	return false
-}
-
-// HaveController returns true if the given controllers contains the given controller
-func HaveController(controllers string, c string) bool {
-	cs := strings.Split(controllers, ",")
-	if slices.Contains(cs, "*") {
-		return !slices.Contains(cs, "-"+c)
-	}
-	return slices.Contains(cs, c)
 }
 
 // TransArgsToString converts args to string array, which helps to pass args to vela install command
