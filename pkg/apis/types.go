@@ -8,11 +8,12 @@ import (
 
 // InstallArgs defines arguments for velad install command
 type InstallArgs struct {
-	BindIP      string
-	DBEndpoint  string
-	ClusterOnly bool
-	Token       string
-	Controllers string
+	BindIP       string
+	NodePublicIP string
+	DBEndpoint   string
+	ClusterOnly  bool
+	Token        string
+	Controllers  string
 	// InstallArgs is parameters passed to vela install command
 	InstallArgs cli.InstallArgs
 	Name        string

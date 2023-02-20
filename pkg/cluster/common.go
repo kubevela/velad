@@ -13,6 +13,9 @@ func GetK3sServerArgs(args apis.InstallArgs) []string {
 	if args.BindIP != "" {
 		serverArgs = append(serverArgs, "--tls-san="+args.BindIP)
 	}
+	if args.NodePublicIP != "" {
+		serverArgs = append(serverArgs, "--node-external-ip="+args.NodePublicIP)
+	}
 	if args.Token != "" {
 		serverArgs = append(serverArgs, "--token="+args.Token)
 	}
