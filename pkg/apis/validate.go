@@ -15,6 +15,9 @@ func (a InstallArgs) Validate() error {
 			return newErr("name flag not works in linux")
 		}
 	}
+	if a.NodePublicIP != "" && a.BindIP == "" {
+		a.BindIP = a.NodePublicIP
+	}
 	return nil
 }
 
