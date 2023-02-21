@@ -31,7 +31,7 @@ func (a App) Run() {
 
 	var cmd *cobra.Command
 	if utils.IsVelaCommand(a.args[0]) {
-		utils.SetDefaultKubeConfigEnv()
+		_ = utils.SetDefaultKubeConfigEnv()
 		cmd = cli.NewCommand()
 		version.VelaVersion = veladVersion.VelaVersion
 		version.GitRevision = veladVersion.VelaGitRevision

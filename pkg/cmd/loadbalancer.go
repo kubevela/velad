@@ -29,10 +29,15 @@ func NewLoadBalancerCmd() *cobra.Command {
 
 func NewLBGetPortCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "get-port",
-		Short: "Get port info for load-balancer install command",
-		Long:  "Get port info for load-balancer install command",
-		Run: func(cmd *cobra.Command, args []string) {
+		Use:   "wizard",
+		Short: "Wizard for load-balancer install command",
+		Long:  "Wizard for load-balancer install command, run this on the node that you have run `velad install`. Or anywhere if you have set KUBECONFIG env",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			err := utils.SetDefaultKubeConfigEnv()
+			if err != nil {
+				return errors.Wrap(err, "No KUBECONFIG env set and fail to get kubeconfig from default location, please set KUBECONFIG env")
+			}
+			return lb.PrintPortAndCmd()
 		},
 	}
 	return cmd
@@ -73,8 +78,8 @@ func NewLBInstallCmd() *cobra.Command {
 	}
 	cmd.Flags().StringSliceVar(&LBArgs.Hosts, "host", []string{}, "Host IPs of control plane node installed by velad, can be specified multiple or separate value by comma like: IP1,IP2")
 	cmd.Flags().StringVarP(&LBArgs.Configuration, "conf", "c", "", "(Optional) Specify the nginx configuration file place, this file will be overwrite")
-	cmd.Flags().IntVar(&LBArgs.PortHTTP, "port-http", 0, "Specify the ingress port for HTTP. See velad load-balancer get-port on master node to get the command ")
-	cmd.Flags().IntVar(&LBArgs.PortHTTPS, "port-https", 0, "Specify the ingress port for HTTPS. See velad load-balancer get-port on master node to get the command ")
+	cmd.Flags().IntVar(&LBArgs.PortHTTP, "http-port", 0, "Specify the ingress port for HTTP. See velad load-balancer get-port on master node to get the command ")
+	cmd.Flags().IntVar(&LBArgs.PortHTTPS, "https-port", 0, "Specify the ingress port for HTTPS. See velad load-balancer get-port on master node to get the command ")
 	return cmd
 }
 
