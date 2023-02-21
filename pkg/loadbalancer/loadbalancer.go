@@ -159,40 +159,45 @@ func getOther(args apis.LoadBalancerArgs) string {
 	streamBlock := g.Block{
 		Directives: []g.IDirective{},
 	}
-	for _, host := range hosts {
-		for name, port := range streamBlockMap {
-			upstreamBlock := &g.Directive{
-				Name: "upstream",
-				Block: &g.Block{
-					Directives: []g.IDirective{
-						&g.Directive{
-							Name: "least_conn",
-						},
-						&g.Directive{
-							Name:       "server",
-							Parameters: []string{fmt.Sprintf("%s:%d max_fails=3 fail_timeout=5s", host, port.from)},
-						},
-					},
-				},
-				Parameters: []string{name},
-			}
-			serverBlock := &g.Directive{
-				Name: "server",
-				Block: &g.Block{
-					Directives: []g.IDirective{
-						&g.Directive{
-							Name:       "listen",
-							Parameters: []string{fmt.Sprintf("%d", port.to)},
-						},
-						&g.Directive{
-							Name:       "proxy_pass",
-							Parameters: []string{name},
-						},
-					},
-				},
-			}
-			streamBlock.Directives = append(streamBlock.Directives, upstreamBlock, serverBlock)
+	serversDis := func(port streamPort) []g.IDirective {
+		ds := make([]g.IDirective, 0)
+		for _, h := range hosts {
+			ds = append(ds, &g.Directive{
+				Name:       "server",
+				Parameters: []string{fmt.Sprintf("%s:%d", h, port.from)},
+			})
 		}
+		return ds
+	}
+	for name, port := range streamBlockMap {
+		sds := serversDis(port)
+		upstreamBlock := &g.Directive{
+			Name: "upstream",
+			Block: &g.Block{
+				Directives: func() []g.IDirective {
+					return append(sds, &g.Directive{
+						Name: "least_conn",
+					})
+				}(),
+			},
+			Parameters: []string{name},
+		}
+		serverBlock := &g.Directive{
+			Name: "server",
+			Block: &g.Block{
+				Directives: []g.IDirective{
+					&g.Directive{
+						Name:       "listen",
+						Parameters: []string{fmt.Sprintf("%d", port.to)},
+					},
+					&g.Directive{
+						Name:       "proxy_pass",
+						Parameters: []string{name},
+					},
+				},
+			},
+		}
+		streamBlock.Directives = append(streamBlock.Directives, upstreamBlock, serverBlock)
 	}
 
 	block := g.Block{
