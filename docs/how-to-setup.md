@@ -172,10 +172,10 @@ Services:
 假设你现在使用 `--database-endpoint` 参数安装了控制平面，并且希望迁移控制平面。你可以这样做：
 
 1. 在原机器上运行 `velad uninstall`
-2. 在新机器上运行 `velad install --database-endpoint=<ENDPOINT> --token=<TOKEN> --start`
+2. 在新机器上运行 `velad install --database-endpoint=<ENDPOINT> --token=<TOKEN> --cluster-only`
 
 在新机器上运行的命令，需要使用与原机器上启动控制平面时相同的 `database-endpoint`，而且使用当时启动后，
-提示你保存的token。最后的 `--start` 参数表示仅启动，跳过 KubeVela 安装过程，因为在数据库所保存的控制平面元数据中，
+提示你保存的token。最后的 `--cluster-only` 参数表示仅启动，跳过 KubeVela 安装过程，因为在数据库所保存的控制平面元数据中，
 KubeVela 已经安装了，无需重复安装。
 
 以上就是本次的全部内容，感谢你的阅读和尝试。Velad 还在持续开发，下一步将支持在 Mac/Windows 上面启动
