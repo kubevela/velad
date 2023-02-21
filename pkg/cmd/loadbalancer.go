@@ -22,12 +22,13 @@ func NewLoadBalancerCmd() *cobra.Command {
 	cmd.AddCommand(
 		NewLBInstallCmd(),
 		NewLBUninstallCmd(),
-		NewLBGetPortCmd(),
+		NewLBWizardCmd(),
 	)
 	return cmd
 }
 
-func NewLBGetPortCmd() *cobra.Command {
+// NewLBWizardCmd returns load-balancer wizard command
+func NewLBWizardCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "wizard",
 		Short: "Wizard for load-balancer install command",
@@ -37,7 +38,7 @@ func NewLBGetPortCmd() *cobra.Command {
 			if err != nil {
 				return errors.Wrap(err, "No KUBECONFIG env set and fail to get kubeconfig from default location, please set KUBECONFIG env")
 			}
-			return lb.PrintPortAndCmd()
+			return lb.Wizard()
 		},
 	}
 	return cmd

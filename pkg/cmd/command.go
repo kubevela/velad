@@ -71,12 +71,18 @@ velad install
 
 # Install a high-availability control plane with external database. 
 # Requires at least 2 nodes.
-# 1. Setup nginx as load balancer for velad control plane on the LB node. Or you can use a load balancer service provided by cloud vendor.
-velad load-balancer install --host=<FIRST_NODE_IP>,<SECOND_NODE_IP>
-# 2. Setup first master node
-velad install --token=<TOKEN> --database-endpoint="mysql://<USER>:@tcp(<HOST>:<PORT>)/velad_ha" --bind-ip=<LB_IP> --node-public-ip=<FIRST_NODE_IP>
-# 1. Join other master nodes
-velad install --token=<TOKEN> --database-endpoint="mysql://<USER>:@tcp(<HOST>:<PORT>)/velad_ha" --bind-ip=<LB_IP> --node-public-ip=<SECOND_NODE_IP>
+
+# 1. Setup first master node
+velad install --token=<TOKEN> --database-endpoint="mysql://<USER>:@tcp(<HOST>:<PORT>)/velad_ha" --bind-ip=<LB_IP> --node-ip=<FIRST_NODE_IP>
+
+# 2. Join other master nodes
+velad install --token=<TOKEN> --database-endpoint="mysql://<USER>:@tcp(<HOST>:<PORT>)/velad_ha" --bind-ip=<LB_IP> --node-ip=<SECOND_NODE_IP>
+
+# 3. On any master node, start wizard to get command to setup load balancer. Or you can use a load balancer service provided by cloud vendor.
+velad load-balancer wizard
+
+# 4. On another node, setup load balancer
+<Run command from step 3>
 `,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return installCmd(c, ioStreams, iArgs)

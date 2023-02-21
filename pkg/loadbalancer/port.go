@@ -2,13 +2,16 @@ package loadbalancer
 
 import (
 	"context"
-	"github.com/oam-dev/velad/pkg/utils"
+	"strings"
+
 	v1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strings"
+
+	"github.com/oam-dev/velad/pkg/utils"
 )
 
-func PrintPortAndCmd() error {
+// Wizard for load balancer installation
+func Wizard() error {
 	cli, err := utils.GetClient()
 	if err != nil {
 		return err
