@@ -249,6 +249,7 @@ require (
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/tjfoc/gmsm v1.3.2 // indirect
+	github.com/tufanbarisyildirim/gonginx v0.0.0-20230104065106-9ae864d29eed // indirect
 	github.com/wercker/stern v0.0.0-20190705090245-4fa46dd6987f // indirect
 	github.com/wonderflow/cert-manager-api v1.0.4-0.20210304051430-e08aa76f6c5f // indirect
 	github.com/xanzy/go-gitlab v0.60.0 // indirect

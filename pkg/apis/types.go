@@ -42,6 +42,8 @@ type TokenArgs struct {
 type LoadBalancerArgs struct {
 	Hosts         []string
 	Configuration string
+	PortHTTP      int
+	PortHTTPS     int
 }
 
 // ControlPlaneStatus defines the status of control plane

@@ -18,17 +18,23 @@ func NewLoadBalancerCmd() *cobra.Command {
 		Use:   "load-balancer",
 		Short: "Configure load balancer between nodes set up by VelaD",
 		Long:  "Configure load balancer between nodes set up by VelaD",
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			if runtime.GOOS != apis.GoosLinux {
-				return errors.New("Load balancer is only supported on linux")
-			}
-			return nil
-		},
 	}
 	cmd.AddCommand(
 		NewLBInstallCmd(),
 		NewLBUninstallCmd(),
+		NewLBGetPortCmd(),
 	)
+	return cmd
+}
+
+func NewLBGetPortCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "get-port",
+		Short: "Get port info for load-balancer install command",
+		Long:  "Get port info for load-balancer install command",
+		Run: func(cmd *cobra.Command, args []string) {
+		},
+	}
 	return cmd
 }
 
@@ -39,6 +45,13 @@ func NewLBInstallCmd() *cobra.Command {
 		Use:   "install",
 		Short: "Setup load balancer between nodes set up by VelaD",
 		Long:  "Setup load balancer between nodes set up by VelaD",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			if runtime.GOOS != apis.GoosLinux {
+				return errors.New("Installing load balancer is only supported on linux")
+			}
+			return nil
+		},
+
 		Run: func(cmd *cobra.Command, args []string) {
 			defer func() {
 				err := utils.Cleanup()
@@ -60,6 +73,8 @@ func NewLBInstallCmd() *cobra.Command {
 	}
 	cmd.Flags().StringSliceVar(&LBArgs.Hosts, "host", []string{}, "Host IPs of control plane node installed by velad, can be specified multiple or separate value by comma like: IP1,IP2")
 	cmd.Flags().StringVarP(&LBArgs.Configuration, "conf", "c", "", "(Optional) Specify the nginx configuration file place, this file will be overwrite")
+	cmd.Flags().IntVar(&LBArgs.PortHTTP, "port-http", 0, "Specify the ingress port for HTTP. See velad load-balancer get-port on master node to get the command ")
+	cmd.Flags().IntVar(&LBArgs.PortHTTPS, "port-https", 0, "Specify the ingress port for HTTPS. See velad load-balancer get-port on master node to get the command ")
 	return cmd
 }
 
@@ -69,6 +84,12 @@ func NewLBUninstallCmd() *cobra.Command {
 		Use:   "uninstall",
 		Short: "Uninstall load balancer",
 		Long:  "Uninstall load balancer installed by VelaD",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			if runtime.GOOS != apis.GoosLinux {
+				return errors.New("Uninstalling load balancer is only supported on linux")
+			}
+			return nil
+		},
 		Run: func(cmd *cobra.Command, args []string) {
 			err := lb.UninstallNginx()
 			if err != nil {
