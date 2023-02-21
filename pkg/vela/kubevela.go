@@ -196,9 +196,6 @@ func InstallVelaChart(ctx *apis.Context, args apis.InstallArgs) error {
 	ctx.IOStreams.Out = utils.VeladWriter{W: os.Stdout}
 	installCmd := cli.NewInstallCommand(ctx.CommonArgs, "1", ctx.IOStreams)
 	installArgs := []string{"--file", ctx.VelaChartPath, "--detail=false", "--version", version.VelaVersion}
-	if utils.IfDeployByPod(args.Controllers) {
-		installArgs = append(installArgs, "--set", "deployByPod=true")
-	}
 	userDefinedArgs := utils.TransArgsToString(args.InstallArgs)
 	installArgs = append(installArgs, userDefinedArgs...)
 	installCmd.SetArgs(installArgs)
@@ -210,7 +207,16 @@ func InstallVelaChart(ctx *apis.Context, args apis.InstallArgs) error {
 	if !ctx.DryRun {
 		err = installCmd.Execute()
 	}
-	return errors.Wrapf(err, "fail to install vela-core helm chart. You can try \"vela install\" later\n")
+	if err != nil {
+		return errors.Wrapf(err, "fail to install vela-core helm chart. You can try \"vela install\" later\n")
+
+	}
+
+	info("Modifying the built-in gateway definition...")
+	if !ctx.DryRun {
+		err = utils.EditGatewayDefinition()
+	}
+	return err
 }
 
 func getVelaAddonDir() (string, error) {

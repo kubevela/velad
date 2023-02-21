@@ -4,6 +4,7 @@ K3S_VERSION ?= v1.24.8+k3s1
 STATIC_DIR := pkg/resources/static
 VELA_VERSION ?= v1.7.3
 VELAUX_VERSION ?= v1.7.2
+VELA_VERSION_NO_V := $(subst v,,$(VELA_VERSION))
 VELAUX_IMAGE_VERSION ?= ${VELAUX_VERSION}
 LDFLAGS= "-X github.com/oam-dev/velad/version.VelaUXVersion=${VELAUX_VERSION} -X github.com/oam-dev/velad/version.VelaVersion=${VELA_VERSION}"
 
@@ -26,7 +27,7 @@ build:
 	OS=${OS} ARCH=${ARCH} make $(OS)-$(ARCH)
 
 
-linux-amd64 linux-arm64: download_vela_images_addons pack_vela_chart download_k3s_bin_script download_k3s_images
+linux-amd64 linux-arm64: download_vela_images_addons download_k3s_bin_script download_k3s_images
 	$(eval OS := $(word 1, $(subst -, ,$@)))
 	$(eval ARCH := $(word 2, $(subst -, ,$@)))
 	echo "Compiling for ${OS}/${ARCH}"
@@ -36,7 +37,7 @@ linux-amd64 linux-arm64: download_vela_images_addons pack_vela_chart download_k3
 	-ldflags=${LDFLAGS} \
 	github.com/oam-dev/velad/cmd/velad
 
-darwin-amd64 darwin-arm64 windows-amd64: download_vela_images_addons download_k3d pack_vela_chart download_k3s_images
+darwin-amd64 darwin-arm64 windows-amd64: download_vela_images_addons download_k3d  download_k3s_images
 	$(eval OS := $(word 1, $(subst -, ,$@)))
 	$(eval ARCH := $(word 2, $(subst -, ,$@)))
 	echo "Compiling for ${OS}/${ARCH}"
@@ -46,9 +47,17 @@ darwin-amd64 darwin-arm64 windows-amd64: download_vela_images_addons download_k3
 	-ldflags=${LDFLAGS} \
 	github.com/oam-dev/velad/cmd/velad
 
-download_vela_images_addons:
+CHART_DIR := ${STATIC_DIR}/vela/charts
+download_vela_chart:
+	mkdir -p ${CHART_DIR}
+	curl -o ${CHART_DIR}/vela-core.tgz https://charts.kubevela.net/core/vela-core-${VELA_VERSION_NO_V}.tgz
+
+download_vela_images_addons: download_vela_chart
+	tar -xzf ${CHART_DIR}/vela-core.tgz -C ${CHART_DIR}
 	./hack/download_vela_images.sh ${VELA_VERSION} ${VELAUX_IMAGE_VERSION} ${ARCH}
 	./hack/download_addons.sh ${VELAUX_VERSION}
+	rm -rf ${CHART_DIR}/vela-core
+
 
 download_k3d:
 	./hack/download_k3d_images.sh ${ARCH}
@@ -62,11 +71,6 @@ download_k3s_images:
 	mkdir -p ${STATIC_DIR}/k3s/images
 	curl -Lo ${STATIC_DIR}/k3s/images/k3s-airgap-images.tar.gz https://github.com/k3s-io/k3s/releases/download/${K3S_VERSION}/k3s-airgap-images-${ARCH}.tar.gz
 
-CHART_DIR := ${STATIC_DIR}/vela/charts
-pack_vela_chart:
-	cp -r ${STATIC_DIR}/vela/charts/vela-core .
-	tar -czf ${STATIC_DIR}/vela/charts/vela-core.tgz vela-core
-	rm -r vela-core
 
 .PHONY: clean
 clean:

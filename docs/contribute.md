@@ -43,7 +43,6 @@ If you want build linux version, run
 VELAUX_VERSION=v1.x.y VELA_VERSION=v1.z.w make download_vela_images_addons 
 make download_k3s_bin_script 
 make download_k3s_images
-make pack_vela_chart
 ```
 
 If you want to build non-linux version, run
@@ -51,7 +50,6 @@ If you want to build non-linux version, run
 ```shell
 VELAUX_VERSION=v1.x.y VELA_VERSION=v1.z.w make download_vela_images_addons 
 make download_k3d 
-make pack_vela_chart 
 make download_k3s_images
 ```
 

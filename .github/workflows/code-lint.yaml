@@ -42,7 +42,6 @@ jobs:
           make download_k3s_images
           make download_k3s_bin_script
           make download_k3d
-          make pack_vela_chart
 
       - name: Go Dependencies
         run: |
@@ -80,7 +79,6 @@ jobs:
           make download_k3s_images
           make download_k3s_bin_script
           make download_k3d
-          make pack_vela_chart
 
       # This action uses its own setup-go, which always seems to use the latest
       # stable version of Go. We could run 'make lint' to ensure our desired Go
@@ -90,6 +88,7 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           version: ${{ env.GOLANGCI_VERSION }}
+          args: --timeout 20m
 
   go-check:
     strategy:
@@ -121,7 +120,6 @@ jobs:
           make download_k3s_images
           make download_k3s_bin_script
           make download_k3d
-          make pack_vela_chart
 
       - name: Check Diff
         run: make check-diff

@@ -3,33 +3,8 @@
 VelaD embed one KubeVela Helm chart and VelaD's build process will cache some images(e.g. vela-core). 
 When KubeVela has a new release. Do these steps below to upgrade VelaD's embedded KubeVela version.
 
-1. Upgrade vela-core helm chart
-2. Upgrade go.mod
-3. Upgrade vela version in makefile
-
-### Upgrade vela-core helm chart.
-
-First check the now vela-core version:
-
-```shell
-cat pkg/resources/static/vela/charts/vela-core/Chart.yaml | grep version:
-```
-
-Output like:
-```text
-version: v1.4.2
-```
-
-Then use upgrade script, for example if you want to upgrade vela to v1.4.3, then use v1.4.3 as the version parameter.
-
-```shell
-./hack/upgrade_vela.sh v1.4.3
-```
-
-This script will clone the KubeVela repo and make diff between version now and v1.4.3. Then try to patch the diff in VelaD's
-embedded vela-core chart in `pkg/resources/static/vela/charts/vela-core`
-
-If there are conflict, you have to resolve them manually.
+1. Upgrade go.mod
+2. Upgrade vela version in makefile
 
 ### Upgrade vela version in makefile
 

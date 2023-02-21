@@ -67,7 +67,6 @@ jobs:
           make download_k3s_images
           make download_k3s_bin_script
           make download_k3d
-          make pack_vela_chart
           ${{ env.GO_BUILD_ENV }} GOOS=${{ steps.get_matrix.outputs.OS }} GOARCH=${{ steps.get_matrix.outputs.ARCH }} \
             go build -ldflags "${{ env.LDFLAGS }}" \
             -o _bin/velad/${{ steps.get_matrix.outputs.OS }}-${{ steps.get_matrix.outputs.ARCH }}/velad -v \
