@@ -64,14 +64,34 @@ func NewInstallCmd(c common.Args, ioStreams cmdutil.IOStreams) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "install",
 		Short: "Quickly setup a KubeVela control plane",
-		Long:  "Quickly setup a KubeVela control plane, using K3s and only for Linux now",
+		Long:  "Quickly setup a KubeVela control plane.",
+		Example: `
+# Simply install a control plane
+velad install
+
+# Install a high-availability control plane with external database. 
+# Requires at least 2 nodes.
+
+# 1. Setup first master node
+velad install --token=<TOKEN> --database-endpoint="mysql://<USER>:@tcp(<HOST>:<PORT>)/velad_ha" --bind-ip=<LB_IP> --node-ip=<FIRST_NODE_IP>
+
+# 2. Join other master nodes
+velad install --token=<TOKEN> --database-endpoint="mysql://<USER>:@tcp(<HOST>:<PORT>)/velad_ha" --bind-ip=<LB_IP> --node-ip=<SECOND_NODE_IP>
+
+# 3. On any master node, start wizard to get command to setup load balancer. Or you can use a load balancer service provided by cloud vendor.
+velad load-balancer wizard
+
+# 4. On another node, setup load balancer
+<Run command from step 3>
+`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return installCmd(c, ioStreams, iArgs)
 		},
 	}
 	cmd.Flags().BoolVar(&iArgs.ClusterOnly, "cluster-only", false, "If set, start cluster without installing vela-core, typically used when restart a control plane where vela-core has been installed")
 	cmd.Flags().StringVar(&iArgs.DBEndpoint, "database-endpoint", "", "Use an external database to store control plane metadata, please ref https://rancher.com/docs/k3s/latest/en/installation/datastore/#datastore-endpoint-format-and-functionality for the format")
-	cmd.Flags().StringVar(&iArgs.BindIP, "bind-ip", "", "Bind additional hostname or IP in the kubeconfig TLS cert")
+	cmd.Flags().StringVar(&iArgs.BindIP, "bind-ip", "", "Bind additional hostname or IP to the cluster (e.g. IP of load balancer for multi-nodes VelaD cluster). This is used to generate kubeconfig access from remote (`velad kubeconfig --external`). If not set, will use node-ip")
+	cmd.Flags().StringVar(&iArgs.NodePublicIP, "node-ip", "", "Set the public IP of the node")
 	cmd.Flags().StringVar(&iArgs.Token, "token", "", "Token for identify the cluster. Can be used to restart the control plane or register other node. If not set, random token will be generated")
 	cmd.Flags().StringVar(&iArgs.Name, "name", apis.DefaultVelaDClusterName, "The name of the cluster. only works when NOT in linux environment")
 	cmd.Flags().BoolVar(&iArgs.DryRun, "dry-run", false, "Dry run the install process")

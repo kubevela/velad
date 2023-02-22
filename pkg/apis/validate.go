@@ -9,11 +9,14 @@ import (
 var newErr = errors.New
 
 // Validate validates the `install` argument
-func (a InstallArgs) Validate() error {
+func (a *InstallArgs) Validate() error {
 	if runtime.GOOS == GoosLinux {
 		if a.Name != DefaultVelaDClusterName {
 			return newErr("name flag not works in linux")
 		}
+	}
+	if a.NodePublicIP != "" && a.BindIP == "" {
+		a.BindIP = a.NodePublicIP
 	}
 	return nil
 }

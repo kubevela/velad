@@ -6,6 +6,7 @@ import (
 
 	core "github.com/oam-dev/kubevela/apis/core.oam.dev"
 	"github.com/oam-dev/kubevela/apis/core.oam.dev/v1alpha2"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
@@ -18,10 +19,8 @@ func GetClient() (client.Client, error) {
 		return nil, err
 	}
 	scheme := runtime.NewScheme()
-	err = core.AddToScheme(scheme)
-	if err != nil {
-		return nil, err
-	}
+	_ = core.AddToScheme(scheme)
+	_ = v1.AddToScheme(scheme)
 	return client.New(restConf, client.Options{
 		Scheme: scheme,
 	})

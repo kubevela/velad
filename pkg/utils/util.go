@@ -252,7 +252,7 @@ func IsVelaCommand(s string) bool {
 }
 
 // SetDefaultKubeConfigEnv helps set KUBECONFIG to the default location
-func SetDefaultKubeConfigEnv() {
+func SetDefaultKubeConfigEnv() error {
 	RecommendedConfigPathEnvVar := "KUBECONFIG"
 	kubeconfig := os.Getenv(RecommendedConfigPathEnvVar)
 	if kubeconfig == "" {
@@ -262,7 +262,9 @@ func SetDefaultKubeConfigEnv() {
 		if err == nil {
 			_ = os.Setenv(RecommendedConfigPathEnvVar, kubeconfig)
 		}
+		return err
 	}
+	return nil
 }
 
 // RemoveNetworkProxyEnv remove network proxy environment vars in shell
