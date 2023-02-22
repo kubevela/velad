@@ -73,6 +73,7 @@ func NewLBInstallCmd() *cobra.Command {
 			err := lb.ConfigureNginx(LBArgs)
 			if err != nil {
 				errf("Fail to setup load balancer (nginx): %v\n", err)
+				os.Exit(1)
 			}
 			info("Successfully setup load balancer!")
 		},

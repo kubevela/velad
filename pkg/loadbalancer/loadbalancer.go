@@ -2,15 +2,15 @@ package loadbalancer
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
+	g "github.com/tufanbarisyildirim/gonginx"
 	"os"
 	"os/exec"
 	"os/user"
 	"regexp"
 	"runtime"
 	"strings"
-
-	"github.com/pkg/errors"
-	g "github.com/tufanbarisyildirim/gonginx"
+	"time"
 
 	"github.com/oam-dev/velad/pkg/apis"
 	"github.com/oam-dev/velad/pkg/resources"
@@ -93,14 +93,18 @@ func setNginxConf(args apis.LoadBalancerArgs) (string, error) {
 }
 
 func startNginx(conf string) error {
-	info("Starting nginx")
-	cmd := exec.Command("nginx", "-s", "quit")
-	_ = cmd.Run()
+	info("Starting/Restarting nginx")
+	cmd := exec.Command("pkill", "-9", "nginx")
+	// pkill will return error if nginx is not running, so we ignore it
+	output, _ := cmd.CombinedOutput()
+	utils.InfoBytes(output)
+	// wait for nginx to stop
+	time.Sleep(1 * time.Second)
 	// #nosec
 	reloadCmd := exec.Command("nginx", "-c", conf)
 	output, err := reloadCmd.CombinedOutput()
 	utils.InfoBytes(output)
-	return err
+	return errors.Wrap(err, "fail to start nginx")
 }
 
 func writeNginxConf(conf string, confLocation string) (string, error) {
