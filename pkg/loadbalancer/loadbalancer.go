@@ -2,8 +2,6 @@ package loadbalancer
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-	g "github.com/tufanbarisyildirim/gonginx"
 	"os"
 	"os/exec"
 	"os/user"
@@ -11,6 +9,9 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
+	g "github.com/tufanbarisyildirim/gonginx"
 
 	"github.com/oam-dev/velad/pkg/apis"
 	"github.com/oam-dev/velad/pkg/resources"
