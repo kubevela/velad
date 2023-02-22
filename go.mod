@@ -8,7 +8,7 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/k3d-io/k3d/v5 v5.4.8-0.20230204095617-5324cf69fe84
 	github.com/kyokomi/emoji/v2 v2.2.9
-	github.com/oam-dev/kubevela v1.7.3
+	github.com/oam-dev/kubevela v1.7.4
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.20.2
 	github.com/pkg/errors v0.9.1
@@ -38,7 +38,7 @@ require (
 
 require (
 	cloud.google.com/go/compute v1.7.0 // indirect
-	cuelang.org/go v0.5.0-alpha.1 // indirect
+	cuelang.org/go v0.5.0-beta.5 // indirect
 	github.com/AlecAivazis/survey/v2 v2.1.1 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
 	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
