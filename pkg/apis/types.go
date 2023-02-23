@@ -29,6 +29,7 @@ type UninstallArgs struct {
 type KubeconfigArgs struct {
 	Internal bool
 	External bool
+	LB       bool
 	Host     bool
 	Name     string
 }
@@ -114,6 +115,8 @@ var (
 	K3sKubeConfigLocation = "/etc/rancher/k3s/k3s.yaml"
 	// K3sExternalKubeConfigLocation is where to generate kubeconfig for external access
 	K3sExternalKubeConfigLocation = "/etc/rancher/k3s/k3s-external.yaml"
+	// K3sLBKubeconfigLocation is where to generate kubeconfig for access from load balancer
+	K3sLBKubeconfigLocation = "/etc/rancher/k3s/k3s-lb.yaml"
 	// VelaLinkPos is path to save vela symlink in linux/macos
 	VelaLinkPos = "/usr/local/bin/vela"
 	// VelaDDockerNetwork is docker network for k3d cluster when `velad install`

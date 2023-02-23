@@ -20,6 +20,7 @@ import (
 var (
 	info  = utils.Info
 	infof = utils.Infof
+	errf  = utils.Errf
 	// DefaultHandler is the default handler for k3s cluster
 	DefaultHandler Handler = &K3sHandler{}
 )
@@ -292,6 +293,21 @@ func (l K3sHandler) GenKubeconfig(ctx apis.Context, bindIP string) error {
 		}
 		newConf := strings.Replace(string(originConf), "127.0.0.1", bindIP, 1)
 		err = os.WriteFile(apis.K3sExternalKubeConfigLocation, []byte(newConf), 0600)
+		if err != nil {
+			errf("Failed to generate kubeconfig for remote access: %v", err)
+		}
+	}
+	info("Generating kubeconfig for access from load balancer into ", apis.K3sExternalKubeConfigLocation)
+	if !ctx.DryRun {
+		originConf, err = os.ReadFile(apis.K3sKubeConfigLocation)
+		if err != nil {
+			return err
+		}
+		newConf := strings.Replace(string(originConf), fmt.Sprintf("127.0.0.1:%d", K3sListenPort), fmt.Sprintf(bindIP+":%d", LBListenPort), 1)
+		err = os.WriteFile(apis.K3sLBKubeconfigLocation, []byte(newConf), 0600)
+		if err != nil {
+			errf("Failed to generate kubeconfig for remote access from lb: %v", err)
+		}
 	}
 	info("Successfully generate kubeconfig at ", apis.K3sExternalKubeConfigLocation)
 	return err

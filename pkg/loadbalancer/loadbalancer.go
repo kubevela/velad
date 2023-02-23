@@ -2,6 +2,7 @@ package loadbalancer
 
 import (
 	"fmt"
+	"github.com/oam-dev/velad/pkg/cluster"
 	"os"
 	"os/exec"
 	"os/user"
@@ -153,13 +154,13 @@ func getOther(args apis.LoadBalancerArgs) string {
 		to   int
 	}
 	streamBlockMap := map[string]streamPort{
-		"rancher_servers_k3s": {from: 6443, to: 6443},
+		"rancher_servers_k3s": {from: cluster.LBListenPort, to: cluster.K3sListenPort},
 	}
 	if args.PortHTTP != 0 {
-		streamBlockMap["ingress_http"] = streamPort{from: args.PortHTTP, to: 80}
+		streamBlockMap["ingress_http"] = streamPort{from: 80, to: args.PortHTTP}
 	}
 	if args.PortHTTPS != 0 {
-		streamBlockMap["ingress_https"] = streamPort{from: args.PortHTTPS, to: 443}
+		streamBlockMap["ingress_https"] = streamPort{from: 443, to: args.PortHTTPS}
 	}
 	streamBlock := g.Block{
 		Directives: []g.IDirective{},
@@ -169,7 +170,7 @@ func getOther(args apis.LoadBalancerArgs) string {
 		for _, h := range hosts {
 			ds = append(ds, &g.Directive{
 				Name:       "server",
-				Parameters: []string{fmt.Sprintf("%s:%d", h, port.from)},
+				Parameters: []string{fmt.Sprintf("%s:%d", h, port.to)},
 			})
 		}
 		return ds
@@ -193,7 +194,7 @@ func getOther(args apis.LoadBalancerArgs) string {
 				Directives: []g.IDirective{
 					&g.Directive{
 						Name:       "listen",
-						Parameters: []string{fmt.Sprintf("%d", port.to)},
+						Parameters: []string{fmt.Sprintf("%d", port.from)},
 					},
 					&g.Directive{
 						Name:       "proxy_pass",
