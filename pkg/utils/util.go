@@ -238,8 +238,10 @@ func printKubeconfigGuide(args apis.InstallArgs) {
 		kubeconfigArg = "--external"
 	}
 	switch runtime.GOOS {
-	case apis.GoosLinux, apis.GoosDarwin:
+	case apis.GoosDarwin:
 		emoji.Printf("    export KUBECONFIG=$(velad kubeconfig --name %s %s)\n", args.Name, kubeconfigArg)
+	case apis.GoosLinux:
+		emoji.Printf("    export KUBECONFIG=$(velad kubeconfig %s", kubeconfigArg)
 	case apis.GoosWindows:
 		emoji.Printf("    $env:KUBECONFIG = $(velad kubeconfig --name %s %s)\n", args.Name, kubeconfigArg)
 	}

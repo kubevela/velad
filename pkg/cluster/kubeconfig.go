@@ -32,10 +32,18 @@ func printKubeConfigLinux(args apis.KubeconfigArgs) error {
 		info(apis.K3sExternalKubeConfigLocation)
 		return nil
 	}
+	if args.LB {
+		info(apis.K3sLBKubeconfigLocation)
+		return nil
+	}
 	info("internal kubeconfig: ", apis.K3sKubeConfigLocation)
 	_, err := os.Stat(apis.K3sExternalKubeConfigLocation)
 	if err == nil {
-		info("external kubeconfig: ", apis.K3sKubeConfigLocation)
+		info("external kubeconfig: ", apis.K3sExternalKubeConfigLocation)
+	}
+	_, err = os.Stat(apis.K3sLBKubeconfigLocation)
+	if err == nil {
+		info("kubeconfig to access from load balancer: ", apis.K3sLBKubeconfigLocation)
 	}
 	return nil
 }
@@ -54,6 +62,10 @@ func printKubeConfigDocker(args apis.KubeconfigArgs) error {
 		info(configPathExternal(clusterName))
 		return nil
 	}
+	if args.LB {
+		info(configPathLB(clusterName))
+		return nil
+	}
 	info("host kubeconfig:", configPath(clusterName), "(For accessing from host machine)")
 	info("internal kubeconfig:", configPathInternal(clusterName), "(For \"vela cluster join\")")
 	cfgExt := configPathExternal(clusterName)
@@ -70,6 +82,10 @@ func configPath(clusterName string) string {
 
 func configPathExternal(clusterName string) string {
 	return filepath.Join(utils.GetKubeconfigDir(), fmt.Sprintf("%s-external", clusterName))
+}
+
+func configPathLB(clusterName string) string {
+	return filepath.Join(utils.GetKubeconfigDir(), fmt.Sprintf("%s-lb", clusterName))
 }
 
 func configPathInternal(clusterName string) string {

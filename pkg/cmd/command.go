@@ -130,7 +130,8 @@ func NewKubeConfigCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVarP(&kArgs.Name, "name", "n", apis.DefaultVelaDClusterName, "The name of cluster, Only works in macOS/Windows")
 	cmd.Flags().BoolVar(&kArgs.Internal, "internal", false, "Print kubeconfig that used in Docker network. Typically used in \"vela cluster join\". Only works in macOS/Windows. ")
-	cmd.Flags().BoolVar(&kArgs.External, "external", false, "Print kubeconfig that can be used on other machine")
+	cmd.Flags().BoolVar(&kArgs.External, "external", false, "Print kubeconfig that can be used on other machine, if you set --bind-ip to a LB IP when `velad install`, please use --lb")
+	cmd.Flags().BoolVar(&kArgs.LB, "lb", false, "Print kubeconfig that can access load balancer of cluster")
 	cmd.Flags().BoolVar(&kArgs.Host, "host", false, "Print kubeconfig path that can be used in this machine")
 	return cmd
 }

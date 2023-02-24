@@ -40,6 +40,34 @@ If you only supply `mysql://` as the endpoint, K3s will attempt to do the follow
 - Connect to the MySQL socket at `/var/run/mysqld/mysqld.sock` using the `root` user and no password
 - Create a database with the name `kubernetes`
 
+### Quickstart
+
+This is a quickstart guide for setting up a MySQL database for K3s. It is not intended to be a comprehensive guide, but rather a quick way to get started.
+
+On a fresh CentOS 7 server, install MySQL:
+
+```bash
+yum install -y mysql-server mysql
+systemctl start mysqld
+```
+
+Login MySQL
+```shell
+mysql -u root -p
+```
+
+Grant privileges to the root user, allow remote access:
+
+```mysql
+USE mysql;
+UPDATE user SET host='%' WHERE User='root' AND Host='localhost'; 
+flush privileges;
+```
+
+You can change the way you do it according to your needs. For example
+1. Create a new user and grant privileges to it instead of using root user
+2. Specify the IP address of the server instead of using `%` to allow remote access
+
 ## etcd
 
 In its most common form, the datastore-endpoint parameter for etcd has the following format:
