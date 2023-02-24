@@ -2,7 +2,6 @@ package loadbalancer
 
 import (
 	"fmt"
-	"github.com/oam-dev/velad/pkg/cluster"
 	"os"
 	"os/exec"
 	"os/user"
@@ -15,6 +14,7 @@ import (
 	g "github.com/tufanbarisyildirim/gonginx"
 
 	"github.com/oam-dev/velad/pkg/apis"
+	"github.com/oam-dev/velad/pkg/cluster"
 	"github.com/oam-dev/velad/pkg/resources"
 	"github.com/oam-dev/velad/pkg/utils"
 )
