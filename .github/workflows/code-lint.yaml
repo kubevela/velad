@@ -20,16 +20,16 @@ jobs:
   staticcheck:
     strategy:
       matrix:
-        machines: [ "ubuntu-20.04","macos-12" ]
+        machines: [ "ubuntu-22.04","macos-12" ]
     runs-on: ${{ matrix.machines }}
     steps:
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -57,16 +57,16 @@ jobs:
   lint:
     strategy:
       matrix:
-        machines: [ "ubuntu-20.04","macos-12" ]
+        machines: [ "ubuntu-22.04","macos-12" ]
     runs-on: ${{ matrix.machines }}
     steps:
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -93,16 +93,16 @@ jobs:
   go-check:
     strategy:
       matrix:
-        machines: [ "ubuntu-20.04","macos-12" ]
+        machines: [ "ubuntu-22.04","macos-12" ]
     runs-on: ${{ matrix.machines }}
     steps:
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
 

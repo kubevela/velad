@@ -17,14 +17,14 @@ jobs:
   build-artifact:
     env:
       VELAUX_VERSION_KEY: github.com/oam-dev/velad/version.VelaUXVersion
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         TARGETS: [ linux/amd64, darwin/amd64, windows/amd64, linux/arm64, darwin/arm64 ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install dependencies
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: 1.19
       - name: Get matrix
@@ -42,12 +42,12 @@ jobs:
           path: bin/velad-${{ steps.get_matrix.outputs.OS }}-${{ steps.get_matrix.outputs.ARCH }}
           name: velad-${{ steps.get_matrix.outputs.OS }}-${{ steps.get_matrix.outputs.ARCH }}
   test-linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: [ build-artifact ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install dependencies
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: 1.19
       - name: Install ginkgo
@@ -67,9 +67,9 @@ jobs:
     runs-on: macos-12
     needs: [ build-artifact ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install dependencies
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: 1.19
       - name: Install ginkgo
@@ -90,7 +90,7 @@ jobs:
 #        run: ginkgo -v ./test/e2e-test
 
 #  test-linux-arm64:
-#    runs-on: ubuntu-20.04
+#    runs-on: ubuntu-22.04
 #    needs: [ build-artifact ]
 #    steps:
 #      - uses: actions/download-artifact@v3
