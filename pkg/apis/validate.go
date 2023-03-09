@@ -53,3 +53,10 @@ func (a TokenArgs) Validate() error {
 	}
 	return nil
 }
+
+func (a JoinArgs) Validate() error {
+	if runtime.GOOS != GoosLinux {
+		return newErr("join command only works in linux")
+	}
+	return nil
+}

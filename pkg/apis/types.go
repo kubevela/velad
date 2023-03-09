@@ -10,6 +10,7 @@ import (
 type InstallArgs struct {
 	BindIP       string
 	NodePublicIP string
+	MasterIP     string
 	DBEndpoint   string
 	ClusterOnly  bool
 	Token        string
@@ -18,6 +19,7 @@ type InstallArgs struct {
 	InstallArgs cli.InstallArgs
 	Name        string
 	DryRun      bool
+	Worker      bool
 }
 
 // UninstallArgs defines arguments for velad uninstall command
@@ -36,6 +38,13 @@ type KubeconfigArgs struct {
 // TokenArgs defines arguments for velad token command
 type TokenArgs struct {
 	Name string
+}
+
+type JoinArgs struct {
+	Token    string
+	Name     string
+	MasterIP string
+	DryRun   bool
 }
 
 // LoadBalancerArgs defines arguments for load balancer command

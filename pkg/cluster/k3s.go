@@ -27,10 +27,30 @@ var (
 // K3sHandler handle k3s in linux
 type K3sHandler struct{}
 
+func (l K3sHandler) Join(args apis.JoinArgs) error {
+	info("Join k3s cluster...")
+	// #nosec
+	err := SetupK3s(apis.InstallArgs{
+		Worker:   true,
+		DryRun:   args.DryRun,
+		Token:    args.Token,
+		Name:     args.Name,
+		MasterIP: args.MasterIP,
+	})
+	if err != nil {
+		return errors.Wrap(err, "fail to join k3s cluster")
+	}
+
+	info("Successfully join k3s cluster")
+	return nil
+}
+
 var _ Handler = &K3sHandler{}
 
 type k3sSetupOptions struct {
-	DryRun bool
+	DryRun   bool
+	Worker   bool
+	MasterIP string
 }
 
 // Install install k3s cluster
@@ -154,6 +174,10 @@ func fillVelaStatus(status *apis.ClusterStatus) {
 
 // prepareK3sImages Write embed images
 func (o k3sSetupOptions) prepareK3sImages() error {
+	if o.Worker {
+		info("Skipping image unpacking on worker node")
+		return nil
+	}
 	embedK3sImage, err := resources.K3sImage.Open("static/k3s/images/k3s-airgap-images.tar.gz")
 	if err != nil {
 		return err
@@ -190,6 +214,16 @@ func (o k3sSetupOptions) prepareK3sImages() error {
 
 	info("Successfully prepare k3s image")
 	return nil
+}
+
+func (o k3sSetupOptions) prepareEnv(cmd *exec.Cmd) {
+	masterURL := fmt.Sprintf("https://%s:%d", o.MasterIP, 6443)
+	cmd.Env = os.Environ()
+	cmd.Env = append(cmd.Env, "INSTALL_K3S_SKIP_DOWNLOAD=true")
+	if o.Worker {
+		cmd.Env = append(cmd.Env, "K3S_URL="+masterURL)
+	}
+
 }
 
 // prepareK3sScript Write k3s install script to local
@@ -239,7 +273,7 @@ func (o k3sSetupOptions) prepareK3sBin() error {
 
 // SetupK3s will set up K3s as control plane.
 func SetupK3s(cArgs apis.InstallArgs) error {
-	o := k3sSetupOptions{DryRun: cArgs.DryRun}
+	o := k3sSetupOptions{DryRun: cArgs.DryRun, Worker: cArgs.Worker, MasterIP: cArgs.MasterIP}
 	info("Preparing cluster setup script...")
 	script, err := o.prepareK3sScript()
 	if err != nil {
@@ -266,11 +300,10 @@ func SetupK3s(cArgs apis.InstallArgs) error {
 	if !o.DryRun {
 		/* #nosec */
 		cmd := exec.Command("/bin/bash", args...)
-
-		cmd.Env = os.Environ()
-		cmd.Env = append(cmd.Env, "INSTALL_K3S_SKIP_DOWNLOAD=true")
+		o.prepareEnv(cmd)
+		info(cmd.String())
 		output, err = cmd.CombinedOutput()
-		fmt.Print(string(output))
+		infof(string(output))
 	}
 	return errors.Wrap(err, "K3s install script failed")
 }

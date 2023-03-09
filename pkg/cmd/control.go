@@ -148,3 +148,11 @@ func statusCmd() {
 	vStatus := vela.GetStatus()
 	PrintVelaStatus(vStatus)
 }
+
+func joinCmd(args apis.JoinArgs) error {
+	if err := args.Validate(); err != nil {
+		return err
+	}
+	return h.Join(args)
+
+}

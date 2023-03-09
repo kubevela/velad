@@ -89,7 +89,7 @@ func TransArgsToString(args cli.InstallArgs) []string {
 		res = append(res, "--namespace="+args.Namespace)
 	}
 	if !args.Detail {
-		res = append(res, "--detail=false")
+		res = append(res, "--detail="+fmt.Sprintf("%v", args.Detail))
 	}
 	if !args.ReuseValues {
 		res = append(res, "--reuse=false")

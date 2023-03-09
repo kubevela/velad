@@ -67,6 +67,10 @@ type K3dHandler struct {
 	cfg config.ClusterConfig
 }
 
+func (d *K3dHandler) Join(_ apis.JoinArgs) error {
+	return errors.New("not implemented")
+}
+
 // Install will install a k3d cluster
 func (d *K3dHandler) Install(args apis.InstallArgs) error {
 	var err error

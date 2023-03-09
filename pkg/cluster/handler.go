@@ -10,4 +10,5 @@ type Handler interface {
 	SetKubeconfig() error
 	LoadImage(image string) error
 	GetStatus() apis.ClusterStatus
+	Join(args apis.JoinArgs) error
 }
