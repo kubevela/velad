@@ -160,7 +160,8 @@ func NewUninstallCmd() *cobra.Command {
 	uArgs := apis.UninstallArgs{}
 	cmd := &cobra.Command{
 		Use:   "uninstall",
-		Short: "Remove a master node if it is the only one, or remove a worker node from the cluster",
+		Short: "Uninstall control plane or detach worker node",
+		Long:  "Remove master node if it's the only one, or remove this worker node from the cluster",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return uninstallCmd(uArgs)
 		},

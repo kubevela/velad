@@ -41,7 +41,7 @@ func (l K3sHandler) Join(args apis.JoinArgs) error {
 		return errors.Wrap(err, "fail to join k3s cluster")
 	}
 
-	info("Successfully join k3s cluster")
+	info("🎉 Successfully join worker node")
 	return nil
 }
 
