@@ -16,8 +16,10 @@ func GetK3sServerArgs(args apis.InstallArgs) []string {
 	if args.NodePublicIP != "" {
 		serverArgs = append(serverArgs, "--node-external-ip="+args.NodePublicIP)
 	}
-	if args.Token != "" {
-		serverArgs = append(serverArgs, "--token="+args.Token)
+	if !args.Worker {
+		if args.Token != "" {
+			serverArgs = append(serverArgs, "--token="+args.Token)
+		}
 	}
 	return serverArgs
 }

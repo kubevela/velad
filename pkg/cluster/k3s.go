@@ -51,6 +51,7 @@ type k3sSetupOptions struct {
 	DryRun   bool
 	Worker   bool
 	MasterIP string
+	Token    string
 }
 
 // Install install k3s cluster
@@ -222,6 +223,7 @@ func (o k3sSetupOptions) prepareEnv(cmd *exec.Cmd) {
 	cmd.Env = append(cmd.Env, "INSTALL_K3S_SKIP_DOWNLOAD=true")
 	if o.Worker {
 		cmd.Env = append(cmd.Env, "K3S_URL="+masterURL)
+		cmd.Env = append(cmd.Env, "K3S_TOKEN="+o.Token)
 	}
 
 }
@@ -273,7 +275,12 @@ func (o k3sSetupOptions) prepareK3sBin() error {
 
 // SetupK3s will set up K3s as control plane.
 func SetupK3s(cArgs apis.InstallArgs) error {
-	o := k3sSetupOptions{DryRun: cArgs.DryRun, Worker: cArgs.Worker, MasterIP: cArgs.MasterIP}
+	o := k3sSetupOptions{
+		DryRun:   cArgs.DryRun,
+		Worker:   cArgs.Worker,
+		MasterIP: cArgs.MasterIP,
+		Token:    cArgs.Token,
+	}
 	info("Preparing cluster setup script...")
 	script, err := o.prepareK3sScript()
 	if err != nil {
