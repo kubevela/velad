@@ -67,6 +67,7 @@ type K3dHandler struct {
 	cfg config.ClusterConfig
 }
 
+// Join -
 func (d *K3dHandler) Join(_ apis.JoinArgs) error {
 	return errors.New("not implemented")
 }

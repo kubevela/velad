@@ -131,9 +131,9 @@ func uninstallCmd(uArgs apis.UninstallArgs) error {
 	}
 	err = h.Uninstall(uArgs.Name)
 	if err != nil {
-		return errors.Wrap(err, "Failed to uninstall KubeVela control plane")
+		return errors.Wrap(err, "Failed to uninstall KubeVela control plane/worker node")
 	}
-	info("Successfully uninstall KubeVela control plane!")
+	info("Successfully uninstall KubeVela control plane/worker node")
 	return nil
 }
 

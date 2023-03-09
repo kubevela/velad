@@ -40,6 +40,7 @@ type TokenArgs struct {
 	Name string
 }
 
+// JoinArgs defines arguments for velad join command
 type JoinArgs struct {
 	Token    string
 	Name     string

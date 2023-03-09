@@ -106,6 +106,7 @@ velad load-balancer wizard
 	return cmd
 }
 
+// NewJoinCmd create join cmd
 func NewJoinCmd() *cobra.Command {
 	jArgs := apis.JoinArgs{}
 	cmd := &cobra.Command{
