@@ -117,7 +117,7 @@ func NewJoinCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&jArgs.Token, "token", "", "Token for identify the cluster. Can be used to restart the control plane or register other node. If not set, random token will be generated")
-	cmd.Flags().StringVar(&jArgs.Name, "name", "", "The name of worker node.")
+	cmd.Flags().StringVarP(&jArgs.Name, "worker-name", "n", "", "The name of worker node, default to hostname")
 	cmd.Flags().StringVar(&jArgs.MasterIP, "master-ip", "", "Set the public IP of the master node")
 	cmd.Flags().BoolVar(&jArgs.DryRun, "dry-run", false, "Dry run the join process")
 	_ = cmd.MarkFlagRequired("token")
@@ -160,7 +160,7 @@ func NewUninstallCmd() *cobra.Command {
 	uArgs := apis.UninstallArgs{}
 	cmd := &cobra.Command{
 		Use:   "uninstall",
-		Short: "uninstall control plane",
+		Short: "Remove a master node if it is the only one, or remove a worker node from the cluster",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return uninstallCmd(uArgs)
 		},

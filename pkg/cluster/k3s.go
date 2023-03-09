@@ -67,9 +67,13 @@ func (l K3sHandler) Install(args apis.InstallArgs) error {
 // Uninstall uninstall k3s cluster
 func (l K3sHandler) Uninstall(name string) error {
 	info("Uninstall k3s...")
+	script, err := decideUninstallScript()
+	if err != nil {
+		return err
+	}
 	// #nosec
-	uCmd := exec.Command("/usr/local/bin/k3s-uninstall.sh")
-	err := uCmd.Run()
+	uCmd := exec.Command(script)
+	err = uCmd.Run()
 	if err != nil {
 		return errors.Wrap(err, "Fail to uninstall k3s")
 	}
@@ -79,7 +83,7 @@ func (l K3sHandler) Uninstall(name string) error {
 	dCmd := exec.Command("rm", apis.VelaLinkPos)
 	err = dCmd.Run()
 	if err != nil {
-		return errors.Wrap(err, "Fail to delete vela link")
+		info("No vela in /usr/local/bin, skip uninstall")
 	}
 	info("Successfully uninstall vela CLI")
 	return nil
@@ -335,4 +339,16 @@ func (l K3sHandler) GenKubeconfig(ctx apis.Context, bindIP string) error {
 	}
 	info("Successfully generate kubeconfig at ", apis.K3sExternalKubeConfigLocation)
 	return err
+}
+
+func decideUninstallScript() (string, error) {
+	serverUninstallFile := "/usr/local/bin/k3s-uninstall.sh"
+	agentUninstallFile := "/usr/local/bin/k3s-agent-uninstall.sh"
+	if _, err := os.Stat(serverUninstallFile); err == nil {
+		return serverUninstallFile, nil
+	}
+	if _, err := os.Stat(agentUninstallFile); err == nil {
+		return agentUninstallFile, nil
+	}
+	return "", errors.New("can not find k3s uninstall script")
 }
