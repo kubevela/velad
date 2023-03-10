@@ -27,6 +27,7 @@ var (
 // K3sHandler handle k3s in linux
 type K3sHandler struct{}
 
+// Join a worker node to k3s cluster
 func (l K3sHandler) Join(args apis.JoinArgs) error {
 	info("Join k3s cluster...")
 	// #nosec
@@ -226,8 +227,7 @@ func (o k3sSetupOptions) prepareEnv(cmd *exec.Cmd) {
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "INSTALL_K3S_SKIP_DOWNLOAD=true")
 	if o.Worker {
-		cmd.Env = append(cmd.Env, "K3S_URL="+masterURL)
-		cmd.Env = append(cmd.Env, "K3S_TOKEN="+o.Token)
+		cmd.Env = append(cmd.Env, "K3S_URL="+masterURL, "K3S_TOKEN="+o.Token)
 	}
 
 }
