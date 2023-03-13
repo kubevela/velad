@@ -13,7 +13,6 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 
-	"github.com/kyokomi/emoji/v2"
 	"github.com/oam-dev/kubevela/pkg/utils/system"
 	"github.com/oam-dev/kubevela/references/cli"
 	"github.com/oam-dev/velad/pkg/apis"
@@ -89,7 +88,7 @@ func TransArgsToString(args cli.InstallArgs) []string {
 		res = append(res, "--namespace="+args.Namespace)
 	}
 	if !args.Detail {
-		res = append(res, "--detail=false")
+		res = append(res, "--detail="+fmt.Sprintf("%v", args.Detail))
 	}
 	if !args.ReuseValues {
 		res = append(res, "--reuse=false")
@@ -203,20 +202,25 @@ func GetKubeconfigDir() string {
 func PrintGuide(ctx *apis.Context, args apis.InstallArgs) {
 	WarnSaveToken(args.Token, args.Name)
 	if !args.ClusterOnly {
-		emoji.Println(":rocket: Successfully install KubeVela control plane")
+		Info("🚀 Successfully install KubeVela control plane")
 		printHTTPGuide(args.Name)
 		printWindowsPathGuide()
-		emoji.Println(":telescope: See available commands with `vela help`")
+		Info("🔭 See available commands with `vela help`")
+		printVelaUXGuide()
 	} else {
-		emoji.Println(":rocket: Successfully install a pure cluster! ")
+		Info("🚀 Successfully install a pure cluster! ")
 		if runtime.GOOS != apis.GoosLinux {
-			emoji.Println(":link: If you have a cluster with KubeVela, Join this as sub-cluster:")
-			emoji.Printf("    vela cluster join $(velad kubeconfig --name %s --internal)\n", args.Name)
+			Info("🔗 If you have a cluster with KubeVela, Join this as sub-cluster:")
+			Infof("    vela cluster join $(velad kubeconfig --name %s --internal)\n", args.Name)
 		}
 		printHTTPGuide(args.Name)
 	}
 
 	printKubeconfigGuide(args)
+}
+
+func printVelaUXGuide() {
+	Infof("💡 To enable dashboard, run `vela addon enable %s`\n", velauxDir)
 }
 
 func printWindowsPathGuide() {
@@ -225,23 +229,23 @@ func printWindowsPathGuide() {
 	}
 	path := GetCLIInstallPath()
 	velaDir := filepath.Dir(path)
-	emoji.Println(":hammer: To add vela to PATH, if you are using cmd:")
+	Info("🔨 To add vela to PATH, if you are using cmd:")
 	Infof("      set PATH=%%PATH%%;%s\n", velaDir)
 	Info("    If you are using Powershell:")
 	Infof("      $Env:PATH += ';%s'\n", velaDir)
 }
 
 func printKubeconfigGuide(args apis.InstallArgs) {
-	emoji.Println(":key: To access the cluster, set KUBECONFIG:")
+	Info("🔑 To access the cluster, set KUBECONFIG:")
 	var kubeconfigArg = "--host"
 	if args.BindIP != "" {
 		kubeconfigArg = "--external"
 	}
 	switch runtime.GOOS {
 	case apis.GoosLinux, apis.GoosDarwin:
-		emoji.Printf("    export KUBECONFIG=$(velad kubeconfig --name %s %s)\n", args.Name, kubeconfigArg)
+		Infof("    export KUBECONFIG=$(velad kubeconfig --name %s %s)\n", args.Name, kubeconfigArg)
 	case apis.GoosWindows:
-		emoji.Printf("    $env:KUBECONFIG = $(velad kubeconfig --name %s %s)\n", args.Name, kubeconfigArg)
+		Infof("    $env:KUBECONFIG = $(velad kubeconfig --name %s %s)\n", args.Name, kubeconfigArg)
 	}
 }
 
@@ -295,7 +299,7 @@ func GetCLIInstallPath() string {
 func printHTTPGuide(clusterName string) {
 	switch runtime.GOOS {
 	case apis.GoosLinux:
-		emoji.Printf(":laptop: When using gateway trait, you can access with 127.0.0.1\n")
+		Infof("💻 When using gateway trait, you can access with 127.0.0.1\n")
 	default:
 		dockerCli, err := client.NewClientWithOpts(client.FromEnv)
 		if err != nil {
@@ -318,7 +322,7 @@ func printHTTPGuide(clusterName string) {
 		}
 		for _, p := range ports {
 			if p.PrivatePort == 80 {
-				emoji.Printf(":laptop: When using gateway trait, you can access with 127.0.0.1:%d\n", p.PublicPort)
+				Infof("💻 When using gateway trait, you can access with 127.0.0.1:%d\n", p.PublicPort)
 			}
 		}
 

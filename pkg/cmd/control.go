@@ -131,9 +131,9 @@ func uninstallCmd(uArgs apis.UninstallArgs) error {
 	}
 	err = h.Uninstall(uArgs.Name)
 	if err != nil {
-		return errors.Wrap(err, "Failed to uninstall KubeVela control plane")
+		return errors.Wrap(err, "Failed to uninstall KubeVela control plane/worker node")
 	}
-	info("Successfully uninstall KubeVela control plane!")
+	info("Successfully uninstall KubeVela control plane/worker node")
 	return nil
 }
 
@@ -147,4 +147,12 @@ func statusCmd() {
 	info("Checking KubeVela status...")
 	vStatus := vela.GetStatus()
 	PrintVelaStatus(vStatus)
+}
+
+func joinCmd(args apis.JoinArgs) error {
+	if err := args.Validate(); err != nil {
+		return err
+	}
+	return h.Join(args)
+
 }

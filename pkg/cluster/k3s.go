@@ -27,10 +27,32 @@ var (
 // K3sHandler handle k3s in linux
 type K3sHandler struct{}
 
+// Join a worker node to k3s cluster
+func (l K3sHandler) Join(args apis.JoinArgs) error {
+	info("Join k3s cluster...")
+	// #nosec
+	err := SetupK3s(apis.InstallArgs{
+		Worker:   true,
+		DryRun:   args.DryRun,
+		Token:    args.Token,
+		Name:     args.Name,
+		MasterIP: args.MasterIP,
+	})
+	if err != nil {
+		return errors.Wrap(err, "fail to join k3s cluster")
+	}
+
+	info("🎉 Successfully join worker node")
+	return nil
+}
+
 var _ Handler = &K3sHandler{}
 
 type k3sSetupOptions struct {
-	DryRun bool
+	DryRun   bool
+	Worker   bool
+	MasterIP string
+	Token    string
 }
 
 // Install install k3s cluster
@@ -46,9 +68,13 @@ func (l K3sHandler) Install(args apis.InstallArgs) error {
 // Uninstall uninstall k3s cluster
 func (l K3sHandler) Uninstall(name string) error {
 	info("Uninstall k3s...")
+	script, err := decideUninstallScript()
+	if err != nil {
+		return err
+	}
 	// #nosec
-	uCmd := exec.Command("/usr/local/bin/k3s-uninstall.sh")
-	err := uCmd.Run()
+	uCmd := exec.Command(script)
+	err = uCmd.Run()
 	if err != nil {
 		return errors.Wrap(err, "Fail to uninstall k3s")
 	}
@@ -58,7 +84,7 @@ func (l K3sHandler) Uninstall(name string) error {
 	dCmd := exec.Command("rm", apis.VelaLinkPos)
 	err = dCmd.Run()
 	if err != nil {
-		return errors.Wrap(err, "Fail to delete vela link")
+		info("No vela in /usr/local/bin, skip uninstall")
 	}
 	info("Successfully uninstall vela CLI")
 	return nil
@@ -154,6 +180,10 @@ func fillVelaStatus(status *apis.ClusterStatus) {
 
 // prepareK3sImages Write embed images
 func (o k3sSetupOptions) prepareK3sImages() error {
+	if o.Worker {
+		info("Skipping image unpacking on worker node")
+		return nil
+	}
 	embedK3sImage, err := resources.K3sImage.Open("static/k3s/images/k3s-airgap-images.tar.gz")
 	if err != nil {
 		return err
@@ -190,6 +220,16 @@ func (o k3sSetupOptions) prepareK3sImages() error {
 
 	info("Successfully prepare k3s image")
 	return nil
+}
+
+func (o k3sSetupOptions) prepareEnv(cmd *exec.Cmd) {
+	masterURL := fmt.Sprintf("https://%s:%d", o.MasterIP, 6443)
+	cmd.Env = os.Environ()
+	cmd.Env = append(cmd.Env, "INSTALL_K3S_SKIP_DOWNLOAD=true")
+	if o.Worker {
+		cmd.Env = append(cmd.Env, "K3S_URL="+masterURL, "K3S_TOKEN="+o.Token)
+	}
+
 }
 
 // prepareK3sScript Write k3s install script to local
@@ -239,7 +279,12 @@ func (o k3sSetupOptions) prepareK3sBin() error {
 
 // SetupK3s will set up K3s as control plane.
 func SetupK3s(cArgs apis.InstallArgs) error {
-	o := k3sSetupOptions{DryRun: cArgs.DryRun}
+	o := k3sSetupOptions{
+		DryRun:   cArgs.DryRun,
+		Worker:   cArgs.Worker,
+		MasterIP: cArgs.MasterIP,
+		Token:    cArgs.Token,
+	}
 	info("Preparing cluster setup script...")
 	script, err := o.prepareK3sScript()
 	if err != nil {
@@ -266,11 +311,10 @@ func SetupK3s(cArgs apis.InstallArgs) error {
 	if !o.DryRun {
 		/* #nosec */
 		cmd := exec.Command("/bin/bash", args...)
-
-		cmd.Env = os.Environ()
-		cmd.Env = append(cmd.Env, "INSTALL_K3S_SKIP_DOWNLOAD=true")
+		o.prepareEnv(cmd)
+		info(cmd.String())
 		output, err = cmd.CombinedOutput()
-		fmt.Print(string(output))
+		infof(string(output))
 	}
 	return errors.Wrap(err, "K3s install script failed")
 }
@@ -295,4 +339,16 @@ func (l K3sHandler) GenKubeconfig(ctx apis.Context, bindIP string) error {
 	}
 	info("Successfully generate kubeconfig at ", apis.K3sExternalKubeConfigLocation)
 	return err
+}
+
+func decideUninstallScript() (string, error) {
+	serverUninstallFile := "/usr/local/bin/k3s-uninstall.sh"
+	agentUninstallFile := "/usr/local/bin/k3s-agent-uninstall.sh"
+	if _, err := os.Stat(serverUninstallFile); err == nil {
+		return serverUninstallFile, nil
+	}
+	if _, err := os.Stat(agentUninstallFile); err == nil {
+		return agentUninstallFile, nil
+	}
+	return "", errors.New("can not find k3s uninstall script")
 }

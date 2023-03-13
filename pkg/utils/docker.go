@@ -105,7 +105,7 @@ func GetTokenFromCluster(ctx context.Context, clusterName string) (string, error
 		}
 	}
 	if ID == "" {
-		return "", errors.Errorf("No cluster with name %s found.", clusterName)
+		return "", errors.Errorf("no cluster with name %s found.", clusterName)
 	}
 	exec, err := Exec(ctx, dockerCli, ID, []string{"cat", apis.K3sTokenPath})
 	if err != nil {

@@ -7,7 +7,6 @@ require (
 	github.com/docker/go-connections v0.4.0
 	github.com/fatih/color v1.13.0
 	github.com/k3d-io/k3d/v5 v5.4.8-0.20230204095617-5324cf69fe84
-	github.com/kyokomi/emoji/v2 v2.2.9
 	github.com/oam-dev/kubevela v1.7.4
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.20.2

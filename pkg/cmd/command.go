@@ -33,6 +33,7 @@ func NewVeladCommand() *cobra.Command {
 	}
 	cmd.AddCommand(
 		NewInstallCmd(c, ioStreams),
+		NewJoinCmd(),
 		NewStatusCmd(),
 		NewLoadBalancerCmd(),
 		NewKubeConfigCmd(),
@@ -105,6 +106,26 @@ velad load-balancer wizard
 	return cmd
 }
 
+// NewJoinCmd create join cmd
+func NewJoinCmd() *cobra.Command {
+	jArgs := apis.JoinArgs{}
+	cmd := &cobra.Command{
+		Use:   "join",
+		Short: "Join a worker node to a control plane, only works in linux environment",
+		Long:  "Join a worker node to a control plane, only works in linux environment",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return joinCmd(jArgs)
+		},
+	}
+	cmd.Flags().StringVar(&jArgs.Token, "token", "", "Token for identify the cluster. Can be used to restart the control plane or register other node. If not set, random token will be generated")
+	cmd.Flags().StringVarP(&jArgs.Name, "worker-name", "n", "", "The name of worker node, default to hostname")
+	cmd.Flags().StringVar(&jArgs.MasterIP, "master-ip", "", "Set the public IP of the master node")
+	cmd.Flags().BoolVar(&jArgs.DryRun, "dry-run", false, "Dry run the join process")
+	_ = cmd.MarkFlagRequired("token")
+	_ = cmd.MarkFlagRequired("master-ip")
+	return cmd
+}
+
 // NewStatusCmd create status command
 func NewStatusCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -140,7 +161,8 @@ func NewUninstallCmd() *cobra.Command {
 	uArgs := apis.UninstallArgs{}
 	cmd := &cobra.Command{
 		Use:   "uninstall",
-		Short: "uninstall control plane",
+		Short: "Uninstall control plane or detach worker node",
+		Long:  "Remove master node if it's the only one, or remove this worker node from the cluster",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return uninstallCmd(uArgs)
 		},
