@@ -7,7 +7,7 @@ require (
 	github.com/docker/go-connections v0.4.0
 	github.com/fatih/color v1.13.0
 	github.com/k3d-io/k3d/v5 v5.4.8-0.20230204095617-5324cf69fe84
-	github.com/oam-dev/kubevela v1.7.5
+	github.com/oam-dev/kubevela v1.7.6
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.20.2
 	github.com/pkg/errors v0.9.1
@@ -175,7 +175,7 @@ require (
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/klauspost/compress v1.15.12 // indirect
-	github.com/kubevela/pkg v0.0.0-20230105054759-263dc191bf51 // indirect
+	github.com/kubevela/pkg v0.0.0-20230316114047-e2b41b377bac // indirect
 	github.com/kubevela/prism v1.7.0-alpha.1 // indirect
 	github.com/kubevela/workflow v0.4.1 // indirect
 	github.com/kyokomi/emoji v2.2.4+incompatible // indirect
@@ -214,7 +214,7 @@ require (
 	github.com/oam-dev/cluster-gateway v1.7.0-alpha.1 // indirect
 	github.com/oam-dev/cluster-register v1.0.4-0.20220928064144-5f76a9d7ca8c // indirect
 	github.com/oam-dev/terraform-config-inspect v0.0.0-20210418082552-fc72d929aa28 // indirect
-	github.com/oam-dev/terraform-controller v0.7.8 // indirect
+	github.com/oam-dev/terraform-controller v0.7.10 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.3-0.20220114050600-8b9d41f48198 // indirect
@@ -281,7 +281,7 @@ require (
 	go4.org/intern v0.0.0-20211027215823-ae77deb06f29 // indirect
 	go4.org/unsafe/assume-no-moving-gc v0.0.0-20220617031537-928513b29760 // indirect
 	golang.org/x/crypto v0.5.0 // indirect
-	golang.org/x/net v0.6.0 // indirect
+	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20220622183110-fd043fe589d2 // indirect
 	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde // indirect
 	golang.org/x/sys v0.5.0 // indirect
@@ -309,14 +309,14 @@ require (
 	istio.io/gogo-genproto v0.0.0-20211208193508-5ab4acc9eb1e // indirect
 	k8s.io/apiextensions-apiserver v0.25.2 // indirect
 	k8s.io/apiserver v0.25.3 // indirect
-	k8s.io/cli-runtime v0.25.2 // indirect
+	k8s.io/cli-runtime v0.25.3 // indirect
 	k8s.io/component-base v0.25.3 // indirect
 	k8s.io/helm v2.17.0+incompatible // indirect
 	k8s.io/klog v1.0.0 // indirect
 	k8s.io/kube-aggregator v0.25.3 // indirect
 	k8s.io/kube-openapi v0.0.0-20220803162953-67bda5d908f1 // indirect
-	k8s.io/kubectl v0.25.2 // indirect
-	k8s.io/metrics v0.25.2 // indirect
+	k8s.io/kubectl v0.25.3 // indirect
+	k8s.io/metrics v0.25.3 // indirect
 	k8s.io/utils v0.0.0-20220728103510-ee6ede2d64ed // indirect
 	open-cluster-management.io/api v0.7.0 // indirect
 	oras.land/oras-go v1.2.0 // indirect
