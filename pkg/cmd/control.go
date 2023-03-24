@@ -24,14 +24,16 @@ func tokenCmd(ctx context.Context, args apis.TokenArgs) error {
 	switch runtime.GOOS {
 	case apis.GoosLinux:
 		_, err := os.Stat(apis.K3sTokenPath)
-		if err == nil {
-			file, err := os.ReadFile("/var/lib/rancher/k3s/server/token")
-			if err != nil {
-				return errors.Wrapf(err, "fail to read token file: %s", apis.K3sTokenPath)
-			}
-			fmt.Println(string(file))
+		if err != nil {
+			info("No token found, control plane not set up yet.")
 		}
-		info("No token found, control plane not set up yet.")
+		file, err := os.ReadFile("/var/lib/rancher/k3s/server/token")
+		if err != nil {
+			return errors.Wrapf(err, "fail to read token file: %s", apis.K3sTokenPath)
+		}
+		fmt.Println(string(file))
+		return nil
+
 	default:
 		token, err := utils.GetTokenFromCluster(ctx, args.Name)
 		if err != nil {

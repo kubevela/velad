@@ -94,7 +94,7 @@ velad load-balancer wizard
 	cmd.Flags().StringVar(&iArgs.BindIP, "bind-ip", "", "Bind additional hostname or IP to the cluster (e.g. IP of load balancer for multi-nodes VelaD cluster). This is used to generate kubeconfig access from remote (`velad kubeconfig --external`). If not set, will use node-ip")
 	cmd.Flags().StringVar(&iArgs.NodePublicIP, "node-ip", "", "Set the public IP of the node")
 	cmd.Flags().StringVar(&iArgs.Token, "token", "", "Token for identify the cluster. Can be used to restart the control plane or register other node. If not set, random token will be generated")
-	cmd.Flags().StringVar(&iArgs.Name, "name", apis.DefaultVelaDClusterName, "The name of the cluster. only works when NOT in linux environment")
+	cmd.Flags().StringVar(&iArgs.Name, "name", apis.DefaultVelaDClusterName, "In Mac/Windows environment, use this to specify the name of the cluster. In Linux environment, use this to specify the name of node")
 	cmd.Flags().BoolVar(&iArgs.DryRun, "dry-run", false, "Dry run the install process")
 
 	// inherit args from `vela install`
