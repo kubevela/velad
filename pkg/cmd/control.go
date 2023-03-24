@@ -25,7 +25,11 @@ func tokenCmd(ctx context.Context, args apis.TokenArgs) error {
 	case apis.GoosLinux:
 		_, err := os.Stat(apis.K3sTokenPath)
 		if err != nil {
-			info("No token found, control plane not set up yet.")
+			if os.IsNotExist(err) {
+				info("No token found, control plane not set up yet.")
+				return nil
+			}
+			return errors.Wrapf(err, "fail to stat token file: %s", apis.K3sTokenPath)
 		}
 		file, err := os.ReadFile("/var/lib/rancher/k3s/server/token")
 		if err != nil {
