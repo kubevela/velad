@@ -2,7 +2,7 @@ include makefiles/dependency.mk
 
 K3S_VERSION ?= v1.24.8+k3s1
 STATIC_DIR := pkg/resources/static
-VELA_VERSION ?= v1.7.6
+VELA_VERSION ?= v1.6.8
 VELAUX_VERSION ?= v1.7.6
 VELA_VERSION_NO_V := $(subst v,,$(VELA_VERSION))
 VELAUX_IMAGE_VERSION ?= v1.7.4
