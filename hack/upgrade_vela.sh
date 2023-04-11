@@ -3,8 +3,8 @@
 # This script is for upgrade kubevela helm charts maintained in velad repo
 # Chart in this repo have one more argument(deployByPod) than that in kubevela repo.
 
-# usage: ./hack/upgrade_vela.sh version_now version_upgrade_to
-# e.g. ./hack/upgrade_vela.sh v1.3.3 v1.3.4
+# usage: ./hack/upgrade_vela.sh version_upgrade_to
+# e.g. ./hack/upgrade_vela.sh v1.3.4
 
 set -e
 
