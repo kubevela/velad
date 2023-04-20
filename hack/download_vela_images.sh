@@ -46,8 +46,7 @@ function download_images() {
   vela_images=("oamdev/vela-core:${vela_version}"
     "oamdev/cluster-gateway:${cluster_gateway_version}"
     "oamdev/kube-webhook-certgen:${certgen_version}"
-    "oamdev/velaux:${velaux_version}"
-    "oamdev/vela-apiserver:${vela_version}")
+    "oamdev/velaux:${velaux_version}")
 
   for IMG in ${vela_images[*]};
     do
