@@ -1465,8 +1465,8 @@ github.com/oam-dev/cluster-gateway v1.7.0-alpha.1 h1:51p4y2rzO2gLRZiCjY/Sh7O5ibv
 github.com/oam-dev/cluster-gateway v1.7.0-alpha.1/go.mod h1:wsob8xoOCEX39QWhDAAB/tOcCBjLGVf9w8ZvVPYAKDE=
 github.com/oam-dev/cluster-register v1.0.4-0.20220928064144-5f76a9d7ca8c h1:RE/33gzs9hoyegcTaUXDG/hayffJ197ljMUGNP6I/5A=
 github.com/oam-dev/cluster-register v1.0.4-0.20220928064144-5f76a9d7ca8c/go.mod h1:nKEUMfuEB8pHKsaSah9IA+UQzezrPYebBdRozyNtlZc=
-github.com/oam-dev/kubevela v1.8.0 h1:K2s+OUcCx0EJyE3+2T9RPjt0776MmJaGrCQ0tCPX1YE=
-github.com/oam-dev/kubevela v1.8.0/go.mod h1:vrEm8xO7b5yAfyB8GOuSKPWimFelQUcRsAdPTwnqY34=
+github.com/oam-dev/kubevela v1.8.1 h1:pR9XXlC58UrTzUzOYFPvMf6uOWx6pHlxPp3luWsL7Jc=
+github.com/oam-dev/kubevela v1.8.1/go.mod h1:vrEm8xO7b5yAfyB8GOuSKPWimFelQUcRsAdPTwnqY34=
 github.com/oam-dev/stern v1.13.2 h1:jlGgtJbKmIVhzkH44ft5plkgs8XEfvxbFrQdX60CQR4=
 github.com/oam-dev/stern v1.13.2/go.mod h1:0pLjZt0amXE/ErF16Rdrgd98H2owN8Hmn3/7CX5+AeA=
 github.com/oam-dev/terraform-config-inspect v0.0.0-20210418082552-fc72d929aa28 h1:tD8HiFKnt0jnwdTWjeqUnfnUYLD/+Nsmj8ZGIxqDWiU=
