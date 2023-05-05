@@ -33,6 +33,7 @@ if [ -n "$IMAGE_VERSION" ]; then
     echo "Upgrading VelaUX image version to: ""$IMAGE_VERSION"
 else
     echo "VelaUX image version is the same as VelaUX addon version"
+    IMAGE_VERSION=$VERSION_TO
 fi
 
 sed -i "" -e "s/VELAUX_VERSION ?= v.*/VELAUX_VERSION ?= $VERSION_TO/g" Makefile
