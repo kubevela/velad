@@ -36,5 +36,12 @@ else
     IMAGE_VERSION=$VERSION_TO
 fi
 
-sed -i "" -e "s/VELAUX_VERSION ?= v.*/VELAUX_VERSION ?= $VERSION_TO/g" Makefile
-sed -i "" -e "s/VELAUX_IMAGE_VERSION ?= .*/VELAUX_IMAGE_VERSION ?= $IMAGE_VERSION/g" Makefile
+if [ "$(uname)" == "Darwin" ]; then
+    # macOS
+    sed -i "" -e "s/VELAUX_VERSION ?= v.*/VELAUX_VERSION ?= $VERSION_TO/g" Makefile
+    sed -i "" -e "s/VELAUX_IMAGE_VERSION ?= .*/VELAUX_IMAGE_VERSION ?= $IMAGE_VERSION/g" Makefile
+else
+    # Linux
+    sed -i -e "s/VELAUX_VERSION ?= v.*/VELAUX_VERSION ?= $VERSION_TO/g" Makefile
+    sed -i -e "s/VELAUX_IMAGE_VERSION ?= .*/VELAUX_IMAGE_VERSION ?= $IMAGE_VERSION/g" Makefile
+fi
