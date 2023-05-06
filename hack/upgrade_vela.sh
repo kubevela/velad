@@ -19,9 +19,23 @@ echo "Upgrading KubeVela version From: "$VERSION_NOW" --> TO: "$VERSION_TO
 
 echo "Upgrading go.mod version..."
 
-sed -i "" -e "s/github.com\/oam-dev\/kubevela v.*/github.com\/oam-dev\/kubevela $VERSION_TO/g" go.mod
+
+if [ "$(uname)" == "Darwin" ]; then
+    # macOS
+    sed -i "" -e "s/github.com\/oam-dev\/kubevela v.*/github.com\/oam-dev\/kubevela $VERSION_TO/g" go.mod
+else
+    # Linux
+    sed -i -e "s/github.com\/oam-dev\/kubevela v.*/github.com\/oam-dev\/kubevela $VERSION_TO/g" go.mod
+fi
+
 go mod tidy
 
 echo "Upgrading version variable in Makefile"
 
-sed -i "" -e "s/VELA_VERSION ?= v.*/VELA_VERSION ?= $VERSION_TO/g" Makefile
+if [ "$(uname)" == "Darwin" ]; then
+    # macOS
+    sed -i "" -e "s/VELA_VERSION ?= v.*/VELA_VERSION ?= $VERSION_TO/g" Makefile
+else
+     # Linux
+    sed -i -e "s/VELA_VERSION ?= v.*/VELA_VERSION ?= $VERSION_TO/g" Makefile
+fi
