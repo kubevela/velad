@@ -2,10 +2,10 @@ include makefiles/dependency.mk
 
 K3S_VERSION ?= v1.24.8+k3s1
 STATIC_DIR := pkg/resources/static
-VELA_VERSION ?= v1.8.0
-VELAUX_VERSION ?= v1.8.0
+VELA_VERSION ?= v1.9.4
+VELAUX_VERSION ?= v1.9.1
 VELA_VERSION_NO_V := $(subst v,,$(VELA_VERSION))
-VELAUX_IMAGE_VERSION ?= v1.8.0
+VELAUX_IMAGE_VERSION ?= v1.9.1
 LDFLAGS= "-X github.com/oam-dev/velad/version.VelaUXVersion=${VELAUX_VERSION} -X github.com/oam-dev/velad/version.VelaVersion=${VELA_VERSION}"
 
 UNAME_S := $(shell uname -s)
@@ -50,7 +50,7 @@ darwin-amd64 darwin-arm64 windows-amd64: download_vela_images_addons download_k3
 CHART_DIR := ${STATIC_DIR}/vela/charts
 download_vela_chart:
 	mkdir -p ${CHART_DIR}
-	curl -o ${CHART_DIR}/vela-core.tgz https://charts.kubevela.net/core/vela-core-${VELA_VERSION_NO_V}.tgz
+	curl -L -o ${CHART_DIR}/vela-core.tgz https://kubevela.github.io/charts/vela-core-${VELA_VERSION_NO_V}.tgz
 
 download_vela_images_addons: download_vela_chart
 	tar -xzf ${CHART_DIR}/vela-core.tgz -C ${CHART_DIR}
