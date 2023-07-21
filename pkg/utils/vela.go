@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	core "github.com/oam-dev/kubevela/apis/core.oam.dev"
-	"github.com/oam-dev/kubevela/apis/core.oam.dev/v1alpha2"
+	"github.com/oam-dev/kubevela/apis/core.oam.dev/v1beta1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -33,7 +33,7 @@ func EditGatewayDefinition() error {
 	if err != nil {
 		return err
 	}
-	gateway := &v1alpha2.TraitDefinition{}
+	gateway := &v1beta1.TraitDefinition{}
 	ctx := context.Background()
 	err = cli.Get(ctx, client.ObjectKey{
 		Name:      "gateway",
