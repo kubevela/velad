@@ -1,12 +1,12 @@
 module github.com/oam-dev/velad
 
-go 1.19
+go 1.20
 
 require (
 	github.com/docker/docker v23.0.5+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/fatih/color v1.15.0
-	github.com/k3d-io/k3d/v5 v5.4.8
+	github.com/k3d-io/k3d/v5 v5.4.7
 	github.com/oam-dev/kubevela v1.9.4
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.27.8
@@ -15,15 +15,14 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/tufanbarisyildirim/gonginx v0.0.0-20230104065106-9ae864d29eed
 	helm.sh/helm/v3 v3.11.2
-	k8s.io/api v0.27.1
-	k8s.io/apimachinery v0.27.1
-	k8s.io/client-go v0.27.1
+	k8s.io/api v0.26.3
+	k8s.io/apimachinery v0.26.3
+	k8s.io/client-go v0.26.3
 	k8s.io/klog/v2 v2.100.1
 	sigs.k8s.io/controller-runtime v0.14.6
 )
 
 require (
-	github.com/AdaLogics/go-fuzz-headers v0.0.0-20230106234847-43070de90fa1 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20230518184743-7afd39499903 // indirect
 	github.com/acomagu/bufpipe v1.0.4 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr v1.4.10 // indirect
@@ -39,8 +38,6 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.3 // indirect
 	github.com/invopop/yaml v0.1.0 // indirect
 	github.com/jellydator/ttlcache/v3 v3.0.1 // indirect
-	github.com/moby/patternmatcher v0.5.0 // indirect
-	github.com/moby/sys/sequential v0.5.0 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/perimeterx/marshmallow v1.1.4 // indirect
 	github.com/pjbgf/sha1cd v0.3.0 // indirect
@@ -70,6 +67,7 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.3 // indirect
 	github.com/Masterminds/squirrel v1.5.3 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
+	github.com/Microsoft/hcsshim v0.10.0-rc.8 // indirect
 	github.com/NYTimes/gziphandler v1.1.1 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/alessio/shellescape v1.4.1 // indirect
@@ -86,6 +84,7 @@ require (
 	github.com/chai2010/gettext-go v1.0.2 // indirect
 	github.com/chartmuseum/helm-push v0.10.4 // indirect
 	github.com/cockroachdb/apd/v2 v2.0.2 // indirect
+	github.com/containerd/cgroups v1.1.0 // indirect
 	github.com/containerd/containerd v1.7.2 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
@@ -189,6 +188,8 @@ require (
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/moby/locker v1.0.1 // indirect
 	github.com/moby/spdystream v0.2.0 // indirect
+	github.com/moby/sys/mount v0.3.3 // indirect
+	github.com/moby/sys/mountinfo v0.6.2 // indirect
 	github.com/moby/term v0.0.0-20221205130635-1aeaba878587 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
@@ -247,6 +248,7 @@ require (
 	go.etcd.io/etcd/api/v3 v3.5.6 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.6 // indirect
 	go.etcd.io/etcd/client/v3 v3.5.6 // indirect
+	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.40.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.40.0 // indirect
 	go.opentelemetry.io/otel v1.14.0 // indirect
@@ -292,7 +294,7 @@ require (
 	k8s.io/helm v2.17.0+incompatible // indirect
 	k8s.io/klog v1.0.0 // indirect
 	k8s.io/kube-aggregator v0.26.3 // indirect
-	k8s.io/kube-openapi v0.0.0-20230308215209-15aac26d736a // indirect
+	k8s.io/kube-openapi v0.0.0-20221012153701-172d655c2280 // indirect
 	k8s.io/kubectl v0.26.3 // indirect
 	k8s.io/metrics v0.26.3 // indirect
 	k8s.io/utils v0.0.0-20230406110748-d93618cff8a2 // indirect
@@ -313,8 +315,11 @@ require (
 replace (
 	cuelang.org/go => github.com/kubevela/cue v0.4.4-0.20221107123854-a976b0e340be
 	github.com/docker/cli => github.com/docker/cli v20.10.9+incompatible
+	github.com/docker/docker => github.com/moby/moby v20.10.25+incompatible
 	github.com/google/certificate-transparency-go => github.com/google/certificate-transparency-go v1.1.3
+	github.com/k3d-io/k3d/v5 => github.com/chivalryq/k3d/v5 v5.0.0-20230115105251-1b3833ce38cc
 	github.com/wercker/stern => github.com/oam-dev/stern v1.13.2
 	google.golang.org/grpc => google.golang.org/grpc v1.53.0
-
 )
+
+replace github.com/containerd/containerd => github.com/containerd/containerd v1.6.18
