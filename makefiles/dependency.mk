@@ -6,7 +6,7 @@ GOBIN=$(shell go env GOBIN)
 endif
 
 
-GOLANGCILINT_VERSION ?= v1.53.0
+GOLANGCILINT_VERSION ?= v1.52.2
 
 .PHONY: golangci
 golangci:
