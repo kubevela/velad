@@ -20,5 +20,5 @@ echo "downloading addons"
 addons=("velaux-$velaux_version.tgz")
 for addon in ${addons[*]}; do
   echo saving "$addon" to "$VELA_ADDON_DIR"/"$addon"
-  curl -L "http://addons.kubevela.net/$addon" -o "$VELA_ADDON_DIR"/"$addon"
+  curl -L "https://kubevela.github.io/catalog/official/$addon" -o "$VELA_ADDON_DIR"/"$addon"
 done
