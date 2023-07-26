@@ -48,7 +48,6 @@ jobs:
       - name: Go Dependencies
         run: |
           go mod tidy
-          go get -t -v -d ./...
 
       - uses: dominikh/staticcheck-action@v1.3.0
         with:
@@ -110,7 +109,6 @@ jobs:
       - name: Go Dependencies
         run: |
           go mod tidy
-          go get -t -v -d ./...
 
       - name: Setup Docker
         uses: docker-practice/actions-setup-docker@master
