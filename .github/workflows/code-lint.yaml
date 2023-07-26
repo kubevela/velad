@@ -10,6 +10,8 @@ on:
       - main
       - release-*
   workflow_dispatch: { }
+permissions:
+  contents: read
 
 env:
   # Common versions
