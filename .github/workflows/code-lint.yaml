@@ -37,6 +37,9 @@ jobs:
 
       - name: Setup Docker
         uses: docker-practice/actions-setup-docker@master
+        timeout-minutes: 5
+        docker_version: "24.0.2"
+        docker_channel: stable
 
       - name: Download resources
         run: |
@@ -72,6 +75,9 @@ jobs:
 
       - name: Setup Docker
         uses: docker-practice/actions-setup-docker@master
+        timeout-minutes: 5
+        docker_version: "24.0.2"
+        docker_channel: stable
 
       - name: Download resources
         run: |
@@ -112,6 +118,9 @@ jobs:
 
       - name: Setup Docker
         uses: docker-practice/actions-setup-docker@master
+        timeout-minutes: 5
+        docker_version: "24.0.2"
+        docker_channel: stable
 
       - name: Download resources
         run: |
