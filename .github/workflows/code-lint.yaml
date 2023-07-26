@@ -49,10 +49,10 @@ jobs:
           go get -t -v -d ./...
 
       - name: Install StaticCheck
-        run:  go install honnef.co/go/tools/cmd/staticcheck@v0.3.0
+        run:  make staticchecktool
 
       - name: Static Check
-        run: staticcheck ./...
+        run: make staticcheck
 
   lint:
     strategy:
