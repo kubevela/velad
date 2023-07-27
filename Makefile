@@ -1,6 +1,6 @@
 include makefiles/dependency.mk
 
-K3S_VERSION ?= v1.24.8+k3s1
+K3S_VERSION ?= v1.27.2+k3s1
 STATIC_DIR := pkg/resources/static
 VELA_VERSION ?= v1.9.4
 VELAUX_VERSION ?= v1.9.2

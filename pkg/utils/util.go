@@ -138,7 +138,7 @@ func Cleanup() error {
 // InfoBytes is a helper function to print a byte array
 func InfoBytes(b []byte) {
 	if len(b) != 0 {
-		Info(string(b))
+		Infof(string(b))
 	}
 }
 
