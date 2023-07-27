@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         uses: actions/setup-go@v3
         with:
-          go-version: 1.19
+          go-version: "1.20"
       - name: Get matrix
         id: get_matrix
         run: |
@@ -49,7 +49,7 @@ jobs:
       - name: Install dependencies
         uses: actions/setup-go@v3
         with:
-          go-version: 1.19
+          go-version: "1.20"
       - name: Install ginkgo
         run: go install github.com/onsi/ginkgo/ginkgo@v1.16.5
       - uses: actions/download-artifact@v3
@@ -71,14 +71,16 @@ jobs:
       - name: Install dependencies
         uses: actions/setup-go@v3
         with:
-          go-version: 1.19
+          go-version: "1.20"
       - name: Install ginkgo
         run: go install github.com/onsi/ginkgo/ginkgo@v1.16.5
       - uses: actions/download-artifact@v3
         with:
           name: velad-darwin-amd64
       - name: Setup Docker
-        uses: docker-practice/actions-setup-docker@1.0.11
+        uses: docker-practice/actions-setup-docker@master
+        with:
+          docker_version: "24.0.2"
       - run: |
           chmod u+x velad-darwin-amd64 && mv velad-darwin-amd64 velad
           ./velad install --set image.pullPolicy=Never --set admissionWebhooks.patch.image.pullPolicy=Never --set multicluster.clusterGateway.image.pullPolicy=Never

@@ -10,11 +10,13 @@ on:
       - main
       - release-*
   workflow_dispatch: { }
+permissions:
+  contents: read
 
 env:
   # Common versions
-  GO_VERSION: '1.19'
-  GOLANGCI_VERSION: 'v1.49'
+  GO_VERSION: '1.20'
+  GOLANGCI_VERSION: 'v1.52.2'
 
 jobs:
   staticcheck:
@@ -35,6 +37,8 @@ jobs:
 
       - name: Setup Docker
         uses: docker-practice/actions-setup-docker@master
+        with:
+          docker_version: "24.0.2"
 
       - name: Download resources
         run: |
@@ -46,13 +50,11 @@ jobs:
       - name: Go Dependencies
         run: |
           go mod tidy
-          go get -t -v -d ./...
 
-      - name: Install StaticCheck
-        run:  go install honnef.co/go/tools/cmd/staticcheck@v0.3.0
-
-      - name: Static Check
-        run: staticcheck ./...
+      - uses: dominikh/staticcheck-action@v1.3.0
+        with:
+          version: "2023.1.3"
+          install-go: false
 
   lint:
     strategy:
@@ -72,6 +74,8 @@ jobs:
 
       - name: Setup Docker
         uses: docker-practice/actions-setup-docker@master
+        with:
+          docker_version: "24.0.2"
 
       - name: Download resources
         run: |
@@ -109,10 +113,11 @@ jobs:
       - name: Go Dependencies
         run: |
           go mod tidy
-          go get -t -v -d ./...
 
       - name: Setup Docker
         uses: docker-practice/actions-setup-docker@master
+        with:
+          docker_version: "24.0.2"
 
       - name: Download resources
         run: |
