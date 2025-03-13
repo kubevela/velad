@@ -5,6 +5,17 @@ Lightweight Deploy tool, helps setup [KubeVela](https://github.com/kubevela/kube
 English | [简体中文](docs/readme-zh.md)
 
 ![E2E Test](https://github.com/kubevela/velad/actions/workflows/e2e-test.yaml/badge.svg)
+![Build status](https://github.com/kubevela/velad/workflows/Go/badge.svg)
+![Docker Pulls](https://img.shields.io/docker/pulls/oamdev/vela-core)
+[![codecov](https://codecov.io/gh/kubevela/velad/branch/master/graph/badge.svg)](https://codecov.io/gh/kubevela/velad)
+[![LICENSE](https://img.shields.io/github/license/kubevela/velad.svg?style=flat-square)](/LICENSE)
+[![Releases](https://img.shields.io/github/release/kubevela/velad/all.svg?style=flat-square)](https://github.com/kubevela/velad/releases)
+[![TODOs](https://img.shields.io/endpoint?url=https://api.tickgit.com/badge?repo=github.com/kubevela/velad)](https://www.tickgit.com/browse?repo=github.com/kubevela/velad)
+[![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Foam_dev)](https://twitter.com/oam_dev)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4602/badge)](https://bestpractices.coreinfrastructure.org/projects/4602)
+![E2E status](https://github.com/kubevela/velad/workflows/E2E%20Test/badge.svg)
+[![](https://img.shields.io/badge/KubeVela-Check%20Your%20Contribution-orange)](https://opensource.alibaba.com/contribution_leaderboard/details?projectValue=kubevela)
+
 
 ## Introduction
 
