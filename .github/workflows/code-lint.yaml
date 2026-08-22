@@ -38,7 +38,7 @@ jobs:
       # Linux runners ship Docker; this action is macOS-only by design.
       - name: Setup Docker
         if: runner.os == 'macOS'
-        uses: douglascamata/setup-docker-macos-action@v1
+        uses: douglascamata/setup-docker-macos-action@d5ccc6aae0ce23e7700154f5e63cc53e6433ac48 # v1.1.0
 
       - name: Download resources
         run: |
@@ -75,7 +75,7 @@ jobs:
       # Linux runners ship Docker; this action is macOS-only by design.
       - name: Setup Docker
         if: runner.os == 'macOS'
-        uses: douglascamata/setup-docker-macos-action@v1
+        uses: douglascamata/setup-docker-macos-action@d5ccc6aae0ce23e7700154f5e63cc53e6433ac48 # v1.1.0
 
       - name: Download resources
         run: |
@@ -117,7 +117,7 @@ jobs:
       # Linux runners ship Docker; this action is macOS-only by design.
       - name: Setup Docker
         if: runner.os == 'macOS'
-        uses: douglascamata/setup-docker-macos-action@v1
+        uses: douglascamata/setup-docker-macos-action@d5ccc6aae0ce23e7700154f5e63cc53e6433ac48 # v1.1.0
 
       - name: Download resources
         run: |

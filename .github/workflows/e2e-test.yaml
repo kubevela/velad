@@ -79,7 +79,7 @@ jobs:
         with:
           name: velad-darwin-amd64
       - name: Setup Docker
-        uses: douglascamata/setup-docker-macos-action@v1
+        uses: douglascamata/setup-docker-macos-action@d5ccc6aae0ce23e7700154f5e63cc53e6433ac48 # v1.1.0
       - run: |
           chmod u+x velad-darwin-amd64 && mv velad-darwin-amd64 velad
           ./velad install --set image.pullPolicy=Never --set admissionWebhooks.patch.image.pullPolicy=Never --set multicluster.clusterGateway.image.pullPolicy=Never
