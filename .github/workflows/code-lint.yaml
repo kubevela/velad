@@ -22,7 +22,7 @@ jobs:
   staticcheck:
     strategy:
       matrix:
-        machines: ["ubuntu-22.04", "macos-12"]
+        machines: ["ubuntu-22.04", "macos-15-intel"]
     runs-on: ${{ matrix.machines }}
     steps:
       - name: Setup Go
@@ -35,10 +35,10 @@ jobs:
         with:
           submodules: true
 
+      # Linux runners ship Docker; this action is macOS-only by design.
       - name: Setup Docker
-        uses: docker-practice/actions-setup-docker@master
-        with:
-          docker_version: "24.0.2"
+        if: runner.os == 'macOS'
+        uses: douglascamata/setup-docker-macos-action@d5ccc6aae0ce23e7700154f5e63cc53e6433ac48 # v1.1.0
 
       - name: Download resources
         run: |
@@ -59,7 +59,7 @@ jobs:
   lint:
     strategy:
       matrix:
-        machines: ["ubuntu-22.04", "macos-12"]
+        machines: ["ubuntu-22.04", "macos-15-intel"]
     runs-on: ${{ matrix.machines }}
     steps:
       - name: Setup Go
@@ -72,10 +72,10 @@ jobs:
         with:
           submodules: true
 
+      # Linux runners ship Docker; this action is macOS-only by design.
       - name: Setup Docker
-        uses: docker-practice/actions-setup-docker@master
-        with:
-          docker_version: "24.0.2"
+        if: runner.os == 'macOS'
+        uses: douglascamata/setup-docker-macos-action@d5ccc6aae0ce23e7700154f5e63cc53e6433ac48 # v1.1.0
 
       - name: Download resources
         run: |
@@ -97,7 +97,7 @@ jobs:
   go-check:
     strategy:
       matrix:
-        machines: ["ubuntu-22.04", "macos-12"]
+        machines: ["ubuntu-22.04", "macos-15-intel"]
     runs-on: ${{ matrix.machines }}
     steps:
       - name: Setup Go
@@ -114,10 +114,10 @@ jobs:
         run: |
           go mod tidy
 
+      # Linux runners ship Docker; this action is macOS-only by design.
       - name: Setup Docker
-        uses: docker-practice/actions-setup-docker@master
-        with:
-          docker_version: "24.0.2"
+        if: runner.os == 'macOS'
+        uses: douglascamata/setup-docker-macos-action@d5ccc6aae0ce23e7700154f5e63cc53e6433ac48 # v1.1.0
 
       - name: Download resources
         run: |
