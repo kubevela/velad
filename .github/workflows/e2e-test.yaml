@@ -65,7 +65,7 @@ jobs:
       - name: Run e2e test
         run: ginkgo -v ./test/e2e-test
   test-darwin:
-    runs-on: macos-12
+    runs-on: macos-15-intel
     needs: [build-artifact]
     steps:
       - uses: actions/checkout@v3
@@ -79,9 +79,30 @@ jobs:
         with:
           name: velad-darwin-amd64
       - name: Setup Docker
-        uses: docker-practice/actions-setup-docker@master
-        with:
-          docker_version: "24.0.2"
+        uses: douglascamata/setup-docker-macos-action@d5ccc6aae0ce23e7700154f5e63cc53e6433ac48 # v1.1.0
+      # Colima exposes its socket only as a docker CLI context. VelaD builds its
+      # Docker client with client.FromEnv (pkg/cluster/k3d.go), which reads
+      # DOCKER_HOST but knows nothing about CLI contexts, so without this it
+      # falls back to a /var/run/docker.sock that does not exist on the host and
+      # fails while inspecting the k3d network.
+      - name: Export the Colima Docker socket for Docker SDK clients
+        run: echo "DOCKER_HOST=$(docker context inspect colima -f '{{ .Endpoints.docker.Host }}')" >> "$GITHUB_ENV"
+      # The macOS runner image ships no kubectl. Pin it to the cluster's minor
+      # version -- VelaD creates a Kubernetes v1.27 cluster (K3S_VERSION in the
+      # Makefile) and kubectl only supports +/-1 minor of skew, so "latest" would
+      # be badly out of range. stable.txt is deliberately avoided: that endpoint
+      # can serve CDN garbage. The published SHA256 is verified before install.
+      - name: Install kubectl
+        env:
+          KUBECTL_VERSION: v1.27.2
+        run: |
+          base="https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/darwin/amd64"
+          curl -fsSLO --retry 3 "${base}/kubectl"
+          curl -fsSLO --retry 3 "${base}/kubectl.sha256"
+          echo "$(cat kubectl.sha256)  kubectl" | shasum -a 256 --check -
+          sudo install -o root -g wheel -m 0755 kubectl /usr/local/bin/kubectl
+          rm -f kubectl kubectl.sha256
+          kubectl version --client
       - run: |
           chmod u+x velad-darwin-amd64 && mv velad-darwin-amd64 velad
           ./velad install --set image.pullPolicy=Never --set admissionWebhooks.patch.image.pullPolicy=Never --set multicluster.clusterGateway.image.pullPolicy=Never
