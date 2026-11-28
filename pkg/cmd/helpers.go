@@ -76,8 +76,8 @@ func printClusterStatusK3d(status apis.ClusterStatus) bool {
 
 func printClusterStatusK3s(status apis.ClusterStatus) bool {
 	infoP(0, "K3s images status:")
-	if status.Reason != "" {
-		info(x, "Check K3s status:", status.Reason)
+	if status.K3s.Reason != "" {
+		info(x, "Check K3s status:", status.K3s.Reason)
 	}
 	if status.K3s.K3sBinary {
 		infoP(1, y, "k3s binary:", "ready")
