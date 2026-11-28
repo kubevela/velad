@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/oam-dev/velad/pkg/apis"
 )
@@ -13,14 +14,15 @@ import (
 func captureStdout(t *testing.T, f func()) string {
 	t.Helper()
 	r, w, err := os.Pipe()
-	assert.NoError(t, err)
+	require.NoError(t, err)
+	defer func() { _ = r.Close() }()
 	stdout := os.Stdout
 	os.Stdout = w
 	defer func() { os.Stdout = stdout }()
 	f()
-	assert.NoError(t, w.Close())
+	require.NoError(t, w.Close())
 	out, err := io.ReadAll(r)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	return string(out)
 }
 
